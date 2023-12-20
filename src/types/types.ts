@@ -44,3 +44,10 @@ export type ModelData = {
 };
 
 export type ModelListType = ModelData[];
+
+export type XAIStatusType = {
+    isRunning: boolean | null;
+    lastBuildAt: number | null;
+    buildStatus: any,
+    config: Config;
+}

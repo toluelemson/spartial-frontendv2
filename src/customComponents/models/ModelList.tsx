@@ -67,6 +67,10 @@ const AllModels: FC = () => {
         navigate(targetPath);
     };
 
+    const handleNavigation = (url: string) => {
+            navigate(url);
+    };
+
     const handleDivInput = (e: React.FormEvent<HTMLDivElement>) => {
         const content = e.currentTarget.textContent || "";
         console.log(content);
@@ -190,9 +194,7 @@ const AllModels: FC = () => {
                         </td>
                         <td>
                             <DropdownButton id="dropdown-item-button" title="Select an action">
-                                <Dropdown.Item as="button">Retrain</Dropdown.Item>
-                                <Dropdown.Item as="button">Online</Dropdown.Item>
-                                <Dropdown.Item as="button">Offline</Dropdown.Item>
+                                <Dropdown.Item as="button" onClick={() => handleNavigation(`/xai/lime/${model.modelId}`)}>LIME </Dropdown.Item>
                             </DropdownButton>
                         </td>
                     </tr>

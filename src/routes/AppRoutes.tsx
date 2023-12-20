@@ -10,6 +10,7 @@ import BuildACModelForm from "../customComponents/models/BuilldACModelForms";
 import NoMatchComponent from "../customComponents/NoMatchComponent";
 import AllModels from "../customComponents/models/ModelList";
 import DatasetList from "../customComponents/datasets/DatasetList";
+import LimeAnalysis from "../customComponents/XAI/LimeAnalysis";
 
 interface RouteConfig {
     path: string;
@@ -26,6 +27,8 @@ const routeConfig : RouteConfig[] = [
     { path: '/login/callback', Component: LoginCallback, isProtected: false },
     { path: '/protected', Component: ProtectedComponent },
     { path: '/datasets/:type/:action', Component: DatasetList },
+    { path: '/xai/lime/:modelId', Component: LimeAnalysis },
+    { path: '/xai/lime', Component: LimeAnalysis },
     { path: '*', Component: NoMatchComponent, isProtected: false }
 ];
 

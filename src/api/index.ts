@@ -6,7 +6,7 @@ import {
     BuildStatusType,
     MMTStatusInterface
 } from "../types/types";
-
+import {getLabelsListXAI} from "../customComponents/util/utility";
 
 interface Option {
     reports:  string
@@ -53,6 +53,9 @@ export const requestAllReports = async () => {
 export const requestMMTStatus = async () => {
     return makeApiRequest<MMTStatusInterface>(`${SERVER_URL}/api/mmt`);
 };
+export const requestXAIStatus = async () => {
+     return makeApiRequest<any>(`${SERVER_URL}/api/xai`); //TODO Add Correct Type
+}
 export const requestBuildADModel = async (
     datasets: DatasetType,
     ratio: number,
@@ -81,6 +84,9 @@ export const requestAllModels = async () => {
     return response ? response.models : null;
 }
 
+export const requestModel = async (modelId : string) => {
+    return  await makeApiRequest<any>(`${SERVER_URL}/api/models/${modelId}`);
+}
 export const requestDownloadModel = async (modelId: string) => {
 
     try {
@@ -91,7 +97,6 @@ export const requestDownloadModel = async (modelId: string) => {
         console.error('Error downloading the model:', error);
     }
 };
-
 
 export const requestUpdateModel = async (modelId: string, newModelId: string) => {
     const newId = { newModelId: newModelId };
@@ -142,5 +147,32 @@ const BlobDownload = (response: Blob | null, modelId: any, datasetType: any) => 
     }
 
 export const requestViewModelDatasets = async (modelId: string, datasetType: string) => {
-    return  await makeApiRequest<any>(`${SERVER_URL}/api/models/${modelId}/datasets/${datasetType}/view`, 'get', null);
+    return await makeApiRequest<any>(`${SERVER_URL}/api/models/${modelId}/datasets/${datasetType}/view`, 'get', null);
+}
+export const requestLimeValues = async (modelId: string, labelId: number) => {
+     const labelsList = getLabelsListXAI(modelId);
+     console.log(`Get LIME values of the model ${modelId} for the label ${labelsList[labelId]} from server`);
+     return await makeApiRequest<any>(`${SERVER_URL}/api/xai/lime/explanations/${modelId}/${labelId}`)
+}
+
+export const requestPredictionsModel = async (modelId: string) => {
+    const response = await makeApiRequest<any>(`${SERVER_URL}/api/models/${modelId}/predictions`);
+    return response.predictions
+}
+
+export const requestRunLime = async (modelId: string, sampleId:number, numberFeature: number ) => {
+    const limeConfig = {
+    "modelId": modelId,
+    "sampleId": sampleId,
+    "numberFeature": numberFeature,
+    };
+
+    console.log(limeConfig, "LIME CONFIG")
+
+    return await makeApiRequest<any>(`${SERVER_URL}/api/xai/lime`, 'post', {limeConfig});
+}
+
+export const requestPredictedProbsModel = async (modelId: string) => {
+   const response = await makeApiRequest<any>(`${SERVER_URL}/api/models/${modelId}/probabilities`);
+   return response.probs
 }
