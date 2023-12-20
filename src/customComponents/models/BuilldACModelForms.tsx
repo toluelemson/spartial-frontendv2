@@ -138,7 +138,6 @@ const BuildACModelForm: React.FC = () => {
                                     name={group.name}
                                     value={group.value}
                                     onChange={handleInputChange}
-                                    placeholder={group.placeholder}
                                     min={group.type === 'number' ? "0" : undefined}
                                     max={group.type === 'number' ? "1" : undefined}
                                     step={group.type === 'number' ? "0.1" : undefined}

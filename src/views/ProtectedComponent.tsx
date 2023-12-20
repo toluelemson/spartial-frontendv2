@@ -13,7 +13,4 @@ const ProtectedComponent: React.FC = () => {
     );
 };
 
-
-
-
 export default ProtectedComponent;

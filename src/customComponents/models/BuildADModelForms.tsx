@@ -129,7 +129,7 @@ const BuildADModelForm: React.FC = () => {
             value: formData.normalDataset || '',
             placeholder: 'Select normal MMT reports...',
         },
-    ], [formData, options]);
+    ], [formData]);
 
     return (
         <Container>
@@ -145,7 +145,6 @@ const BuildADModelForm: React.FC = () => {
                                 value={group.value}
                                 onChange={handleInputChange}
                                 required
-                                placeholder={group.placeholder}
                             >
                                 <option value=""></option>
                                 {options && options.reports && Array.isArray(options.reports) ? (
