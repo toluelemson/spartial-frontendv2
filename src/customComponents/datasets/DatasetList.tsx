@@ -13,7 +13,7 @@ const TableComponent = () => {
             lastPath: segments[segments.length - 1] || '',
             secondToLastPath: segments[segments.length - 2] || ''
         };
-    }, [window.location.pathname]);
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -47,7 +47,6 @@ const TableComponent = () => {
     );
 
     const Pagination = () => {
-        const totalPages = Math.ceil(viewDatasetModel.length / rowsPerPage);
         return (
             <nav>
                 <ul className="pagination">
