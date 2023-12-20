@@ -6,12 +6,20 @@ import {
     requestMMTStatus,
 } from "../api";
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import {AcDataSetInterface, BuildStatusType, MMTStatusInterface, ModelListType, OptionInterface} from "../types/types";
+import {
+    AcDataSetInterface,
+    BuildStatusType,
+    MMTStatusInterface,
+    ModelListType,
+    OptionInterface,
+    XAIStatusType
+} from "../types/types";
 import {useOktaAuth} from "@okta/okta-react";
 
 interface SpatialContextType {
     reportState: OptionInterface[] | null;
-    setReportState: React.Dispatch<React.SetStateAction<OptionInterface[] |null>>;
+    setReportState: React.Dispatch<React.SetStateAction<OptionInterface[] | null>>;
+    XAIStatusState: XAIStatusType | null;
     MMTStatusState: MMTStatusInterface | null;
     setMMTStatusState: React.Dispatch<React.SetStateAction<MMTStatusInterface | null>>;
     buildStatusState: BuildStatusType  | null;
@@ -28,7 +36,7 @@ interface ProviderProps {
 }
 
 const initialBuildStatus: BuildStatusType | null = null;
-
+const initialXAIStatus: XAIStatusType | null = null
 const initialAcDataset: AcDataSetInterface | null = null
 
 const initialModelList: ModelListType | null = null
@@ -37,6 +45,7 @@ export const Provider: React.FC<ProviderProps> = ({ children }) => {
     const [reportState, setReportState] = useState<OptionInterface[] | null>([] || null);
     const [MMTStatusState, setMMTStatusState] = useState<MMTStatusInterface | null>(null);
     const [buildStatusState, setBuildStatusState] = useState<BuildStatusType | null>(initialBuildStatus);
+    const [XAIStatusState, setXAIStatusState] = useState<XAIStatusType | null>(initialXAIStatus)
     const [acDataset, setAcDataset] = useState<AcDataSetInterface | null>(initialAcDataset);
     const [allModel, setAllModel] = useState<ModelListType | null>(initialModelList);
     const [viewDatasets, setViewDatasets] = useState()
@@ -52,6 +61,7 @@ export const Provider: React.FC<ProviderProps> = ({ children }) => {
                     dataSetOptionsResponse,
                     AcdataSetOptionsResponse,
                     MMTStatusResponse,
+                    // XAIStatusState,
                     buildStatusResponse,
                     allModelResponse
                 ] = await Promise.all([
@@ -60,18 +70,15 @@ export const Provider: React.FC<ProviderProps> = ({ children }) => {
                     requestMMTStatus(),
                     requestBuildStatusAC(),
                     requestAllModels()
+                    // requestXAIStatus(),
                 ]);
 
                 setReportState(dataSetOptionsResponse);
                 setAcDataset(AcdataSetOptionsResponse);
-                setBuildStatusState(buildStatusResponse || null);
+                setBuildStatusState(buildStatusResponse);
                 setAllModel(allModelResponse)
-
-                if (Array.isArray(MMTStatusResponse) && MMTStatusResponse.length === 0) {
-                    setMMTStatusState(null);
-                } else {
-                    setMMTStatusState(MMTStatusResponse as MMTStatusInterface);
-                }
+                setMMTStatusState(MMTStatusResponse as MMTStatusInterface);
+                setXAIStatusState(XAIStatusState)
 
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -90,6 +97,8 @@ export const Provider: React.FC<ProviderProps> = ({ children }) => {
         setMMTStatusState,
         buildStatusState,
         setBuildStatusState,
+        XAIStatusState,
+        setXAIStatusState,
         acDataset,
         setAcDataset,
         allModel,
