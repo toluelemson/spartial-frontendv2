@@ -1,0 +1,31 @@
+# Use the base image
+FROM ubuntu:20.04
+
+# Set the non-interactive frontend for apt-get
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Define the DOCKERFILE_CONTEXT argument
+ARG DOCKERFILE_CONTEXT
+
+# Update and install necessary packages
+RUN apt-get update -y && \
+    apt-get install -y git wget cmake gcc g++ cpp curl software-properties-common
+
+# Install Node.js
+RUN curl -sL https://deb.nodesource.com/setup_19.x | bash && \
+    apt-get install -y nodejs
+
+# Create the app directory
+COPY ./ ./maip-app
+
+# Set the working directory
+WORKDIR /maip-app
+
+# Install Node.js dependencies
+RUN npm install --force
+
+# Expose the port
+EXPOSE 3000
+
+# Start the client
+CMD bash start-client.sh
