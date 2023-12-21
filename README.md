@@ -79,7 +79,7 @@ Spatial will open in your default web browser at `http://localhost:3000`.
 To build a Docker image of Spatial, run:
 
 ```bash
-docker build -t spatial .
+sudo docker-compose build build
 ```
 
 ### Running the Docker Container
@@ -87,29 +87,27 @@ docker build -t spatial .
 To run Spatial Frontend as a Docker container:
 
 ```bash
-docker run -p 3000:3000 spatial 
+docker-compose up
 ```
 
 Spatial will now be accessible at `http://localhost:3000`.
 
 
-
 ### Running the Spatial Backend
 To run the Spatial Backend as a Docker container, make sure you have cloned the Maip backend from this repository: [https://github.com/Montimage/maip](https://github.com/Montimage/maip)
 ```bash 
-git clone https://github.com/Montimage/maip
+git clone https://github.com/toluelemson/spatial-backend
 ```
 ```bash 
-cd maip
+cd client
 ```
 
 ```bash
-sudo docker build -f Dockerfile.server -t maip-server .
+sudo docker-compose build .
 ```
 ```bash
-sudo docker run -p 31057:31057 maip-server
+sudo docker-compose up
 ```
-
 
 ## Contributing
 

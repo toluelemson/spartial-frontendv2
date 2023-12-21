@@ -6,8 +6,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.build
-  client:
-    image: maip-client
+  start:
+    image: maip-start
     build:
       context: .
       dockerfile: Dockerfile.start
