@@ -1,6 +1,7 @@
 {
   "name": "spartial-frontendv2",
   "version": "0.1.0",
+  "type": "module",
   "private": true,
   "dependencies": {
     "@okta/okta-react": "^6.7.0",

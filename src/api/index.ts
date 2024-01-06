@@ -173,6 +173,10 @@ export const requestRunLime = async (modelId: string, sampleId:number, numberFea
 }
 
 export const requestPredictedProbsModel = async (modelId: string) => {
-   const response = await makeApiRequest<any>(`${SERVER_URL}/api/models/${modelId}/probabilities`);
-   return response.probs
+    const response = await makeApiRequest<any>(`${SERVER_URL}/api/models/${modelId}/probabilities`);
+    return response.probs
+}
+export const requestBuildConfigModel = async (modelId: string) => {
+    const response = await makeApiRequest<any>(`${SERVER_URL}/api/models/${modelId}/build-config`);
+    return response.buildConfig
 }

@@ -10,3 +10,11 @@ export const AD_OUTPUT_LABELS = ["Normal traffic", "Malware traffic"];
 export const AD_OUTPUT_LABELS_SHORT = ["Normal", "Malware"];
 export const AD_OUTPUT_LABELS_XAI = ["", "Malware"];
 export const AC_OUTPUT_LABELS = ["Web", "Interactive", "Video"];
+
+export const HEADER_ACCURACY_STATS = ["precision", "recall", "f1score", "support"];
+
+export const CRITERIA_LIST = [
+  "Build Configuration",
+  "Model Performance",
+  "Confusion Matrix",
+];

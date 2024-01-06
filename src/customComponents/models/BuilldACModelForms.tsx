@@ -113,7 +113,7 @@ const BuildACModelForm: React.FC = () => {
             <Row className="contentContainer">
                 <Form onSubmit={handleBuildACModelSubmit}>
                     <h2>Build Models</h2>
-                    <p>Build a new AI model for Classification Activity</p>
+                    <p>Build a new AI model</p>
                     {inputGroups.map((group, index) => (
                         <InputGroup key={index} className="mb-3">
                             <InputGroup.Text>{group.label}</InputGroup.Text>
