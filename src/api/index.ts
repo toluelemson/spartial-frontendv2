@@ -64,7 +64,7 @@ export const requestMMTStatus = async () => {
     return makeApiRequest<MMTStatusInterface>(`${LOCAL_URL}/api/mmt`);
 };
 export const requestXAIStatus = async () => {
-     return makeApiRequest<any>(`${LOCAL_URL}/api/xai`); //TODO Add Correct Type
+     return makeApiRequest<any>(`${LOCAL_URL}/api/xai`);
 }
 export const requestBuildADModel = async (
     datasets: DatasetType,

@@ -27,17 +27,6 @@ interface ConfigParameter {
   value: string;
 }
 
-interface ModelRowProps {
-  dataBuildConfigLeft: ConfigParameter[];
-  dataBuildConfigRight: ConfigParameter[];
-  dataStatsLeft: ModelPerformance[];
-  dataStatsRight: ModelPerformance[];
-  selectedModelLeft?: boolean;
-  selectedModelRight?: boolean;
-  selectedCriteria?: string;
-  cmConfigLeft?: object
-}
-
 interface PerformanceMetrics {
   [key: string]: string | number;
 }
@@ -47,11 +36,6 @@ type MatrixCell = {
   percentage: number;
 };
 
-type ConfusionMatrixProps = {
-  matrix: MatrixCell[][];
-  labels: string[];
-  data2?: object
-};
 
 export const DataParameterRow: React.FC<{ data: ConfigParameter }> = ({ data }) => (
   <tr>
@@ -67,16 +51,15 @@ const PerformanceRow: React.FC<{ data?: PerformanceMetrics }> = ({ data }) => {
   }
 
   return (
-
- <tr>
-    {
-        Object.keys(data)
-            .slice(1)
-            .map((key, index) => (
-                <td key={index}>{data[key]}</td>
-            ))
-    }
-</tr>
+     <tr>
+        {
+            Object.keys(data)
+                .slice(1)
+                .map((key, index) => (
+                    <td key={index}>{data[key]}</td>
+                ))
+        }
+     </tr>
 
 
   );
@@ -90,7 +73,6 @@ export const TableSection: React.FC<{ title: string; columns: any[]; children: R
                     {title === "Confusion Matrix" ? <th>Predicted\\Observed</th> : <th><b>Metrics</b></th> }
                   {columns.map((column, index) => (
                       <>
-
                           <th key={index}>{column}</th>
                       </>
                   ))}
@@ -100,7 +82,6 @@ export const TableSection: React.FC<{ title: string; columns: any[]; children: R
           {children}
          </tbody>
     </table>
-
 );
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -151,7 +132,7 @@ const ModelPerformanceCompare: React.FC<ModelPerformanceCompareProps> = ({
 )};
 
 
-const ModelRow: React.FC<any> = ({state}) => {
+const ModelRow: React.FC<any> = ({state}) => { //TODO
 
     const {
         dataBuildConfigLeft,
@@ -161,14 +142,10 @@ const ModelRow: React.FC<any> = ({state}) => {
         selectedModelLeft,
         selectedModelRight,
         selectedCriteria,
-        confusionMatrix,
         cmConfigLeft,
         cmConfigRight,
 
     } = state
-
-
-    // console.log(selectedId)
 
     const [classificationLabel, setClassificationLabel] = useState<any>([]);
 
