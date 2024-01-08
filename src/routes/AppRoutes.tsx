@@ -11,6 +11,19 @@ import NoMatchComponent from "../customComponents/NoMatchComponent";
 import AllModels from "../customComponents/models/ModelList";
 import DatasetList from "../customComponents/datasets/DatasetList";
 import LimeAnalysis from "../customComponents/XAI/LimeAnalysis";
+import ModelComparison from "../customComponents/models/ModelComparison";
+import Fairness from "../customComponents/Services/Fairness/Fairness";
+import EnhancedX from "../customComponents/Services/EnhancedX/EnhancedX";
+import Privacy from "../customComponents/Services/Privacy/Privacy";
+import MedicalHomepage from "../customComponents/medical/medicalHomepage";
+import DetectMIEmergencies from "../customComponents/medical/DetectMIEmergencies";
+import GenerateExplanations from "../customComponents/medical/GenerateExplanations";
+import DemoMIEmergency from "../customComponents/medical/DemoMIEmergency";
+import VisualizeECG from "../customComponents/medical/VisualizeECG";
+import IdentifySegments from "../customComponents/medical/IdentifySegments";
+import TickImportance from "../customComponents/medical/TickImportance";
+import LeadImportance from "../customComponents/medical/LeadImportance";
+import TimeImportance from "../customComponents/medical/TimeImportance";
 
 interface RouteConfig {
     path: string;
@@ -33,7 +46,6 @@ const routeConfig : RouteConfig[] = [
     { path: '/xai/service/fairness', Component: Fairness},
     { path: '/xai/service/enhancedX', Component: EnhancedX},
     { path: '/xai/service/privacy', Component: Privacy},
-    { path: '*', Component: NoMatchComponent, isProtected: false },
     { path: '/medicalHomepage', Component: MedicalHomepage },
     { path: '/DetectMIEmergencies', Component: DetectMIEmergencies },
     { path: '/GenerateExplanations', Component: GenerateExplanations },
