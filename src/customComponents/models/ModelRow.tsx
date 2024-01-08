@@ -132,7 +132,7 @@ const ModelPerformanceCompare: React.FC<ModelPerformanceCompareProps> = ({
 )};
 
 
-const ModelRow: React.FC<any> = ({state}) => { //TODO
+const ModelRow: React.FC<any> = ({state}) => {
 
     const {
         dataBuildConfigLeft,
