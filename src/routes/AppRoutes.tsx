@@ -33,6 +33,10 @@ const routeConfig : RouteConfig[] = [
     { path: '/datasets/:type/:action', Component: DatasetList },
     { path: '/xai/lime/:modelId', Component: LimeAnalysis },
     { path: '/xai/lime', Component: LimeAnalysis },
+    { path: '/xai/models/comparison', Component: ModelComparison},
+    { path: '/xai/service/fairness', Component: Fairness},
+    { path: '/xai/service/enhancedX', Component: EnhancedX},
+    { path: '/xai/service/privacy', Component: Privacy},
     { path: '*', Component: NoMatchComponent, isProtected: false }
 ];
 
