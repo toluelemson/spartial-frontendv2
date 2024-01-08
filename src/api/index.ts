@@ -1,5 +1,5 @@
 import axios, {AxiosResponse} from "axios";
-import { SERVER_URL } from "../constants";
+import {LOCAL_URL, SERVER_URL} from "../constants";
 import {
     DatasetType,
     TParamType,
@@ -14,6 +14,18 @@ interface Option {
     lastBuildAt: string
     lastBuildId: string
     config: any
+}
+
+interface FormState {
+    clientSamplingRate: number;
+    clippingValue: number;
+    delta: number;
+    epsilon: number;
+    modelParameters1: number;
+    modelParameters2: number;
+    noiseType: number;
+    sigma: number;
+    totalFLRounds: number;
 }
 
 export interface Ac {
@@ -45,16 +57,14 @@ async function makeApiRequest<T>(
     }
 }
 
-export default makeApiRequest;
-
 export const requestAllReports = async () => {
-    return makeApiRequest<Option[]>(`${SERVER_URL}/api/reports`);
+    return makeApiRequest<Option[]>(`${LOCAL_URL}/api/reports`);
 };
 export const requestMMTStatus = async () => {
-    return makeApiRequest<MMTStatusInterface>(`${SERVER_URL}/api/mmt`);
+    return makeApiRequest<MMTStatusInterface>(`${LOCAL_URL}/api/mmt`);
 };
 export const requestXAIStatus = async () => {
-     return makeApiRequest<any>(`${SERVER_URL}/api/xai`); //TODO Add Correct Type
+     return makeApiRequest<any>(`${LOCAL_URL}/api/xai`);
 }
 export const requestBuildADModel = async (
     datasets: DatasetType,
@@ -62,35 +72,35 @@ export const requestBuildADModel = async (
     params: TParamType
 ): Promise<BuildStatusType | null> => {
     const buildConfig = { datasets, "training_ratio": ratio, "training_parameters": params };
-    return makeApiRequest<BuildStatusType>(`${SERVER_URL}/api/build`, 'post', { buildConfig });
+    return makeApiRequest<BuildStatusType>(`${LOCAL_URL}/api/build`, 'post', { buildConfig });
 };
 
 export const requestDatasetAC = async () => {
-    return makeApiRequest<Ac>(`${SERVER_URL}/api/ac/datasets`);
+    return makeApiRequest<Ac>(`${LOCAL_URL}/api/ac/datasets`);
 };
 
 export const requestBuildStatusAC = async () => {
-    const response = await makeApiRequest<any>(`${SERVER_URL}/api/ac/build`);
+    const response = await makeApiRequest<any>(`${LOCAL_URL}/api/ac/build`);
     return response ? response.buildStatus : null;
 };
 
 export const requestBuildACModel = async (modelType: any, dataset: any, featuresList: any, trainingRatio: any) => {
     const buildACConfig = { modelType, dataset, featuresList, trainingRatio };
-    return makeApiRequest<any>(`${SERVER_URL}/api/ac/build`, 'post', { buildACConfig });
+    return makeApiRequest<any>(`${LOCAL_URL}/api/ac/build`, 'post', { buildACConfig });
 };
 
 export const requestAllModels = async () => {
-    const response = await makeApiRequest<any>(`${SERVER_URL}/api/models`);
+    const response = await makeApiRequest<any>(`${LOCAL_URL}/api/models`);
     return response ? response.models : null;
 }
 
 export const requestModel = async (modelId : string) => {
-    return  await makeApiRequest<any>(`${SERVER_URL}/api/models/${modelId}`);
+    return  await makeApiRequest<any>(`${LOCAL_URL}/api/models/${modelId}`);
 }
 export const requestDownloadModel = async (modelId: string) => {
 
     try {
-        const response = await makeApiRequest<Blob>(`${SERVER_URL}/api/models/${modelId}/download`, 'get', null, 'blob');
+        const response = await makeApiRequest<Blob>(`${LOCAL_URL}/api/models/${modelId}/download`, 'get', null, 'blob');
         BlobDownload(response, modelId, null)
 
     } catch (error) {
@@ -110,7 +120,7 @@ export const requestDownloadDatasets =  async (modelId: string, datasetType:stri
     }
 
     try {
-        const response = await makeApiRequest<Blob>(`${SERVER_URL}/api/models/${modelId}/datasets/${datasetType}/download`, 'get', null, 'blob');
+        const response = await makeApiRequest<Blob>(`${LOCAL_URL}/api/models/${modelId}/datasets/${datasetType}/download`, 'get', null, 'blob');
         BlobDownload(response, modelId, datasetType)
     } catch (error) {
         console.error('Error downloading the model:', error);
@@ -147,16 +157,16 @@ const BlobDownload = (response: Blob | null, modelId: any, datasetType: any) => 
     }
 
 export const requestViewModelDatasets = async (modelId: string, datasetType: string) => {
-    return await makeApiRequest<any>(`${SERVER_URL}/api/models/${modelId}/datasets/${datasetType}/view`, 'get', null);
+    return await makeApiRequest<any>(`${LOCAL_URL}/api/models/${modelId}/datasets/${datasetType}/view`, 'get', null);
 }
 export const requestLimeValues = async (modelId: string, labelId: number) => {
      const labelsList = getLabelsListXAI(modelId);
      console.log(`Get LIME values of the model ${modelId} for the label ${labelsList[labelId]} from server`);
-     return await makeApiRequest<any>(`${SERVER_URL}/api/xai/lime/explanations/${modelId}/${labelId}`)
+     return await makeApiRequest<any>(`${LOCAL_URL}/api/xai/lime/explanations/${modelId}/${labelId}`)
 }
 
 export const requestPredictionsModel = async (modelId: string) => {
-    const response = await makeApiRequest<any>(`${SERVER_URL}/api/models/${modelId}/predictions`);
+    const response = await makeApiRequest<any>(`${LOCAL_URL}/api/models/${modelId}/predictions`);
     return response.predictions
 }
 
@@ -167,12 +177,26 @@ export const requestRunLime = async (modelId: string, sampleId:number, numberFea
     "numberFeature": numberFeature,
     };
 
-    console.log(limeConfig, "LIME CONFIG")
-
-    return await makeApiRequest<any>(`${SERVER_URL}/api/xai/lime`, 'post', {limeConfig});
+    return await makeApiRequest<any>(`${LOCAL_URL}/api/xai/lime`, 'post', {limeConfig});
 }
 
 export const requestPredictedProbsModel = async (modelId: string) => {
-   const response = await makeApiRequest<any>(`${SERVER_URL}/api/models/${modelId}/probabilities`);
-   return response.probs
+    const response = await makeApiRequest<any>(`${LOCAL_URL}/api/models/${modelId}/probabilities`);
+    return response.probs
+}
+export const requestBuildConfigModel = async (modelId: string) => {
+    const response = await makeApiRequest<any>(`${LOCAL_URL}/api/models/${modelId}/build-config`);
+    return response.buildConfig
+}
+
+export const enhancedInterpretability = async (file: FormData) => {
+    return await makeApiRequest<any>(`/enhanced/interpretability/explain`, 'post', file, 'blob');
+}
+
+export const fairnessAPI = async (file: FormData) => {
+    return await makeApiRequest<any>(`/explain_fairness/file`, 'post', file, 'blob');
+}
+
+export const differentialPrivacy = async (formData: FormState) => {
+    return await makeApiRequest<any>(`/api/v3/differential_privacy/execute`, 'post', formData);
 }

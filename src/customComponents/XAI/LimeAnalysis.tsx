@@ -187,7 +187,7 @@ const LIMEParameters: React.FC = () => {
                       onChange={handleInputChange}
                       value={state.modelId}
                     >
-                      <option value="" disabled selected={!!state.modelId}>{state.modelId}</option>
+                     <option value="" disabled selected={!!state.modelId}>Select a model</option>
                       {allModel && allModel.map(m => (
                         <option key={m.modelId} value={m.modelId}>{m.modelId}</option>
                       ))}
