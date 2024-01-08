@@ -1,6 +1,9 @@
-export const SERVER_HOST = "0.0.0.0";
-export const SERVER_PORT = 31057;
-export const SERVER_URL = `http://${SERVER_HOST}:${SERVER_PORT}`;
+export const LOCAL_HOST = "0.0.0.0";
+export const LOCAL_PORT = 31057;
+export const SERVER_HOST = "193.40.154.143";
+export const SERVER_PORT = 8000;
+export const LOCAL_URL = `http://${LOCAL_HOST}:${LOCAL_PORT}`;
+export const SERVER_URL =  `http://${SERVER_HOST}:${SERVER_PORT}`;
 
 
 // BuildACPage.tsx
