@@ -11,6 +11,10 @@ import NoMatchComponent from "../customComponents/NoMatchComponent";
 import AllModels from "../customComponents/models/ModelList";
 import DatasetList from "../customComponents/datasets/DatasetList";
 import LimeAnalysis from "../customComponents/XAI/LimeAnalysis";
+import ModelComparison from "../customComponents/models/ModelComparison";
+import Fairness from "../customComponents/Services/Fairness/Fairness";
+import Privacy from "../customComponents/Services/Privacy/Privacy";
+import EnhancedX from "../customComponents/Services/EnhancedX/EnhancedX";
 
 interface RouteConfig {
     path: string;
