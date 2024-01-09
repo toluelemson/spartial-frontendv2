@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Col, Row } from "react-bootstrap";
+import { Col, Row, Table } from "react-bootstrap";
 
 import { predictMIEmergencies } from "../../api";
 
@@ -8,14 +8,29 @@ import MedicalNavbar from "./medicalNavbar";
 interface formData {
   dat: string;
   hea: string;
+  store_data: string;
+}
+
+interface Result {
+  predicted_class: string;
+  classification_score: number;
+  emergency: boolean;
+  emergency_data: string | null;
 }
 
 const DetectMIEmergencies: React.FC = () => {
-  const [formData, setFormData] = useState({ dat: "", hea: "" });
-  const [results, setResults] = useState<string[]>([]);
+  const [formData, setFormData] = useState({
+    dat: "",
+    hea: "",
+    store_data: "--",
+  });
+
+  const [results, setResults] = useState<Result[]>([]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
@@ -24,9 +39,14 @@ const DetectMIEmergencies: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const response = await predictMIEmergencies(formData.dat, formData.hea);
+    const response = await predictMIEmergencies(
+      formData.dat,
+      formData.hea,
+      formData.store_data
+    );
 
     console.log("API Response:", response); // Log the response to the console
+    setResults([response]);
   };
 
   return (
@@ -41,6 +61,22 @@ const DetectMIEmergencies: React.FC = () => {
                 <h2 className="text-gray">
                   Detect MI emergencies using default emergency model
                 </h2>
+                <div className="mb-3">
+                  <label htmlFor="selectstore_data" className="form-label">
+                    store data:
+                  </label>
+                  <select
+                    id="selectCutClassificationWindow"
+                    name="store_data"
+                    value={formData.store_data}
+                    onChange={handleInputChange}
+                    className="form-select"
+                  >
+                    <option value="--">--</option>
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                  </select>
+                </div>
                 <div className="mb-3">
                   <label htmlFor="textareaDat" className="form-label">
                     dat:
@@ -78,11 +114,26 @@ const DetectMIEmergencies: React.FC = () => {
           <Col md={6}>
             <div className="col">
               <h3>Results:</h3>
-              {results.map((result, index) => (
-                <div key={index} className="border-top pt-3">
-                  {result}
-                </div>
-              ))}
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>Predicted Class</th>
+                    <th>Classification Score</th>
+                    <th>Emergency</th>
+                    <th>Emergency Data</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {results.map((result, index) => (
+                    <tr key={index}>
+                      <td>{result.predicted_class}</td>
+                      <td>{result.classification_score}</td>
+                      <td>{result.emergency ? "Yes" : "No"}</td>
+                      <td>{result.emergency_data || "N/A"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
             </div>
           </Col>
         </Row>

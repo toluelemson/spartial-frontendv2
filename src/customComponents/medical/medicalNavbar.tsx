@@ -16,16 +16,29 @@ const MedicalNavbar: React.FC = () => {
         <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
         <BootstrapNavbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">
-            <NavDropdown title="Emergency Detection" id="emergency-dropdown">
+            <NavDropdown
+              className="bg-dark"
+              title="Emergency Detection"
+              id="emergency-dropdown"
+            >
               <NavDropdown.Item href="/DetectMIEmergencies">
                 Detect MI Emergencies
               </NavDropdown.Item>
               <NavDropdown.Item href="/GenerateExplanations">
                 Generate Explanations
               </NavDropdown.Item>
-              <NavDropdown.Item href="/DemoMIEmergency">Demo</NavDropdown.Item>
+              <NavDropdown.Item href="/DemoMIEmergency">
+                ECG List-Demo
+              </NavDropdown.Item>
+              <NavDropdown.Item href="/DemoMIEmergencyData">
+                ECG Data-Demo
+              </NavDropdown.Item>
             </NavDropdown>
-            <NavDropdown title="Medical Analysis" id="medical-dropdown">
+            <NavDropdown
+              className="bg-dark"
+              title="Medical Analysis"
+              id="medical-dropdown"
+            >
               <NavDropdown.Item href="/VisualizeECG">
                 Visualize ECG
               </NavDropdown.Item>

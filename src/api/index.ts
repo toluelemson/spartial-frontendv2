@@ -201,20 +201,30 @@ export const differentialPrivacy = async (formData: FormState) => {
     return await makeApiRequest<any>(`/api/v3/differential_privacy/execute`, 'post', formData);
 }
 
-export const predictMIEmergencies = async (dat : string, hea : string) => {
+
+export const demoMIEmergency = async (limit : number) => {
+    return  await makeApiRequest<any>(`/emergency_detection/mi_detection/emergency_data?limit=${limit}`);
+}
+
+export const demoMIEmergencyData = async (data_id : string) => {
+    return  await makeApiRequest<any>(`/emergency_detection/mi_detection/emergency_data/${data_id}`);
+}
+
+export const predictMIEmergencies = async (dat : string, hea : string, store_data : string) => {
     try {
+        let apiUrl = '/emergency_detection/mi_detection/predict';
+
         const requestBody = {
-            dat: dat,
-            hea: hea
+          dat: dat,
+          hea: hea,
         };
-
-        const response = await makeApiRequest<any>(
-            `/emergency_detection/mi_detection/predict`,
-            'post',
-            requestBody,  
-            'json'  
-        );
-
+    
+        if (store_data !== '--') {
+          apiUrl += `?store_data=${store_data}`;
+        }
+    
+        const response = await makeApiRequest<any>(apiUrl, 'post', requestBody, 'json');
+    
         return response;
     } catch (error) {
         // Handle errors as needed
@@ -249,19 +259,22 @@ export const detectMIEmergencies = async (dat : string, hea : string) => {
 
 export const visualizeECG = async (dat : string, hea : string, cut_classification_window:string) => {
     try {
+      
+        let apiUrl = '/medical_analysis/ecg_analysis/visualize_ecg';
+
         const requestBody = {
-            dat: dat,
-            hea: hea
+          dat: dat,
+          hea: hea,
         };
-
-        const response = await makeApiRequest<any>(
-            `/medical_analysis/ecg_analysis/visualize_ecg?cut_classification_window=${cut_classification_window}`,
-            'post',
-            requestBody,  
-            'blob'  
-        );
-
+    
+        if (cut_classification_window !== '--') {
+          apiUrl += `?cut_classification_window=${cut_classification_window}`;
+        }
+    
+        const response = await makeApiRequest<any>(apiUrl, 'post', requestBody, 'blob');
+    
         return response;
+
     } catch (error) {
         // Handle errors as needed
         console.error('Error in visualizeECG:', error);

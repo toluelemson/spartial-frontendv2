@@ -72,32 +72,6 @@ const TickImportance: React.FC = () => {
                   on the specified model
                 </h2>
                 <div className="mb-3">
-                  <label htmlFor="textareaDat" className="form-label">
-                    dat:
-                  </label>
-                  <textarea
-                    id="textareaDat"
-                    name="dat"
-                    value={formData.dat}
-                    onChange={handleInputChange}
-                    className="form-control"
-                    rows={4}
-                  />
-                </div>
-                <div className="mb-3">
-                  <label htmlFor="textareaHea" className="form-label">
-                    hea:
-                  </label>
-                  <textarea
-                    id="textareaHea"
-                    name="hea"
-                    value={formData.hea}
-                    onChange={handleInputChange}
-                    className="form-control"
-                    rows={4}
-                  />
-                </div>
-                <div className="mb-3">
                   <label htmlFor="selectxai_method" className="form-label">
                     Xai Method:
                   </label>
@@ -126,6 +100,33 @@ const TickImportance: React.FC = () => {
                     rows={1}
                   />
                 </div>
+                <div className="mb-3">
+                  <label htmlFor="textareaDat" className="form-label">
+                    dat:
+                  </label>
+                  <textarea
+                    id="textareaDat"
+                    name="dat"
+                    value={formData.dat}
+                    onChange={handleInputChange}
+                    className="form-control"
+                    rows={4}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="textareaHea" className="form-label">
+                    hea:
+                  </label>
+                  <textarea
+                    id="textareaHea"
+                    name="hea"
+                    value={formData.hea}
+                    onChange={handleInputChange}
+                    className="form-control"
+                    rows={4}
+                  />
+                </div>
+
                 <button type="submit" className="btn btn-primary">
                   Submit
                 </button>

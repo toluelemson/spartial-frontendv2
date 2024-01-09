@@ -19,6 +19,7 @@ import MedicalHomepage from "../customComponents/medical/medicalHomepage";
 import DetectMIEmergencies from "../customComponents/medical/DetectMIEmergencies";
 import GenerateExplanations from "../customComponents/medical/GenerateExplanations";
 import DemoMIEmergency from "../customComponents/medical/DemoMIEmergency";
+import DemoMIEmergencyData from "../customComponents/medical/DemoMIEmergencyData";
 import VisualizeECG from "../customComponents/medical/VisualizeECG";
 import IdentifySegments from "../customComponents/medical/IdentifySegments";
 import TickImportance from "../customComponents/medical/TickImportance";
@@ -52,6 +53,7 @@ const routeConfig: RouteConfig[] = [
   { path: "/DetectMIEmergencies", Component: DetectMIEmergencies },
   { path: "/GenerateExplanations", Component: GenerateExplanations },
   { path: "/DemoMIEmergency", Component: DemoMIEmergency },
+  { path: "/DemoMIEmergencyData", Component: DemoMIEmergencyData },
   { path: "/VisualizeECG", Component: VisualizeECG },
   { path: "/IdentifySegments", Component: IdentifySegments },
   { path: "/TickImportance", Component: TickImportance },

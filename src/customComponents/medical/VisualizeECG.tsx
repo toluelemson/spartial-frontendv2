@@ -69,6 +69,26 @@ const VisualizeECG: React.FC = () => {
                   Plot the provided encoded ECG signal
                 </h2>
                 <div className="mb-3">
+                  <label
+                    htmlFor="selectCutClassificationWindow"
+                    className="form-label"
+                  >
+                    Cut Classification Window:
+                  </label>
+                  <select
+                    id="selectCutClassificationWindow"
+                    name="cut_classification_window"
+                    value={formData.cut_classification_window}
+                    onChange={handleInputChange}
+                    className="form-select"
+                  >
+                    <option value="--">--</option>
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                  </select>
+                </div>
+
+                <div className="mb-3">
                   <label htmlFor="textareaDat" className="form-label">
                     dat:
                   </label>
@@ -93,25 +113,6 @@ const VisualizeECG: React.FC = () => {
                     className="form-control"
                     rows={4}
                   />
-                </div>
-                <div className="mb-3">
-                  <label
-                    htmlFor="selectCutClassificationWindow"
-                    className="form-label"
-                  >
-                    Cut Classification Window:
-                  </label>
-                  <select
-                    id="selectCutClassificationWindow"
-                    name="cut_classification_window"
-                    value={formData.cut_classification_window}
-                    onChange={handleInputChange}
-                    className="form-select"
-                  >
-                    <option value="--">--</option>
-                    <option value="true">True</option>
-                    <option value="false">False</option>
-                  </select>
                 </div>
 
                 <button type="submit" className="btn btn-primary">
