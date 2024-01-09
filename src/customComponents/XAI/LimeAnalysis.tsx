@@ -173,7 +173,7 @@ const LIMEParameters: React.FC = () => {
   }
 
   return (
-   <Container fluid>
+   <Container>
        <h2> Explainable AI with Local Interpretable Model-agnostic Explanations (LIME) </h2>
       <Form onSubmit={handleSubmit}>
         <Row>

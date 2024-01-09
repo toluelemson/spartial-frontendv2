@@ -15,6 +15,7 @@ import ModelComparison from "../customComponents/models/ModelComparison";
 import Fairness from "../customComponents/Services/Fairness/Fairness";
 import Privacy from "../customComponents/Services/Privacy/Privacy";
 import EnhancedX from "../customComponents/Services/EnhancedX/EnhancedX";
+import Spatial from "../customComponents/Spatial/Spatial";
 
 interface RouteConfig {
     path: string;
@@ -32,6 +33,7 @@ const routeConfig : RouteConfig[] = [
     { path: '/protected', Component: ProtectedComponent },
     { path: '/datasets/:type/:action', Component: DatasetList },
     { path: '/xai/lime/:modelId', Component: LimeAnalysis },
+    { path: '/spatial/:modelId', Component: Spatial },
     { path: '/xai/lime', Component: LimeAnalysis },
     { path: '/xai/models/comparison', Component: ModelComparison},
     { path: '/xai/service/fairness', Component: Fairness},

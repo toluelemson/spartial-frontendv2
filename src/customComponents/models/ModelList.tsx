@@ -9,13 +9,18 @@ import {
     Modal
 } from 'react-bootstrap';
 import {BsDownload, BsEye, BsPencil, BsCamera, BsSave, BsSave2} from "react-icons/bs";
-import { CopyIcon } from "@radix-ui/react-icons";
-import { useSpatialContext } from "../../context/context";
-import { ModelData, ModelListType } from "../../types/types";
+import {CopyIcon} from "@radix-ui/react-icons";
+import {useSpatialContext} from "../../context/context";
+import {ModelData, ModelListType} from "../../types/types";
 import {ConvertTimeStamp} from "../util/utility";
 import ActionButton from "../util/ActionButton";
 import {requestDownloadDatasets, requestDownloadModel, requestUpdateModel} from "../../api";
 import {To, useNavigate} from "react-router-dom";
+
+
+interface FairnessSummary {
+  [key: string]: number | number[];
+}
 
 const AllModels: FC = () => {
 
@@ -29,6 +34,7 @@ const AllModels: FC = () => {
     const [editableModelId, setEditableModelId] = useState<string | null>(null);
 
     const [newModelId, setNewModelId] = useState<string>("");
+    const fairnessSummary: FairnessSummary = {};
 
     const editableDivRefs = useRef<{ [key: string]: HTMLDivElement }>({});
 
@@ -68,7 +74,7 @@ const AllModels: FC = () => {
     };
 
     const handleNavigation = (url: string) => {
-            navigate(url);
+        navigate(url);
     };
 
     const handleDivInput = (e: React.FormEvent<HTMLDivElement>) => {
@@ -82,11 +88,11 @@ const AllModels: FC = () => {
         setShowModal(true);
     }, []);
 
-    const handleDownload =(modelId: string) => {
+    const handleDownload = (modelId: string) => {
         requestDownloadModel(modelId).catch(e => console.log(e))
     }
 
-    const handleDownloadDataset =(modelId: string, datasetType: string) => {
+    const handleDownloadDataset = (modelId: string, datasetType: string) => {
         requestDownloadDatasets(modelId, datasetType).catch(e => console.log(e))
     }
 
@@ -145,7 +151,7 @@ const AllModels: FC = () => {
                                                   tooltip={`Edit ${model.modelId}`}
                                                   id={`edit-tooltip-${model.modelId}`}
                                                   placement="top">
-                                        {editableModelId === model.modelId ? <BsSave2 /> : <BsPencil/>}
+                                        {editableModelId === model.modelId ? <BsSave2/> : <BsPencil/>}
                                     </ActionButton>
                                     <ActionButton onClick={() => handleCopy(model.modelId)}
                                                   tooltip={`Copy ${model.modelId}`} id={`copy-tooltip-${model.modelId}`}
@@ -194,7 +200,10 @@ const AllModels: FC = () => {
                         </td>
                         <td>
                             <DropdownButton id="dropdown-item-button" title="Select an action">
-                                <Dropdown.Item as="button" onClick={() => handleNavigation(`/xai/lime/${model.modelId}`)}>LIME </Dropdown.Item>
+                                <Dropdown.Item as="button"
+                                               onClick={() => handleNavigation(`/spatial/${model.modelId}`)}>Send to
+                                    Spatial </Dropdown.Item>
+                                {/*<Dropdown.Item as="button" onClick={() => handleNavigation(`/xai/lime/${model.modelId}`)}>Lime </Dropdown.Item>*/}
                             </DropdownButton>
                         </td>
                     </tr>
