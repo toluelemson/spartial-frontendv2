@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Col, Row } from "react-bootstrap";
 
+import { detectMIEmergencies } from "../../api";
+
 import MedicalNavbar from "./medicalNavbar";
 
 const GenerateExplanations: React.FC = () => {
@@ -14,9 +16,29 @@ const GenerateExplanations: React.FC = () => {
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setResult(JSON.stringify(formData, null, 2));
+    try {
+      // Make API request
+      const response = await detectMIEmergencies(formData.dat, formData.hea);
+
+      console.log("API Response:", response); // Log the response to the console
+
+      // Check if response is defined
+      if (response) {
+        // Create a data URL directly from the Blob
+        const imageUrl = URL.createObjectURL(response);
+
+        // Set the result to the image URL
+        setResult(imageUrl);
+      } else {
+        console.error("Invalid response format:", response);
+      }
+    } catch (error) {
+      // Handle API request error
+      console.error("Error in handleSubmit:", error);
+      // You might want to set an error state or display an error message to the user
+    }
   };
 
   return (

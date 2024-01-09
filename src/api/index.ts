@@ -36,7 +36,7 @@ async function makeApiRequest<T>(
     url: string,
     method: 'get' | 'post' | 'put' = 'get',
     payload?: any,
-    responseType: 'json' | 'blob' = 'json'
+    responseType:  'json' | 'blob' = 'json'
 ): Promise<T | null> {
     try {
         let response: AxiosResponse<T>;
@@ -199,4 +199,161 @@ export const fairnessAPI = async (file: FormData) => {
 
 export const differentialPrivacy = async (formData: FormState) => {
     return await makeApiRequest<any>(`/api/v3/differential_privacy/execute`, 'post', formData);
+}
+
+export const predictMIEmergencies = async (dat : string, hea : string) => {
+    try {
+        const requestBody = {
+            dat: dat,
+            hea: hea
+        };
+
+        const response = await makeApiRequest<any>(
+            `/emergency_detection/mi_detection/predict`,
+            'post',
+            requestBody,  
+            'json'  
+        );
+
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in predictMIEmergencies:', error);
+        throw error;
+    }
+}
+
+
+export const detectMIEmergencies = async (dat : string, hea : string) => {
+    try {
+        const requestBody = {
+            dat: dat,
+            hea: hea
+        };
+
+        const response = await makeApiRequest<any>(
+            `/emergency_detection/mi_detection/explain`,
+            'post',
+            requestBody,  
+            'blob'  
+        );
+
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in detectMIEmergencies:', error);
+        throw error;
+    }
+}
+
+
+export const visualizeECG = async (dat : string, hea : string, cut_classification_window:string) => {
+    try {
+        const requestBody = {
+            dat: dat,
+            hea: hea
+        };
+
+        const response = await makeApiRequest<any>(
+            `/medical_analysis/ecg_analysis/visualize_ecg?cut_classification_window=${cut_classification_window}`,
+            'post',
+            requestBody,  
+            'blob'  
+        );
+
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in visualizeECG:', error);
+        throw error;
+    }
+}
+
+export const identifySegments = async (dat : string, hea : string) => {
+    try {
+        const requestBody = {
+            dat: dat,
+            hea: hea
+        };
+
+        const response = await makeApiRequest<any>(
+            `/medical_analysis/ecg_analysis/identify_segments`,
+            'post',
+            requestBody,  
+            'blob'  
+        );
+
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in identifySegments:', error);
+        throw error;
+    }
+}
+
+export const tickImportance = async (dat : string, hea : string, xai_method:string, model_id :string) => {
+    try {
+        const requestBody = {
+            dat: dat,
+            hea: hea
+        };
+        
+        const response = await makeApiRequest<any>(
+            `medical_analysis/ecg_analysis/explain/${xai_method}/tick_importance?model_id=${model_id}`,
+            'post',
+            requestBody,  
+            'blob'  
+        );
+
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in tickImportance:', error);
+        throw error;
+    }
+}
+
+export const timeImportance = async (dat : string, hea : string, xai_method:string, model_id :string) => {
+    try {
+        const requestBody = {
+            dat: dat,
+            hea: hea
+        };
+
+        const response = await makeApiRequest<any>(
+            `/medical_analysis/ecg_analysis/explain/${xai_method}/time_importance?model_id=${model_id}`,
+            'post',
+            requestBody,  
+            'blob'  
+        );
+
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in timeImportance:', error);
+        throw error;
+    }
+}
+
+
+export const leadImportance = async (dat : string, hea : string, xai_method:string, model_id :string) => {
+    try {
+        const requestBody = {
+            dat: dat,
+            hea: hea
+        };
+
+        const response = await makeApiRequest<any>(
+            `/medical_analysis/ecg_analysis/explain/${xai_method}/lead_importance?model_id=${model_id}`,
+            'post',
+            requestBody,  
+            'blob'  
+        );
+
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in leadImportance:', error);
+        throw error;
+    }
 }
