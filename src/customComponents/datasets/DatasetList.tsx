@@ -3,9 +3,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {requestViewModelDatasets} from "../../api";
 import Papa from 'papaparse';
 
-const TableComponent = () => {
+interface TableComponentProps {
+    modelIdProp?: string;
+    datasetTypeProp?: string;
+}
+
+const TableComponent: React.FC<TableComponentProps> = ({modelIdProp, datasetTypeProp}) => {
 
     const [viewDatasetModel, setViewDatasetModel] = useState<any>([])
+    // const { modelId: modelIdUrl, datasetType: datasetTypeUrl } = useParams();
 
     const getPathSegments = useMemo(() => {
         const segments = window.location.pathname.split('/').filter(Boolean);
@@ -15,11 +21,16 @@ const TableComponent = () => {
         };
     }, []);
 
+    const {secondToLastPath, lastPath} = getPathSegments;
+
+    const modelId = modelIdProp || secondToLastPath;
+    const datasetType = datasetTypeProp || lastPath;
+
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const { secondToLastPath, lastPath } = getPathSegments;
-                const csvDataString = await requestViewModelDatasets(secondToLastPath, lastPath);
+
+                const csvDataString = await requestViewModelDatasets(modelId, datasetType);
                 Papa.parse(csvDataString, {
                     complete: result => {
                         if (Array.isArray(result.data)) {
@@ -54,7 +65,8 @@ const TableComponent = () => {
                         <a className="page-link" href="#" onClick={() => setCurrentPage(1)}>First</a>
                     </li>
                     <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                        <a className="page-link" href="#" onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}>Previous</a>
+                        <a className="page-link" href="#"
+                           onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}>Previous</a>
                     </li>
                     <li className={`page-item ${currentPage === 27 ? 'disabled' : ''}`}>
                         <a className="page-link" href="#" onClick={() => setCurrentPage(prev => prev + 1)}>Next</a>
@@ -99,7 +111,7 @@ const TableComponent = () => {
                 </table>
             </div>
             <div className="mt-4">
-                <Pagination />
+                <Pagination/>
             </div>
         </div>
     );

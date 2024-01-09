@@ -1,5 +1,5 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React from "react";
+import { Routes, Route } from "react-router-dom";
 import LoginWidget from "../customComponents/auth/LoginWidget";
 import { LoginCallback } from "@okta/okta-react";
 import ProtectedRoute from "../customComponents/util/ProtectedRoute";
@@ -24,38 +24,40 @@ import IdentifySegments from "../customComponents/medical/IdentifySegments";
 import TickImportance from "../customComponents/medical/TickImportance";
 import LeadImportance from "../customComponents/medical/LeadImportance";
 import TimeImportance from "../customComponents/medical/TimeImportance";
+import Spatial from "../customComponents/Spatial/Spatial";
 
 interface RouteConfig {
-    path: string;
-    Component: React.ComponentType;
-    isProtected?: boolean;
+  path: string;
+  Component: React.ComponentType;
+  isProtected?: boolean;
 }
 
-const routeConfig : RouteConfig[] = [
-    { path: '/', Component: Dashboard },
-    { path: '/build/ad', Component: ModelPage },
-    { path: '/models/all', Component: AllModels },
-    { path: '/build/ac', Component: BuildACModelForm },
-    { path: '/login', Component: LoginWidget, isProtected: false },
-    { path: '/login/callback', Component: LoginCallback, isProtected: false },
-    { path: '/protected', Component: ProtectedComponent },
-    { path: '/datasets/:type/:action', Component: DatasetList },
-    { path: '/xai/lime/:modelId', Component: LimeAnalysis },
-    { path: '/xai/lime', Component: LimeAnalysis },
-    { path: '/xai/models/comparison', Component: ModelComparison},
-    { path: '/xai/service/fairness', Component: Fairness},
-    { path: '/xai/service/enhancedX', Component: EnhancedX},
-    { path: '/xai/service/privacy', Component: Privacy},
-    { path: '/medicalHomepage', Component: MedicalHomepage },
-    { path: '/DetectMIEmergencies', Component: DetectMIEmergencies },
-    { path: '/GenerateExplanations', Component: GenerateExplanations },
-    { path: '/DemoMIEmergency', Component: DemoMIEmergency },
-    { path: '/VisualizeECG', Component: VisualizeECG },
-    { path: '/IdentifySegments', Component: IdentifySegments },
-    { path: '/TickImportance', Component: TickImportance },
-    { path: '/TimeImportance', Component: TimeImportance },
-    { path: '/LeadImportance', Component: LeadImportance },
-    { path: '*', Component: NoMatchComponent, isProtected: false }
+const routeConfig: RouteConfig[] = [
+  { path: "/", Component: Dashboard },
+  { path: "/build/ad", Component: ModelPage },
+  { path: "/models/all", Component: AllModels },
+  { path: "/build/ac", Component: BuildACModelForm },
+  { path: "/login", Component: LoginWidget, isProtected: false },
+  { path: "/login/callback", Component: LoginCallback, isProtected: false },
+  { path: "/protected", Component: ProtectedComponent },
+  { path: "/datasets/:type/:action", Component: DatasetList },
+  { path: "/xai/lime/:modelId", Component: LimeAnalysis },
+  { path: "/spatial/:modelId", Component: Spatial },
+  { path: "/xai/lime", Component: LimeAnalysis },
+  { path: "/xai/models/comparison", Component: ModelComparison },
+  { path: "/xai/service/fairness", Component: Fairness },
+  { path: "/xai/service/enhancedX", Component: EnhancedX },
+  { path: "/xai/service/privacy", Component: Privacy },
+  { path: "/medicalHomepage", Component: MedicalHomepage },
+  { path: "/DetectMIEmergencies", Component: DetectMIEmergencies },
+  { path: "/GenerateExplanations", Component: GenerateExplanations },
+  { path: "/DemoMIEmergency", Component: DemoMIEmergency },
+  { path: "/VisualizeECG", Component: VisualizeECG },
+  { path: "/IdentifySegments", Component: IdentifySegments },
+  { path: "/TickImportance", Component: TickImportance },
+  { path: "/TimeImportance", Component: TimeImportance },
+  { path: "/LeadImportance", Component: LeadImportance },
+  { path: "*", Component: NoMatchComponent, isProtected: false },
 ];
 
 const AppRoutes: React.FC = () => (
