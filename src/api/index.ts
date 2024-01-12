@@ -36,7 +36,7 @@ async function makeApiRequest<T>(
     url: string,
     method: 'get' | 'post' | 'put' = 'get',
     payload?: any,
-    responseType: 'json' | 'blob' = 'json'
+    responseType:  'json' | 'blob' = 'json'
 ): Promise<T | null> {
     try {
         let response: AxiosResponse<T>;
@@ -199,4 +199,289 @@ export const fairnessAPI = async (file: FormData) => {
 
 export const differentialPrivacy = async (formData: FormState) => {
     return await makeApiRequest<any>(`/api/v3/differential_privacy/execute`, 'post', formData);
+}
+
+
+export const demoMIEmergency = async (limit : number) => {
+    return  await makeApiRequest<any>(`/emergency_detection/mi_detection/emergency_data?limit=${limit}`);
+}
+
+export const demoMIEmergencyData = async (data_id : string) => {
+    return  await makeApiRequest<any>(`/emergency_detection/mi_detection/emergency_data/${data_id}`);
+}
+
+export const predictMIEmergencies = async (dat : string, hea : string, store_data : string) => {
+    try {
+        let apiUrl = '/emergency_detection/mi_detection/predict';
+
+        const requestBody = {
+          dat: dat,
+          hea: hea,
+        };
+    
+        if (store_data !== '--') {
+          apiUrl += `?store_data=${store_data}`;
+        }
+    
+        const response = await makeApiRequest<any>(apiUrl, 'post', requestBody, 'json');
+    
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in predictMIEmergencies:', error);
+        throw error;
+    }
+}
+
+
+export const detectMIEmergencies = async (dat : string, hea : string) => {
+    try {
+        const requestBody = {
+            dat: dat,
+            hea: hea
+        };
+
+        const response = await makeApiRequest<any>(
+            `/emergency_detection/mi_detection/explain`,
+            'post',
+            requestBody,  
+            'blob'  
+        );
+
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in detectMIEmergencies:', error);
+        throw error;
+    }
+}
+
+
+export const visualizeECG = async (dat : string, hea : string, cut_classification_window:string) => {
+    try {
+      
+        let apiUrl = '/medical_analysis/ecg_analysis/visualize_ecg';
+
+        const requestBody = {
+          dat: dat,
+          hea: hea,
+        };
+    
+        if (cut_classification_window !== '--') {
+          apiUrl += `?cut_classification_window=${cut_classification_window}`;
+        }
+    
+        const response = await makeApiRequest<any>(apiUrl, 'post', requestBody, 'blob');
+    
+        return response;
+
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in visualizeECG:', error);
+        throw error;
+    }
+}
+
+export const identifySegments = async (dat : string, hea : string) => {
+    try {
+        const requestBody = {
+            dat: dat,
+            hea: hea
+        };
+
+        const response = await makeApiRequest<any>(
+            `/medical_analysis/ecg_analysis/identify_segments`,
+            'post',
+            requestBody,  
+            'blob'  
+        );
+
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in identifySegments:', error);
+        throw error;
+    }
+}
+
+export const tickImportance = async (dat : string, hea : string, xai_method:string, model_id :string) => {
+    try {
+        const requestBody = {
+            dat: dat,
+            hea: hea
+        };
+        
+        const response = await makeApiRequest<any>(
+            `medical_analysis/ecg_analysis/explain/${xai_method}/tick_importance?model_id=${model_id}`,
+            'post',
+            requestBody,  
+            'blob'  
+        );
+
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in tickImportance:', error);
+        throw error;
+    }
+}
+
+export const timeImportance = async (dat : string, hea : string, xai_method:string, model_id :string) => {
+    try {
+        const requestBody = {
+            dat: dat,
+            hea: hea
+        };
+
+        const response = await makeApiRequest<any>(
+            `/medical_analysis/ecg_analysis/explain/${xai_method}/time_importance?model_id=${model_id}`,
+            'post',
+            requestBody,  
+            'blob'  
+        );
+
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in timeImportance:', error);
+        throw error;
+    }
+}
+
+
+export const leadImportance = async (dat : string, hea : string, xai_method:string, model_id :string) => {
+    try {
+        const requestBody = {
+            dat: dat,
+            hea: hea
+        };
+
+        const response = await makeApiRequest<any>(
+            `/medical_analysis/ecg_analysis/explain/${xai_method}/lead_importance?model_id=${model_id}`,
+            'post',
+            requestBody,  
+            'blob'  
+        );
+
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in leadImportance:', error);
+        throw error;
+    }
+}
+
+ // Metrics component
+
+export const clf_accuracy_metric = async (ground_truth : number[], predictions : number[]) => {
+    try {
+        const requestBody = {
+            ground_truth: ground_truth,
+            predictions: predictions
+        };
+
+        const response = await makeApiRequest<any>(
+            `/clf_accuracy_metric`,
+            'post',
+            requestBody,  
+            'json'  
+        );
+
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in clf_accuracy_metric:', error);
+        throw error;
+    }
+}
+
+export const evasion_impact_metric = async (ground_truth : number[], predictions : number[]) => {
+    try {
+        const requestBody = {
+            ground_truth: ground_truth,
+            predictions: predictions
+        };
+
+        const response = await makeApiRequest<any>(
+            `/evasion_impact_metric`,
+            'post',
+            requestBody,  
+            'json'  
+        );
+
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in evasion_impact_metric:', error);
+        throw error;
+    }
+}
+
+
+export const xaiAPI = async (xai_method:  string, file: File, mlModel:File,  imagetype :string ) => {
+    try {
+
+        const requestBody = new FormData();
+        requestBody.append('file', file);
+        requestBody.append('mlModel', mlModel);
+        
+        const imageFileBytes = await readFileAsBase64(file);
+        requestBody.append('ImageFileBytes', imageFileBytes);
+
+        if (xai_method == 'lime') {
+            const response = await makeApiRequest<any>(
+                `/explain_lime/image?imagetype=${imagetype}`,
+                'post',
+                requestBody,  
+                'json'  
+            );
+            return response;
+          }
+        else if (xai_method == 'shap') {
+            const response = await makeApiRequest<any>(
+                `/explain_shap/image?imagetype=${imagetype}`,
+                'post',
+                requestBody,  
+                'json'  
+            );
+            return response;
+          }
+        else {
+            const response = await makeApiRequest<any>(
+                `/explain_occlusion/image?imagetype=${imagetype}`,
+                'post',
+                requestBody,  
+                'json'  
+            );
+            return response;
+          }
+    
+        
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in xaiAPI:', error);
+        throw error;
+    }
+
+    
+}
+
+
+
+// Function to read file content as base64
+const readFileAsBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            if (reader.result) {
+                resolve(reader.result.toString());
+            } else {
+                reject(new Error('Failed to read file content.'));
+            }
+        };
+        reader.onerror = (error) => {
+            reject(error);
+        };
+        reader.readAsDataURL(file);
+    });
 }
