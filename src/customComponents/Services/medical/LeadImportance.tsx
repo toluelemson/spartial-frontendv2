@@ -1,16 +1,23 @@
 import React, { useState } from "react";
 import { Col, Row } from "react-bootstrap";
-
-import { detectMIEmergencies } from "../../api";
+import { leadImportance } from "../../../api";
 
 import MedicalNavbar from "./medicalNavbar";
 
-const GenerateExplanations: React.FC = () => {
-  const [formData, setFormData] = useState({ dat: "", hea: "" });
+const LeadImportance: React.FC = () => {
+  const [formData, setFormData] = useState({
+    dat: "",
+    hea: "",
+    xai_method: "shap",
+    model_id: "",
+  });
   const [result, setResult] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
@@ -18,9 +25,15 @@ const GenerateExplanations: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     try {
       // Make API request
-      const response = await detectMIEmergencies(formData.dat, formData.hea);
+      const response = await leadImportance(
+        formData.dat,
+        formData.hea,
+        formData.xai_method,
+        formData.model_id
+      );
 
       console.log("API Response:", response); // Log the response to the console
 
@@ -38,6 +51,8 @@ const GenerateExplanations: React.FC = () => {
       // Handle API request error
       console.error("Error in handleSubmit:", error);
       // You might want to set an error state or display an error message to the user
+    } finally {
+      setLoading(false); // Set loading state to false after the API call completes
     }
   };
 
@@ -51,9 +66,39 @@ const GenerateExplanations: React.FC = () => {
             <div className="border p-3">
               <form onSubmit={handleSubmit}>
                 <h2 className="text-gray">
-                  Generate default explanation for MI detection emergency use
-                  case
+                  Generate explanation (highlighting the relevant leads) for the
+                  provided ECG signal applying the specified XAI method on the
+                  specified model
                 </h2>
+                <div className="mb-3">
+                  <label htmlFor="selectxai_method" className="form-label">
+                    Xai Method:
+                  </label>
+                  <select
+                    id="selectxai_method"
+                    name="xai_method"
+                    value={formData.xai_method}
+                    onChange={handleInputChange}
+                    // handleSelectChange
+                    className="form-select"
+                  >
+                    <option value="shap">Shap</option>
+                    <option value="gradCam">GradCam</option>
+                  </select>
+                </div>
+                <div className="mb-3">
+                  <label htmlFor="textareamodel_id" className="form-label">
+                    model id:
+                  </label>
+                  <textarea
+                    id="textareamodel_id"
+                    name="model_id"
+                    value={formData.model_id}
+                    onChange={handleInputChange}
+                    className="form-control"
+                    rows={1}
+                  />
+                </div>
                 <div className="mb-3">
                   <label htmlFor="textareaDat" className="form-label">
                     dat:
@@ -65,6 +110,7 @@ const GenerateExplanations: React.FC = () => {
                     onChange={handleInputChange}
                     className="form-control"
                     rows={4}
+                    required
                   />
                 </div>
                 <div className="mb-3">
@@ -78,10 +124,15 @@ const GenerateExplanations: React.FC = () => {
                     onChange={handleInputChange}
                     className="form-control"
                     rows={4}
+                    required
                   />
                 </div>
-                <button type="submit" className="btn btn-primary">
-                  Submit
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
+                  {loading ? "Loading..." : "Submit"}
                 </button>
               </form>
             </div>
@@ -102,4 +153,4 @@ const GenerateExplanations: React.FC = () => {
   );
 };
 
-export default GenerateExplanations;
+export default LeadImportance;

@@ -370,3 +370,118 @@ export const leadImportance = async (dat : string, hea : string, xai_method:stri
         throw error;
     }
 }
+
+ // Metrics component
+
+export const clf_accuracy_metric = async (ground_truth : number[], predictions : number[]) => {
+    try {
+        const requestBody = {
+            ground_truth: ground_truth,
+            predictions: predictions
+        };
+
+        const response = await makeApiRequest<any>(
+            `/clf_accuracy_metric`,
+            'post',
+            requestBody,  
+            'json'  
+        );
+
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in clf_accuracy_metric:', error);
+        throw error;
+    }
+}
+
+export const evasion_impact_metric = async (ground_truth : number[], predictions : number[]) => {
+    try {
+        const requestBody = {
+            ground_truth: ground_truth,
+            predictions: predictions
+        };
+
+        const response = await makeApiRequest<any>(
+            `/evasion_impact_metric`,
+            'post',
+            requestBody,  
+            'json'  
+        );
+
+        return response;
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in evasion_impact_metric:', error);
+        throw error;
+    }
+}
+
+
+export const xaiAPI = async (xai_method:  string, file: File, mlModel:File,  imagetype :string ) => {
+    try {
+
+        const requestBody = new FormData();
+        requestBody.append('file', file);
+        requestBody.append('mlModel', mlModel);
+        
+        const imageFileBytes = await readFileAsBase64(file);
+        requestBody.append('ImageFileBytes', imageFileBytes);
+
+        if (xai_method == 'lime') {
+            const response = await makeApiRequest<any>(
+                `/explain_lime/image?imagetype=${imagetype}`,
+                'post',
+                requestBody,  
+                'json'  
+            );
+            return response;
+          }
+        else if (xai_method == 'shap') {
+            const response = await makeApiRequest<any>(
+                `/explain_shap/image?imagetype=${imagetype}`,
+                'post',
+                requestBody,  
+                'json'  
+            );
+            return response;
+          }
+        else {
+            const response = await makeApiRequest<any>(
+                `/explain_occlusion/image?imagetype=${imagetype}`,
+                'post',
+                requestBody,  
+                'json'  
+            );
+            return response;
+          }
+    
+        
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in xaiAPI:', error);
+        throw error;
+    }
+
+    
+}
+
+
+
+// Function to read file content as base64
+const readFileAsBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            if (reader.result) {
+                resolve(reader.result.toString());
+            } else {
+                reject(new Error('Failed to read file content.'));
+            }
+        };
+        reader.onerror = (error) => {
+            reject(error);
+        };
+        reader.readAsDataURL(file);
+    });
+}

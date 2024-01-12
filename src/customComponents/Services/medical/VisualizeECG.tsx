@@ -1,31 +1,18 @@
 import React, { useState } from "react";
-import { Col, Row, Table } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 
-import { predictMIEmergencies } from "../../api";
+import { visualizeECG } from "../../../api";
 
 import MedicalNavbar from "./medicalNavbar";
 
-interface formData {
-  dat: string;
-  hea: string;
-  store_data: string;
-}
-
-interface Result {
-  predicted_class: string;
-  classification_score: number;
-  emergency: boolean;
-  emergency_data: string | null;
-}
-
-const DetectMIEmergencies: React.FC = () => {
+const VisualizeECG: React.FC = () => {
   const [formData, setFormData] = useState({
     dat: "",
     hea: "",
-    store_data: "--",
+    cut_classification_window: "--",
   });
-
-  const [results, setResults] = useState<Result[]>([]);
+  const [result, setResult] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -33,20 +20,44 @@ const DetectMIEmergencies: React.FC = () => {
     >
   ) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+
+    // If the target is a select element, use the selected value directly
+    const selectedValue =
+      e.target.type === "select-one" ? e.target.value : value;
+
+    setFormData((prevData) => ({ ...prevData, [name]: selectedValue }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    try {
+      // Make API request
+      const response = await visualizeECG(
+        formData.dat,
+        formData.hea,
+        formData.cut_classification_window
+      );
 
-    const response = await predictMIEmergencies(
-      formData.dat,
-      formData.hea,
-      formData.store_data
-    );
+      console.log("API Response:", response); // Log the response to the console
 
-    console.log("API Response:", response); // Log the response to the console
-    setResults([response]);
+      // Check if response is defined
+      if (response) {
+        // Create a data URL directly from the Blob
+        const imageUrl = URL.createObjectURL(response);
+
+        // Set the result to the image URL
+        setResult(imageUrl);
+      } else {
+        console.error("Invalid response format:", response);
+      }
+    } catch (error) {
+      // Handle API request error
+      console.error("Error in handleSubmit:", error);
+      // You might want to set an error state or display an error message to the user
+    } finally {
+      setLoading(false); // Set loading state to false after the API call completes
+    }
   };
 
   return (
@@ -59,16 +70,19 @@ const DetectMIEmergencies: React.FC = () => {
             <div className="border p-3">
               <form onSubmit={handleSubmit}>
                 <h2 className="text-gray">
-                  Detect MI emergencies using default emergency model
+                  Plot the provided encoded ECG signal
                 </h2>
                 <div className="mb-3">
-                  <label htmlFor="selectstore_data" className="form-label">
-                    store data:
+                  <label
+                    htmlFor="selectCutClassificationWindow"
+                    className="form-label"
+                  >
+                    Cut Classification Window:
                   </label>
                   <select
                     id="selectCutClassificationWindow"
-                    name="store_data"
-                    value={formData.store_data}
+                    name="cut_classification_window"
+                    value={formData.cut_classification_window}
                     onChange={handleInputChange}
                     className="form-select"
                   >
@@ -77,6 +91,7 @@ const DetectMIEmergencies: React.FC = () => {
                     <option value="false">False</option>
                   </select>
                 </div>
+
                 <div className="mb-3">
                   <label htmlFor="textareaDat" className="form-label">
                     dat:
@@ -88,6 +103,7 @@ const DetectMIEmergencies: React.FC = () => {
                     onChange={handleInputChange}
                     className="form-control"
                     rows={4}
+                    required
                   />
                 </div>
                 <div className="mb-3">
@@ -101,10 +117,16 @@ const DetectMIEmergencies: React.FC = () => {
                     onChange={handleInputChange}
                     className="form-control"
                     rows={4}
+                    required
                   />
                 </div>
-                <button type="submit" className="btn btn-primary">
-                  Submit
+
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
+                  {loading ? "Loading..." : "Submit"}
                 </button>
               </form>
             </div>
@@ -112,29 +134,12 @@ const DetectMIEmergencies: React.FC = () => {
 
           {/* Right side with the results */}
           <Col md={6}>
-            <div className="col">
-              <h3>Results:</h3>
-              <Table striped bordered hover>
-                <thead>
-                  <tr>
-                    <th>Predicted Class</th>
-                    <th>Classification Score</th>
-                    <th>Emergency</th>
-                    <th>Emergency Data</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {results.map((result, index) => (
-                    <tr key={index}>
-                      <td>{result.predicted_class}</td>
-                      <td>{result.classification_score}</td>
-                      <td>{result.emergency ? "Yes" : "No"}</td>
-                      <td>{result.emergency_data || "N/A"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
+            {result && (
+              <div className="border p-3">
+                <h2>Results:</h2>
+                <img src={result} alt="Result Image" className="img-fluid" />
+              </div>
+            )}
           </Col>
         </Row>
       </div>
@@ -142,4 +147,4 @@ const DetectMIEmergencies: React.FC = () => {
   );
 };
 
-export default DetectMIEmergencies;
+export default VisualizeECG;

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Col, Row } from "react-bootstrap";
-import { timeImportance } from "../../api";
+import { timeImportance } from "../../../api";
 
 import MedicalNavbar from "./medicalNavbar";
 
@@ -12,6 +12,7 @@ const TimeImportance: React.FC = () => {
     model_id: "",
   });
   const [result, setResult] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -24,6 +25,7 @@ const TimeImportance: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     try {
       // Make API request
       const response = await timeImportance(
@@ -49,6 +51,8 @@ const TimeImportance: React.FC = () => {
       // Handle API request error
       console.error("Error in handleSubmit:", error);
       // You might want to set an error state or display an error message to the user
+    } finally {
+      setLoading(false); // Set loading state to false after the API call completes
     }
   };
 
@@ -106,6 +110,7 @@ const TimeImportance: React.FC = () => {
                     onChange={handleInputChange}
                     className="form-control"
                     rows={4}
+                    required
                   />
                 </div>
                 <div className="mb-3">
@@ -119,10 +124,15 @@ const TimeImportance: React.FC = () => {
                     onChange={handleInputChange}
                     className="form-control"
                     rows={4}
+                    required
                   />
                 </div>
-                <button type="submit" className="btn btn-primary">
-                  Submit
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
+                  {loading ? "Loading..." : "Submit"}
                 </button>
               </form>
             </div>

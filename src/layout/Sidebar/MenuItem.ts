@@ -41,7 +41,7 @@ export function useMenuData() {
                 {
                     id: 14,
                     title: 'Privacy',
-                    icon: 'bbi bi-speedometer2',
+                    icon: 'bi bi-shield-shaded',
                     path: '/xai/service/privacy',
                     secure: true,
                 },
@@ -65,6 +65,22 @@ export function useMenuData() {
                     title: 'Medical',
                     icon: 'bi bi-heart-pulse-fill',
                     path: '/medicalHomepage',
+                    secure: true,
+                },
+                {
+                    id: 18,
+                    title: 'Metrics',
+                    icon: 'bi bi-rulers',
+                    path: '/Metrics/metricsHomepage',
+                    secure: true,
+                }
+                ,
+                {
+                    id: 18,
+                    title: 'XAI',
+                    icon: 'bi bi-x-diamond-fill',
+                    // icon: 'bi bi-clipboard-x-fill',
+                    path: '/XAI/XAIHomepage',
                     secure: true,
                 }
             ]

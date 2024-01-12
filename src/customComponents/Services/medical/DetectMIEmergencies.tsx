@@ -1,17 +1,32 @@
 import React, { useState } from "react";
-import { Col, Row } from "react-bootstrap";
+import { Col, Row, Table } from "react-bootstrap";
 
-import { visualizeECG } from "../../api";
+import { predictMIEmergencies } from "../../../api";
 
 import MedicalNavbar from "./medicalNavbar";
 
-const VisualizeECG: React.FC = () => {
+interface formData {
+  dat: string;
+  hea: string;
+  store_data: string;
+}
+
+interface Result {
+  predicted_class: string;
+  classification_score: number;
+  emergency: boolean;
+  emergency_data: string | null;
+}
+
+const DetectMIEmergencies: React.FC = () => {
   const [formData, setFormData] = useState({
     dat: "",
     hea: "",
-    cut_classification_window: "--",
+    store_data: "--",
   });
-  const [result, setResult] = useState<string | null>(null);
+
+  const [results, setResults] = useState<Result[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -19,40 +34,27 @@ const VisualizeECG: React.FC = () => {
     >
   ) => {
     const { name, value } = e.target;
-
-    // If the target is a select element, use the selected value directly
-    const selectedValue =
-      e.target.type === "select-one" ? e.target.value : value;
-
-    setFormData((prevData) => ({ ...prevData, [name]: selectedValue }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      // Make API request
-      const response = await visualizeECG(
+      const response = await predictMIEmergencies(
         formData.dat,
         formData.hea,
-        formData.cut_classification_window
+        formData.store_data
       );
 
       console.log("API Response:", response); // Log the response to the console
-
-      // Check if response is defined
-      if (response) {
-        // Create a data URL directly from the Blob
-        const imageUrl = URL.createObjectURL(response);
-
-        // Set the result to the image URL
-        setResult(imageUrl);
-      } else {
-        console.error("Invalid response format:", response);
-      }
+      setResults([response]);
     } catch (error) {
       // Handle API request error
       console.error("Error in handleSubmit:", error);
       // You might want to set an error state or display an error message to the user
+    } finally {
+      setLoading(false); // Set loading state to false after the API call completes
     }
   };
 
@@ -66,19 +68,16 @@ const VisualizeECG: React.FC = () => {
             <div className="border p-3">
               <form onSubmit={handleSubmit}>
                 <h2 className="text-gray">
-                  Plot the provided encoded ECG signal
+                  Detect MI emergencies using default emergency model
                 </h2>
                 <div className="mb-3">
-                  <label
-                    htmlFor="selectCutClassificationWindow"
-                    className="form-label"
-                  >
-                    Cut Classification Window:
+                  <label htmlFor="selectstore_data" className="form-label">
+                    store data:
                   </label>
                   <select
                     id="selectCutClassificationWindow"
-                    name="cut_classification_window"
-                    value={formData.cut_classification_window}
+                    name="store_data"
+                    value={formData.store_data}
                     onChange={handleInputChange}
                     className="form-select"
                   >
@@ -87,7 +86,6 @@ const VisualizeECG: React.FC = () => {
                     <option value="false">False</option>
                   </select>
                 </div>
-
                 <div className="mb-3">
                   <label htmlFor="textareaDat" className="form-label">
                     dat:
@@ -99,6 +97,7 @@ const VisualizeECG: React.FC = () => {
                     onChange={handleInputChange}
                     className="form-control"
                     rows={4}
+                    required
                   />
                 </div>
                 <div className="mb-3">
@@ -112,11 +111,15 @@ const VisualizeECG: React.FC = () => {
                     onChange={handleInputChange}
                     className="form-control"
                     rows={4}
+                    required
                   />
                 </div>
-
-                <button type="submit" className="btn btn-primary">
-                  Submit
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
+                  {loading ? "Loading..." : "Submit"}
                 </button>
               </form>
             </div>
@@ -124,12 +127,29 @@ const VisualizeECG: React.FC = () => {
 
           {/* Right side with the results */}
           <Col md={6}>
-            {result && (
-              <div className="border p-3">
-                <h2>Results:</h2>
-                <img src={result} alt="Result Image" className="img-fluid" />
-              </div>
-            )}
+            <div className="col">
+              <h3>Results:</h3>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>Predicted Class</th>
+                    <th>Classification Score</th>
+                    <th>Emergency</th>
+                    <th>Emergency Data</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {results.map((result, index) => (
+                    <tr key={index}>
+                      <td>{result.predicted_class}</td>
+                      <td>{result.classification_score}</td>
+                      <td>{result.emergency ? "Yes" : "No"}</td>
+                      <td>{result.emergency_data || "N/A"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
           </Col>
         </Row>
       </div>
@@ -137,4 +157,4 @@ const VisualizeECG: React.FC = () => {
   );
 };
 
-export default VisualizeECG;
+export default DetectMIEmergencies;

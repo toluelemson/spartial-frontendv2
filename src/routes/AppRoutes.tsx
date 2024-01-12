@@ -15,17 +15,21 @@ import ModelComparison from "../customComponents/models/ModelComparison";
 import Fairness from "../customComponents/Services/Fairness/Fairness";
 import EnhancedX from "../customComponents/Services/EnhancedX/EnhancedX";
 import Privacy from "../customComponents/Services/Privacy/Privacy";
-import MedicalHomepage from "../customComponents/medical/medicalHomepage";
-import DetectMIEmergencies from "../customComponents/medical/DetectMIEmergencies";
-import GenerateExplanations from "../customComponents/medical/GenerateExplanations";
-import DemoMIEmergency from "../customComponents/medical/DemoMIEmergency";
-import DemoMIEmergencyData from "../customComponents/medical/DemoMIEmergencyData";
-import VisualizeECG from "../customComponents/medical/VisualizeECG";
-import IdentifySegments from "../customComponents/medical/IdentifySegments";
-import TickImportance from "../customComponents/medical/TickImportance";
-import LeadImportance from "../customComponents/medical/LeadImportance";
-import TimeImportance from "../customComponents/medical/TimeImportance";
+import MedicalHomepage from "../customComponents/Services/medical/medicalHomepage";
+import DetectMIEmergencies from "../customComponents/Services/medical/DetectMIEmergencies";
+import GenerateExplanations from "../customComponents/Services/medical/GenerateExplanations";
+import DemoMIEmergency from "../customComponents/Services/medical/DemoMIEmergency";
+import DemoMIEmergencyData from "../customComponents/Services/medical/DemoMIEmergencyData";
+import VisualizeECG from "../customComponents/Services/medical/VisualizeECG";
+import IdentifySegments from "../customComponents/Services/medical/IdentifySegments";
+import TickImportance from "../customComponents/Services/medical/TickImportance";
+import LeadImportance from "../customComponents/Services/medical/LeadImportance";
+import TimeImportance from "../customComponents/Services/medical/TimeImportance";
 import Spatial from "../customComponents/Spatial/Spatial";
+import metricsHomepage from "../customComponents/Services/Metrics/metricsHomepage";
+import EvasionImpact from "../customComponents/Services/Metrics/EvasionImpact";
+import ConsistencyMetric from "../customComponents/Services/Metrics/ConsistencyMetric";
+import XAIHomepage from "../customComponents/Services/XAI/XAIHomepage";
 
 interface RouteConfig {
   path: string;
@@ -60,6 +64,10 @@ const routeConfig: RouteConfig[] = [
   { path: "/TimeImportance", Component: TimeImportance },
   { path: "/LeadImportance", Component: LeadImportance },
   { path: "*", Component: NoMatchComponent, isProtected: false },
+  { path: "/Metrics/metricsHomepage", Component: metricsHomepage },
+  { path: "/Metrics/EvasionImpact", Component: EvasionImpact },
+  { path: "/Metrics/ConsistencyMetric", Component: ConsistencyMetric },
+  { path: "/XAI/XAIHomepage", Component: XAIHomepage },
 ];
 
 const AppRoutes: React.FC = () => (

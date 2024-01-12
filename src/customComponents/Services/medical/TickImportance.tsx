@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { Col, Row } from "react-bootstrap";
-import { leadImportance } from "../../api";
+
+import { tickImportance } from "../../../api";
 
 import MedicalNavbar from "./medicalNavbar";
 
-const LeadImportance: React.FC = () => {
+const TickImportance: React.FC = () => {
   const [formData, setFormData] = useState({
     dat: "",
     hea: "",
@@ -12,6 +13,7 @@ const LeadImportance: React.FC = () => {
     model_id: "",
   });
   const [result, setResult] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -21,12 +23,17 @@ const LeadImportance: React.FC = () => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     try {
       // Make API request
-      const response = await leadImportance(
+      const response = await tickImportance(
         formData.dat,
         formData.hea,
         formData.xai_method,
@@ -49,6 +56,8 @@ const LeadImportance: React.FC = () => {
       // Handle API request error
       console.error("Error in handleSubmit:", error);
       // You might want to set an error state or display an error message to the user
+    } finally {
+      setLoading(false); // Set loading state to false after the API call completes
     }
   };
 
@@ -62,9 +71,9 @@ const LeadImportance: React.FC = () => {
             <div className="border p-3">
               <form onSubmit={handleSubmit}>
                 <h2 className="text-gray">
-                  Generate explanation (highlighting the relevant leads) for the
-                  provided ECG signal applying the specified XAI method on the
-                  specified model
+                  Generate explanation (highlighting the relevant time ticks)
+                  for the provided ECG signal applying the specified XAI method
+                  on the specified model
                 </h2>
                 <div className="mb-3">
                   <label htmlFor="selectxai_method" className="form-label">
@@ -106,6 +115,7 @@ const LeadImportance: React.FC = () => {
                     onChange={handleInputChange}
                     className="form-control"
                     rows={4}
+                    required
                   />
                 </div>
                 <div className="mb-3">
@@ -119,10 +129,16 @@ const LeadImportance: React.FC = () => {
                     onChange={handleInputChange}
                     className="form-control"
                     rows={4}
+                    required
                   />
                 </div>
-                <button type="submit" className="btn btn-primary">
-                  Submit
+
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
+                  {loading ? "Loading..." : "Submit"}
                 </button>
               </form>
             </div>
@@ -143,4 +159,4 @@ const LeadImportance: React.FC = () => {
   );
 };
 
-export default LeadImportance;
+export default TickImportance;

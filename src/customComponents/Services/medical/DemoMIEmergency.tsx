@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Col, Row, Button } from "react-bootstrap";
 
-import { demoMIEmergency } from "../../api";
+import { demoMIEmergency } from "../../../api";
 
 import MedicalNavbar from "./medicalNavbar";
 
@@ -17,6 +17,7 @@ const DemoMIEmergency: React.FC = () => {
   });
 
   const [result, setResult] = useState<Array<ResultItem>>([]);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -27,9 +28,18 @@ const DemoMIEmergency: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const response = await demoMIEmergency(formData.limit);
-    console.log("API Response:", response);
-    setResult(response);
+    setLoading(true);
+    try {
+      const response = await demoMIEmergency(formData.limit);
+      console.log("API Response:", response);
+      setResult(response);
+    } catch (error) {
+      // Handle API request error
+      console.error("Error in handleSubmit:", error);
+      // You might want to set an error state or display an error message to the user
+    } finally {
+      setLoading(false); // Set loading state to false after the API call completes
+    }
   };
 
   const handleCopyToClipboard = (content: string) => {
@@ -74,8 +84,12 @@ const DemoMIEmergency: React.FC = () => {
               />
             </div>
             <br />
-            <button type="submit" className="btn btn-primary">
-              Submit
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Loading..." : "Submit"}
             </button>
           </form>
         </div>

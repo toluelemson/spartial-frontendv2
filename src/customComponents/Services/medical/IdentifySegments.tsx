@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Col, Row } from "react-bootstrap";
-import { identifySegments } from "../../api";
+import { identifySegments } from "../../../api";
 
 import MedicalNavbar from "./medicalNavbar";
 
@@ -10,6 +10,7 @@ const IdentifySegments: React.FC = () => {
     hea: "MTUwNTlfbHIgMTIgMTAwIDEwMDAKMTUwNTlfbHIuZGF0IDE2IDEwMDAuMCgwKS9tViAxNiAwIC0xODQgNjQ5MDAgMCBJCjE1MDU5X2xyLmRhdCAxNiAxMDAwLjAoMCkvbVYgMTYgMCAtMzAgNjUxNzkgMCBJSQoxNTA1OV9sci5kYXQgMTYgMTAwMC4wKDApL21WIDE2IDAgMTU0IDI3MSAwIElJSQoxNTA1OV9sci5kYXQgMTYgMTAwMC4wKDApL21WIDE2IDAgMTA2IDUxMSAwIEFWUgoxNTA1OV9sci5kYXQgMTYgMTAwMC4wKDApL21WIDE2IDAgLTE2OSA2NTA4MiAwIEFWTAoxNTA1OV9sci5kYXQgMTYgMTAwMC4wKDApL21WIDE2IDAgNjEgNjU0NTMgMCBBVkYKMTUwNTlfbHIuZGF0IDE2IDEwMDAuMCgwKS9tViAxNiAwIDE5OSA2Mzk1OSAwIFYxCjE1MDU5X2xyLmRhdCAxNiAxMDAwLjAoMCkvbVYgMTYgMCAyMzggNjQ4ODUgMCBWMgoxNTA1OV9sci5kYXQgMTYgMTAwMC4wKDApL21WIDE2IDAgMTc4IDM0MjQgMCBWMwoxNTA1OV9sci5kYXQgMTYgMTAwMC4wKDApL21WIDE2IDAgLTIxIDE5NzggMCBWNAoxNTA1OV9sci5kYXQgMTYgMTAwMC4wKDApL21WIDE2IDAgLTE4NiA2NDYyNyAwIFY1CjE1MDU5X2xyLmRhdCAxNiAxMDAwLjAoMCkvbVYgMTYgMCAtMjE4IDE5NTggMCBWNgo=",
   });
   const [result, setResult] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -20,6 +21,7 @@ const IdentifySegments: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
     try {
       // Make API request
       const response = await identifySegments(formData.dat, formData.hea);
@@ -40,6 +42,8 @@ const IdentifySegments: React.FC = () => {
       // Handle API request error
       console.error("Error in handleSubmit:", error);
       // You might want to set an error state or display an error message to the user
+    } finally {
+      setLoading(false); // Set loading state to false after the API call completes
     }
   };
 
@@ -67,6 +71,7 @@ const IdentifySegments: React.FC = () => {
                     onChange={handleInputChange}
                     className="form-control"
                     rows={4}
+                    required
                   />
                 </div>
                 <div className="mb-3">
@@ -80,10 +85,15 @@ const IdentifySegments: React.FC = () => {
                     onChange={handleInputChange}
                     className="form-control"
                     rows={4}
+                    required
                   />
                 </div>
-                <button type="submit" className="btn btn-primary">
-                  Submit
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={loading}
+                >
+                  {loading ? "Loading..." : "Submit"}
                 </button>
               </form>
             </div>
