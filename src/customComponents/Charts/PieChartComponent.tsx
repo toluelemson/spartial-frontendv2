@@ -14,21 +14,8 @@ interface PieChartComponentProps {
     data: PieDataItem[];
 }
 
-const options = {
-    maintainAspectRatio: false,
-    responsive: true
-};
 
 const PieChartComponent: React.FC<PieChartComponentProps> = ({data}) => {
-    // Function to generate random colors
-    // const getRandomColor = () => {
-    //     const letters = '0123456789ABCDEF';
-    //     let color = '#';
-    //     for (let i = 0; i < 6; i++) {
-    //         color += letters[Math.floor(Math.random() * 16)];
-    //     }
-    //     return color;
-    // };
 
     const chartData: ChartData<'pie', number[], string> = {
         labels: data.map(item => item.type),
@@ -45,7 +32,7 @@ const PieChartComponent: React.FC<PieChartComponentProps> = ({data}) => {
         responsive: true,
         plugins: {
             legend: {
-                position: 'top' as const, // 'top', 'left', 'bottom', 'right', or 'chartArea'
+                position: 'top' as const,
                 labels: {
                     boxWidth: 20,
                 },
@@ -55,7 +42,7 @@ const PieChartComponent: React.FC<PieChartComponentProps> = ({data}) => {
                 text: 'Custom Pie Chart Title',
             },
             tooltip: {
-                // Custom tooltip styling can be done here
+
             },
         },
         animation: {
