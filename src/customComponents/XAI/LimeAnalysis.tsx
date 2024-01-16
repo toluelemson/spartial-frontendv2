@@ -194,18 +194,6 @@ const LIMEParameters: React.FC = () => {
                     </Form.Select>
             </Form.Group>
 
-            <Form.Group controlId="sampleID" className="mb-3">
-              <Form.Label>Sample ID</Form.Label>
-              <Form.Control
-                type="number"
-                name="sampleId"
-                placeholder="Enter Sample ID"
-                value={state.sampleId}
-                onChange={handleInputChange}
-                className="mb-3"
-              />
-            </Form.Group>
-
             <Form.Group controlId="featuresToMask" className="mb-3">
               <Form.Label>Feature(s) to mask</Form.Label>
               <InputGroup>
