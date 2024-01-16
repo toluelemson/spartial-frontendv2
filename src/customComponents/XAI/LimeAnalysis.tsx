@@ -31,7 +31,7 @@ interface ILIMEParametersState {
   predictions: null | string
 }
 
-const LIMEParameters: React.FC = () => {
+const LIMEAnalysis: React.FC = () => {
     const { modelId } = useParams();
 
     console.log(modelId)
@@ -263,4 +263,4 @@ const LIMEParameters: React.FC = () => {
   );
 };
 
-export default LIMEParameters;
+export default LIMEAnalysis;
