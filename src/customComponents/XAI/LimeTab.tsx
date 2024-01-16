@@ -1,14 +1,10 @@
+import Papa from 'papaparse';
 import React, {useState, FormEvent, useEffect} from 'react';
-import {Container, Form, Row, Col, Button, InputGroup, FormControl, Card, Spinner} from 'react-bootstrap';
-import {getLabelsListAppXAI} from '../util/utility'
+import {Container, Form, Row, Col, Button, InputGroup, Card, Spinner} from 'react-bootstrap';
 import PieChartComponent from '../Charts/PieChartComponent';
-
-import {useSpatialContext} from "../../context/context";
-import * as api from '../../api';
-import Papa from "papaparse";
-import {AC_OUTPUT_LABELS, AD_OUTPUT_LABELS} from "../../constants";
 import ProbabilityTable from "../Charts/ProbabilityTable";
-
+import LimeDataUpdater from '../util/LimeDataUpdater';
+import * as api from '../../api';
 
 type ProbabilityData = { key: number; label: string; probability: string };
 type PieChartData = { type: string; value: number };
@@ -32,38 +28,15 @@ interface ILIMEParametersState {
 }
 
 interface LIMETabProps {
-    modelId: string;
+    state: any;
+    updateState: any
 }
 
 
-export const LIMETab: React.FC<LIMETabProps> = ({modelId}) => {
+export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
 
-    // const { modelId } = useParams();
-    console.log(modelId)
     const allowedValues = [1, 5, 10, 15, 20, 25, 30];
-
-
-    const {XAIStatusState, allModel} = useSpatialContext();  //TODO DETERMINE IF ALL MODEL SHOULD BE CALLED GLOBALLY
-    const initialState: ILIMEParametersState = {
-        sampleId: 5,
-        featuresToDisplay: 10,
-        positiveChecked: true,
-        negativeChecked: true,
-        modelId: modelId || "",
-        label: getLabelsListAppXAI("ac")[1],
-        numberSamples: 10,
-        maxDisplay: 15,
-        maskedFeatures: [],
-        pieData: [],
-        dataTableProbs: [],
-        isRunning: XAIStatusState ? XAIStatusState.isRunning : null,
-        limeValues: [],
-        isLabelEnabled: false,
-        predictions: null,
-    }
-
-
-    const [state, setState] = useState<ILIMEParametersState>(initialState);
+    const [triggerDataUpdate, setTriggerDataUpdate] = useState(false);
     const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -75,7 +48,7 @@ export const LIMETab: React.FC<LIMETabProps> = ({modelId}) => {
                 Papa.parse(csvDataString, {
                     complete: result => {
                         if (Array.isArray(result.data)) {
-                            setState((prevState) => ({...prevState, maskedFeatures: result.data as string[]}))
+                            updateState((prevState: any) => ({...prevState, maskedFeatures: result.data as string[]}))
                         }
                     }, header: true,
                 });
@@ -84,7 +57,40 @@ export const LIMETab: React.FC<LIMETabProps> = ({modelId}) => {
             }
         };
         fetchData();
-    }, []);
+    }, [state.modelId, updateState]);
+
+    useEffect(() => {
+        const loadDataFromStorage = () => {
+            if (!state.modelId) return;
+            try {
+                const storedPieData = localStorage.getItem('pieData' + state.modelId);
+                const storedDataTableProbs = localStorage.getItem('dataTableProbs' + state.modelId);
+
+                let newState: Partial<ILIMEParametersState> = {};
+
+                if (storedPieData) {
+                    const pieData = JSON.parse(storedPieData);
+                    if (pieData[state.modelId]) {
+                        newState.pieData = pieData[state.modelId];
+                    }
+                }
+
+                if (storedDataTableProbs) {
+                    const dataTableProbs = JSON.parse(storedDataTableProbs);
+                    if (dataTableProbs[state.modelId]) {
+                        newState.dataTableProbs = dataTableProbs[state.modelId];
+                    }
+                }
+
+                if (Object.keys(newState).length > 0) {
+                    updateState((prevState: ILIMEParametersState) => ({...prevState, ...newState}));
+                }
+            } catch (error) {
+                console.error('Error loading data from localStorage:', error);
+            }
+        }
+        loadDataFromStorage();
+    }, [state.modelId]);
 
     const handleInputChange = (
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -97,13 +103,12 @@ export const LIMETab: React.FC<LIMETabProps> = ({modelId}) => {
             setSelectedOptions(selectedOptions);
         } else if (target.type === 'checkbox') {
             // Handle checkbox
-            setState({
+            updateState({
                 ...state,
                 [target.name]: (target as HTMLInputElement).checked,
             });
         } else {
-            // Handle other inputs (text, textarea, etc.)
-            setState({
+            updateState({
                 ...state,
                 [target.name]: target.value,
             });
@@ -112,83 +117,11 @@ export const LIMETab: React.FC<LIMETabProps> = ({modelId}) => {
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 
         event.preventDefault();
-        setLoading(true);
+        setLoading(true)
 
-        const {modelId, sampleId, featuresToDisplay} = state
+        if (!state.modelId) return
 
-        const predictionModelResponse = await api.requestPredictionsModel(state.modelId)
-
-        setState((prevState) => ({...prevState, predictions: predictionModelResponse}))
-
-        let intervalId: NodeJS.Timer | null = null;
-        const runLimeAndMonitorStatus = async () => {
-            try {
-                //TODO Replace 'any' with actual type for modelId, sampleId, featuresToDisplay, and res
-                const res: any = await api.requestRunLime(modelId, sampleId, featuresToDisplay);
-                console.log(res)
-
-                if (res && res.isRunning) {
-                    intervalId = setInterval(() => {
-                        api.requestXAIStatus();
-                    }, 1000);
-                }
-            } catch (error: any) {
-                console.error('Error during requestRunLime:', error);
-
-                if (intervalId) clearInterval(intervalId);
-            }
-
-            if (intervalId) clearInterval(intervalId);
-        };
-
-        // Call the function
-        await runLimeAndMonitorStatus();
-
-        const formatProbabilityData = (yProbs: number[][], labels: string[], sampleId: number | null): ProbabilityData[] => {
-            return labels.map((label, index) => ({
-                key: index,
-                label,
-                probability: sampleId && yProbs[sampleId] ? yProbs[sampleId][index].toFixed(6) : '-'
-            }));
-        };
-
-        const formatPieChartData = (yProbs: number[][], sampleId: number | null, labels: string[]): PieChartData[] => {
-            return sampleId ? yProbs[sampleId].map((prob, i) => ({
-                type: labels[i],
-                value: parseFloat((prob * 100).toFixed(2))
-            })) : [];
-        };
-
-        const parsePredictedProbs = (probs: string, sampleId: number | null): number[][] => {
-            return probs.split('\n').slice(1).map(line =>
-                line.split(',').map(val => parseFloat(val))
-            );
-        };
-
-        const processProbsData = async (modelId: string, sampleId: number | null) => {
-            const predictedProbsResponse = await api.requestPredictedProbsModel(state.modelId);
-            const yProbs = parsePredictedProbs(predictedProbsResponse, sampleId);
-            let dataTableProbs: ProbabilityData[] = [];
-            let pieData: PieChartData[] = [];
-
-            if (modelId.startsWith('ac-')) {
-                dataTableProbs = formatProbabilityData(yProbs, ['Web', 'Interactive', 'Video'], sampleId);
-                pieData = formatPieChartData(yProbs, sampleId, AC_OUTPUT_LABELS);
-            } else {
-                dataTableProbs = formatProbabilityData(yProbs, ['Normal traffic', 'Malware traffic'], sampleId);
-                pieData = formatPieChartData(yProbs, sampleId, AD_OUTPUT_LABELS);
-            }
-
-            return {dataTableProbs, pieData};
-        };
-
-        const updateData = async () => {
-            const {dataTableProbs, pieData} = await processProbsData(state.modelId, state.sampleId);
-            setState((prevState) => ({...prevState, pieData: pieData, dataTableProbs: dataTableProbs}))
-
-        };
-
-        await updateData();
+        setTriggerDataUpdate(true);
         setLoading(false);
     }
 
@@ -200,21 +133,7 @@ export const LIMETab: React.FC<LIMETabProps> = ({modelId}) => {
                 <Row>
                     <Col md={6}>
                         <Card className="mb-4">
-                            {/*<Form.Group controlId="modelSelect" className="mb-3">*/}
-                            {/*  <Form.Label>Model *</Form.Label>*/}
-                            {/*    <Form.Select*/}
-                            {/*          name="modelId"*/}
-                            {/*          aria-label="Model select"*/}
-                            {/*          className="mb-3"*/}
-                            {/*          onChange={handleInputChange}*/}
-                            {/*          value={state.modelId}*/}
-                            {/*        >*/}
-                            {/*         <option value="" disabled selected={!!state.modelId}>Select a model</option>*/}
-                            {/*          {allModel && allModel.map(m => (*/}
-                            {/*            <option key={m.modelId} value={m.modelId}>{m.modelId}</option>*/}
-                            {/*          ))}*/}
-                            {/*        </Form.Select>*/}
-                            {/*</Form.Group>*/}
+                            <LimeDataUpdater state={state} updateState={updateState} triggerUpdate={triggerDataUpdate}/>
                             <Card.Body>
                                 <Form.Group controlId="sampleID" className="mb-3">
                                     <Form.Label>Sample ID</Form.Label>
@@ -224,17 +143,6 @@ export const LIMETab: React.FC<LIMETabProps> = ({modelId}) => {
                                         placeholder="Enter Sample ID"
                                         value={state.sampleId}
                                         onChange={handleInputChange}
-                                    />
-                                </Form.Group>
-                                <Form.Group controlId="sampleID" className="mb-3">
-                                    <Form.Label>Sample ID</Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        name="sampleId"
-                                        placeholder="Enter Sample ID"
-                                        value={state.sampleId}
-                                        onChange={handleInputChange}
-                                        className="mb-3"
                                     />
                                 </Form.Group>
                                 <Form.Group controlId="featuresToMask" className="mb-3">
@@ -323,34 +231,33 @@ export const LIMETab: React.FC<LIMETabProps> = ({modelId}) => {
                                             onChange={handleInputChange}
                                         />
                                     </Form.Group>
-
                                 </div>
                             </Card.Body>
                         </Card>
-
-
                     </Col>
 
                 </Row>
-                {loading ? (
-                <div className="text-center my-5">
-                    <Spinner animation="border" role="status">
-                        <span className="visually-hidden">Loading...</span>
-                    </Spinner>
-                </div>
-            ) : (
-                <Row className="mt-4">
-                    <Col md={6}>
-                        <PieChartComponent data={state.pieData} />
-                    </Col>
-                    <Col md={6}>
-                        <ProbabilityTable data={state.dataTableProbs as any} />
-                    </Col>
-                </Row>
-            )}
+                {loading ? <SpinnerComponent/> : <ChartsDisplay state={state}/>}
             </Form>
-
         </Container>
-
     )
 }
+
+const SpinnerComponent = () => (
+    <div className="text-center my-5">
+        <Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+        </Spinner>
+    </div>
+);
+
+export const ChartsDisplay = ({state}: any) => (
+    <Row className="mt-4">
+        <Col md={6}>
+            <PieChartComponent data={state.pieData}/>
+        </Col>
+        <Col md={6}>
+            <ProbabilityTable data={state.dataTableProbs as any}/>
+        </Col>
+    </Row>
+);
