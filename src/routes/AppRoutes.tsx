@@ -13,7 +13,6 @@ import DatasetList from "../customComponents/datasets/DatasetList";
 import LimeAnalysis from "../customComponents/XAI/LimeAnalysis";
 import ModelComparison from "../customComponents/models/ModelComparison";
 import Fairness from "../customComponents/Services/Fairness/Fairness";
-import EnhancedX from "../customComponents/Services/EnhancedX/EnhancedX";
 import Privacy from "../customComponents/Services/Privacy/Privacy";
 import MedicalHomepage from "../customComponents/Services/medical/medicalHomepage";
 import DetectMIEmergencies from "../customComponents/Services/medical/DetectMIEmergencies";
@@ -25,11 +24,13 @@ import IdentifySegments from "../customComponents/Services/medical/IdentifySegme
 import TickImportance from "../customComponents/Services/medical/TickImportance";
 import LeadImportance from "../customComponents/Services/medical/LeadImportance";
 import TimeImportance from "../customComponents/Services/medical/TimeImportance";
-import Spatial from "../customComponents/Spatial/Spatial";
+// import Spatial from "../customComponents/Spatial/Spatial";
 import metricsHomepage from "../customComponents/Services/Metrics/metricsHomepage";
 import EvasionImpact from "../customComponents/Services/Metrics/EvasionImpact";
 import ConsistencyMetric from "../customComponents/Services/Metrics/ConsistencyMetric";
 import XAIHomepage from "../customComponents/Services/XAIS/XAIHomepage";
+import EnhancedX from "../customComponents/Services/EnhancedX/EnhancedX";
+import Spatial from "../customComponents/Spatial/SpatialDashboard";
 
 interface RouteConfig {
   path: string;
@@ -63,13 +64,12 @@ const routeConfig: RouteConfig[] = [
   { path: "/TickImportance", Component: TickImportance },
   { path: "/TimeImportance", Component: TimeImportance },
   { path: "/LeadImportance", Component: LeadImportance },
-  { path: "*", Component: NoMatchComponent, isProtected: false },
   { path: "/Metrics/metricsHomepage", Component: metricsHomepage },
   { path: "/Metrics/EvasionImpact", Component: EvasionImpact },
   { path: "/Metrics/ConsistencyMetric", Component: ConsistencyMetric },
-  { path: "/XAIS/XAIHomepage", Component: XAIHomepage },
+  { path: "/XAI/XAIHomepage", Component: XAIHomepage },
+  { path: "*", Component: NoMatchComponent, isProtected: false },
 ];
-
 const AppRoutes: React.FC = () => (
   <Routes>
     {routeConfig.map(({ path, Component, isProtected = true }) => (

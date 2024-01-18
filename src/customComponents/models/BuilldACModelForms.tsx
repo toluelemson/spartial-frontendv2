@@ -6,6 +6,7 @@ import { requestBuildACModel } from "../../api";
 import useCheckBuildStatus from "../util/useCheckBuildStatus";
 
 interface FormState {
+    serviceType: string;
     modelType: string;
     featureList: string;
     trainingRatio: number;
@@ -21,11 +22,11 @@ const BuildACModelForm: React.FC = () => {
         modelType: '',
         featureList: 'Raw Features',
         trainingRatio: 0.7,
+        serviceType: 'Network Traffic',
         dataSet: ''
     }), []);
     const [formData, setFormData] = useState<FormState>(initialFormData);
     const [isFormValid, setIsFormValid] = useState(false);
-    const [acDataState, setAcDatasetState] = useState<string | null>( null);
     const [isLoading, setIsLoading] = useState(true)
 
 
@@ -44,6 +45,14 @@ const BuildACModelForm: React.FC = () => {
 
 
     const inputGroups = useMemo(() => [
+         {
+            label: 'Service Type:',
+            name: 'serviceType',
+            type: 'select',
+            value: formData.serviceType,
+            placeholder: 'Select Service Type...',
+            options:  ["Network Traffic"]
+        },
         {
             label: 'Model Type:',
             name: 'modelType',

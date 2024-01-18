@@ -6,9 +6,10 @@ import {
     Dropdown,
     Pagination,
     Container,
-    Modal
+    Modal,
+    Form
 } from 'react-bootstrap';
-import {BsDownload, BsEye, BsPencil, BsCamera, BsSave, BsSave2} from "react-icons/bs";
+import {BsDownload, BsEye, BsPencil, BsCamera, BsSave2} from "react-icons/bs";
 import {CopyIcon} from "@radix-ui/react-icons";
 import {useSpatialContext} from "../../context/context";
 import {ModelData, ModelListType} from "../../types/types";
@@ -18,10 +19,6 @@ import {requestDownloadDatasets, requestDownloadModel, requestUpdateModel} from 
 import {To, useNavigate} from "react-router-dom";
 
 
-interface FairnessSummary {
-  [key: string]: number | number[];
-}
-
 const AllModels: FC = () => {
 
     const navigate = useNavigate();
@@ -30,13 +27,13 @@ const AllModels: FC = () => {
     const models = useMemo(() => allModel as ModelListType | null, [allModel]);
     const [showModal, setShowModal] = useState(false);
     const [selectedModel, setSelectedModel] = useState<ModelData | null>(null);
-    const [isEditable, setIsEditable] = useState(false);
+    const [selectedModels, setSelectedModels] = useState<string[]>([]);
+    // const [isEditable, setIsEditable] = useState(false);
     const [editableModelId, setEditableModelId] = useState<string | null>(null);
-
     const [newModelId, setNewModelId] = useState<string>("");
-    const fairnessSummary: FairnessSummary = {};
 
     const editableDivRefs = useRef<{ [key: string]: HTMLDivElement }>({});
+
 
     const toggleEdit = (modelId: string) => {
         const isCurrentModelEditable = editableModelId === modelId;
@@ -49,26 +46,31 @@ const AllModels: FC = () => {
             }
         }, 0);
 
-        // setSelectedModel((prev) => {
-        //     if (prev === null) {
-        //         return {
-        //             modelId: model.modelId,
-        //             lastBuildAt: model.lastBuildAt,
-        //             buildConfig: model.buildConfig
-        //         };
-        //     } else {
-        //         return {
-        //             ...prev,
-        //             modelId: newModelId
-        //         };
-        //     }
-        // });
-        //
-        // if(isEditable){
-        //     console.log(newModelId)
-        //     requestUpdateModel(model.modelId, newModelId).catch(e => console.log(e))
-        // }
     };
+
+    const [filterPrefix, setFilterPrefix] = useState<string>('all');
+
+    const filteredModels = useMemo(() => {
+        return filterPrefix !== 'all'
+            ? models && models.filter(model => model.modelId.toLowerCase().startsWith(filterPrefix))
+            : models;
+    }, [models, filterPrefix]);
+
+    const handleCheckboxChange = (modelId: string, isChecked: boolean) => {
+        setSelectedModels(prev => {
+            if (isChecked) {
+                return [...prev, modelId];
+            } else {
+                return prev.filter(id => id !== modelId);
+            }
+        });
+    };
+
+
+    const sendToSpatial = () => {
+        console.log("Sending these models to Spatial:", selectedModels);
+    };
+
     const handleButtonNavigate = (targetPath: To) => {
         navigate(targetPath);
     };
@@ -113,9 +115,24 @@ const AllModels: FC = () => {
     return (
         <Container>
             <h1>All models</h1>
-            <Table striped bordered hover responsive>
+            <Form>
+                <Form.Group controlId="filterPrefix">
+                    <Form.Label>Filter models by Services</Form.Label>
+                    <Form.Select
+                        value={filterPrefix}
+                        onChange={(e) => setFilterPrefix(e.target.value)}
+                        aria-label="Model ID prefix filter"
+                    >
+                        <option value="">Select a Service</option>
+                        <option value="ac-">Network Traffic-</option>
+                        <option value="model">Privacy-</option>
+                    </Form.Select>
+                </Form.Group>
+            </Form>
+            <Table striped bordered hover responsive className="align-middle">
                 <thead>
                 <tr>
+                    <th style={{width: '5%'}}>Select</th>
                     <th>Model Id</th>
                     <th>Built At</th>
                     <th>Training Dataset</th>
@@ -124,8 +141,14 @@ const AllModels: FC = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {models?.map(model => (
+                {filteredModels?.map(model => (
                     <tr key={model.modelId}>
+                        <td>
+                            <input
+                                type="checkbox"
+                                onChange={(e) => handleCheckboxChange(model.modelId, e.target.checked)}
+                            />
+                        </td>
                         <td>
                             <div className="d-flex flex-column flex-lg-row align-items-center">
                                 <div ref={el => editableDivRefs.current[model.modelId] = el as HTMLDivElement}
@@ -201,7 +224,7 @@ const AllModels: FC = () => {
                         <td>
                             <DropdownButton id="dropdown-item-button" title="Select an action">
                                 <Dropdown.Item as="button"
-                                               onClick={() => handleNavigation(`/spatial/${model.modelId}`)}>Send to
+                                               onClick={() => handleNavigation(`/spatial/${filterPrefix}/${model.modelId}`)}>Send to
                                     Spatial </Dropdown.Item>
                                 {/*<Dropdown.Item as="button" onClick={() => handleNavigation(`/xai/lime/${model.modelId}`)}>Lime </Dropdown.Item>*/}
                             </DropdownButton>
@@ -213,6 +236,7 @@ const AllModels: FC = () => {
 
             <div className="my-3">
                 <Button variant="danger">Delete All Models</Button>
+                {/*<Button variant="primary m-2" onClick={sendToSpatial}>Send to Spatial</Button>*/}
             </div>
             <Pagination>
                 <Pagination.Prev/>

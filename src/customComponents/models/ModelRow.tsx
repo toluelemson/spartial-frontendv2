@@ -17,10 +17,6 @@ interface ModelPerformanceCompareProps {
   dataStatsRight: PerformanceMetrics[];
   classificationLabel: any
 }
-interface ModelPerformance {
-  metric: string;
-  performance: PerformanceMetrics;
-}
 
 interface ConfigParameter {
   parameter: string;
@@ -30,12 +26,6 @@ interface ConfigParameter {
 interface PerformanceMetrics {
   [key: string]: string | number;
 }
-
-type MatrixCell = {
-  count: number;
-  percentage: number;
-};
-
 
 export const DataParameterRow: React.FC<{ data: ConfigParameter }> = ({ data }) => (
   <tr>

@@ -45,8 +45,7 @@ const TableComponent: React.FC<TableComponentProps> = ({modelIdProp, datasetType
         };
 
         fetchData();
-    }, [getPathSegments]);
-
+    }, [datasetType, modelId, modelIdProp]);
 
     const [currentPage, setCurrentPage] = useState(1);
     // Assuming 10 rows per page
