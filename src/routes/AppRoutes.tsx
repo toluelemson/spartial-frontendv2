@@ -29,7 +29,7 @@ import Spatial from "../customComponents/Spatial/Spatial";
 import metricsHomepage from "../customComponents/Services/Metrics/metricsHomepage";
 import EvasionImpact from "../customComponents/Services/Metrics/EvasionImpact";
 import ConsistencyMetric from "../customComponents/Services/Metrics/ConsistencyMetric";
-import XAIHomepage from "../customComponents/Services/XAI/XAIHomepage";
+import XAIHomepage from "../customComponents/Services/XAIS/XAIHomepage";
 
 interface RouteConfig {
   path: string;
@@ -67,7 +67,7 @@ const routeConfig: RouteConfig[] = [
   { path: "/Metrics/metricsHomepage", Component: metricsHomepage },
   { path: "/Metrics/EvasionImpact", Component: EvasionImpact },
   { path: "/Metrics/ConsistencyMetric", Component: ConsistencyMetric },
-  { path: "/XAI/XAIHomepage", Component: XAIHomepage },
+  { path: "/XAIS/XAIHomepage", Component: XAIHomepage },
 ];
 
 const AppRoutes: React.FC = () => (

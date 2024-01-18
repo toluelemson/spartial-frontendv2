@@ -418,19 +418,24 @@ export const evasion_impact_metric = async (ground_truth : number[], predictions
 }
 
 
-export const xaiAPI = async (xai_method:  string, file: File, mlModel:File,  imagetype :string ) => {
+export const xaiAPI = async (xai_method:  string, image: File, mlModel:File,  imagetype : string ) => {
     try {
 
         const requestBody = new FormData();
-        requestBody.append('file', file);
+        requestBody.append('file', image);
         requestBody.append('mlModel', mlModel);
+
+        const imageFileBytes = await readFileAsBlob(image);
+        requestBody.append('ImageFileBytes', imageFileBytes, 'image.bin');
+
         
-        const imageFileBytes = await readFileAsBase64(file);
-        requestBody.append('ImageFileBytes', imageFileBytes);
+        for (const entry of requestBody.entries()) {
+            console.log(entry[0], entry[1]);
+        }
 
         if (xai_method == 'lime') {
             const response = await makeApiRequest<any>(
-                `/explain_lime/image?imagetype=${imagetype}`,
+                `/explain_lime/image?imagetype=${imagetype}`, 
                 'post',
                 requestBody,  
                 'json'  
@@ -446,7 +451,7 @@ export const xaiAPI = async (xai_method:  string, file: File, mlModel:File,  ima
             );
             return response;
           }
-        else {
+        else if (xai_method == 'occ')  {
             const response = await makeApiRequest<any>(
                 `/explain_occlusion/image?imagetype=${imagetype}`,
                 'post',
@@ -467,21 +472,20 @@ export const xaiAPI = async (xai_method:  string, file: File, mlModel:File,  ima
 }
 
 
-
-// Function to read file content as base64
-const readFileAsBase64 = (file: File): Promise<string> => {
+const readFileAsBlob = (file: File): Promise<Blob> => {
     return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => {
-            if (reader.result) {
-                resolve(reader.result.toString());
-            } else {
-                reject(new Error('Failed to read file content.'));
-            }
-        };
-        reader.onerror = (error) => {
-            reject(error);
-        };
-        reader.readAsDataURL(file);
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (reader.result) {
+          const blob = new Blob([new Uint8Array(reader.result as ArrayBuffer)], { type: 'application/octet-stream' });
+          resolve(blob);
+        } else {
+          reject(new Error('Failed to read file content.'));
+        }
+      };
+      reader.onerror = (error) => {
+        reject(error);
+      };
+      reader.readAsArrayBuffer(file);
     });
-}
+  };

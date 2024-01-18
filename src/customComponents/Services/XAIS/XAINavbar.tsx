@@ -2,7 +2,7 @@ import React from "react";
 import { Nav, Navbar as BootstrapNavbar } from "react-bootstrap";
 import { Link, To } from "react-router-dom";
 
-const metricsHomepage = "/XAI/XAIHomepage";
+const metricsHomepage = "/XAIS/XAIHomepage";
 
 const XAINavbar: React.FC = () => {
   return (
@@ -15,7 +15,12 @@ const XAINavbar: React.FC = () => {
         <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
         <BootstrapNavbar.Collapse id="basic-navbar-nav">
           <Nav className="mr-auto">
-            <Nav.Link href="/XAI/XAIHomepage">XAI</Nav.Link>
+            <h3 className="text-light">
+              &nbsp; Building Trust Through Explainable AI
+            </h3>
+            {/* <Nav.Link href="/XAIS/XAIHomepage">LIME</Nav.Link>
+            <Nav.Link href="/XAIS/XAIHomepage">SHAP</Nav.Link>
+            <Nav.Link href="/XAIS/XAIHomepage">OCCLUSION</Nav.Link> */}
           </Nav>
         </BootstrapNavbar.Collapse>
       </BootstrapNavbar>{" "}

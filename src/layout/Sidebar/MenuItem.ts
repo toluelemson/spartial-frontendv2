@@ -80,7 +80,7 @@ export function useMenuData() {
                     title: 'XAI',
                     icon: 'bi bi-x-diamond-fill',
                     // icon: 'bi bi-clipboard-x-fill',
-                    path: '/XAI/XAIHomepage',
+                    path: '/XAIS/XAIHomepage',
                     secure: true,
                 }
             ]
