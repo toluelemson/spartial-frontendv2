@@ -1,5 +1,5 @@
 import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css'; // Make sure to import Bootstrap CSS
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 interface TableDataItem {
     key: string;
@@ -14,6 +14,10 @@ interface TableDataComponentProps {
 
 const ProbabilityTable: React.FC<TableDataComponentProps> = ({data}) => {
     const formatProbability = (probability: number) => `${(probability * 100).toFixed(2)}%`;
+
+    if (!data || data.length === 0) {
+        return <div>No prediction data available</div>;
+    }
 
     return (
         <div className="table-responsive">

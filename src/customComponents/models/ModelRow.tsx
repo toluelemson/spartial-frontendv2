@@ -1,7 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import {Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend} from 'chart.js';
 import ConfusionMatrix from "./ConfusionMatrix";
 import {extractLabelsFromDataset} from "../util/utility";
+import CSVComparator from "./modelComparison/CSVComparator";
 
 interface PerformanceMetrics {
     metric: string;
@@ -11,66 +12,72 @@ interface PerformanceMetrics {
 }
 
 interface ModelPerformanceCompareProps {
-  selectedModelLeft: boolean;
-  selectedModelRight: boolean;
-  dataStatsLeft: PerformanceMetrics[];
-  dataStatsRight: PerformanceMetrics[];
-  classificationLabel: any
+    selectedModelLeft: boolean;
+    selectedModelRight: boolean;
+    dataStatsLeft: PerformanceMetrics[];
+    dataStatsRight: PerformanceMetrics[];
+    classificationLabel: any
 }
 
 interface ConfigParameter {
-  parameter: string;
-  value: string;
+    parameter: string;
+    value: string;
 }
 
 interface PerformanceMetrics {
-  [key: string]: string | number;
+    [key: string]: string | number;
 }
 
-export const DataParameterRow: React.FC<{ data: ConfigParameter }> = ({ data }) => (
-  <tr>
-      <td>{data.parameter}</td>
-      <td>{data.value}</td>
-  </tr>
+export const DataParameterRow: React.FC<{ data: ConfigParameter }> = ({data}) => (
+    <tr>
+        <td>{data.parameter}</td>
+        <td>{data.value}</td>
+    </tr>
 );
-const PerformanceRow: React.FC<{ data?: PerformanceMetrics }> = ({ data }) => {
-  console.log('PerformanceRow data:', data);
+const PerformanceRow: React.FC<{ data?: PerformanceMetrics }> = ({data}) => {
+    console.log('PerformanceRow data:', data);
 
-  if (!data) {
-    return <tr><td colSpan={100}>Data not available</td></tr>;
-  }
+    if (!data) {
+        return <tr>
+            <td colSpan={100}>Data not available</td>
+        </tr>;
+    }
 
-  return (
-     <tr>
-        {
-            Object.keys(data)
-                .slice(1)
-                .map((key, index) => (
-                    <td key={index}>{data[key]}</td>
-                ))
-        }
-     </tr>
+    return (
+        <tr>
+            {
+                Object.keys(data)
+                    .slice(1)
+                    .map((key, index) => (
+                        <td key={index}>{data[key]}</td>
+                    ))
+            }
+        </tr>
 
 
-  );
+    );
 };
 
 
-export const TableSection: React.FC<{ title: string; columns: any[]; children: React.ReactNode }> = ({ title, columns, children }) => (
+export const TableSection: React.FC<{ title: string; columns: any[]; children: React.ReactNode }> = ({
+                                                                                                         title,
+                                                                                                         columns,
+                                                                                                         children
+                                                                                                     }) => (
     <table className="table table-bordered mt-5">
-            <thead>
-                <tr>
-                    {title === "Confusion Matrix" ? <th>Predicted\\Observed</th> : <th><b>Metrics</b></th> }
-                  {columns.map((column, index) => (
-                      <>
-                          <th key={index}>{column}</th>
-                      </>
-                  ))}
-                </tr>
-          </thead>
-         <tbody>
-          {children}
-         </tbody>
+        <thead>
+        <tr>
+            {title === "Confusion Matrix" ? <th>Predicted\\Observed</th> : <th><b>Metrics</b></th>}
+            {columns.map((column, index) => (
+                <>
+                    <th key={index}>{column}</th>
+                </>
+            ))}
+        </tr>
+        </thead>
+        <tbody>
+        {children}
+        </tbody>
     </table>
 );
 
@@ -79,14 +86,14 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 const ModelBuildConfigCompare: React.FC<any> = ({dataBuildConfigLeft, dataBuildConfigRight}) => (
     <div className="row">
         <div className="col">
-            <TableSection title= {'Configuration'} columns= {['']}>
+            <TableSection title={'Configuration'} columns={['']}>
                 {dataBuildConfigLeft && Array.isArray(dataBuildConfigLeft) && dataBuildConfigLeft.map((d: ConfigParameter, index: any) => (
                     <DataParameterRow key={`left-${index}`} data={d}/>
                 ))}
             </TableSection>
         </div>
         <div className="col">
-            <TableSection title= {'Configuration'} columns= {['']}>
+            <TableSection title={'Configuration'} columns={['']}>
                 {dataBuildConfigRight && Array.isArray(dataBuildConfigRight) && dataBuildConfigRight.map((d: ConfigParameter, index: any) => (
                     <DataParameterRow key={`right-${index}`} data={d}/>
                 ))}
@@ -96,30 +103,31 @@ const ModelBuildConfigCompare: React.FC<any> = ({dataBuildConfigLeft, dataBuildC
 )
 
 const ModelPerformanceCompare: React.FC<ModelPerformanceCompareProps> = ({
-  selectedModelLeft,
-  selectedModelRight,
-  dataStatsLeft,
-  dataStatsRight, classificationLabel
+                                                                             selectedModelLeft,
+                                                                             selectedModelRight,
+                                                                             dataStatsLeft,
+                                                                             dataStatsRight, classificationLabel
 
-}) => {
-    return(
-      <div className="row">
-        <div className="col">
-          <TableSection title="Performance" columns={classificationLabel.label1}>
-            {selectedModelLeft && dataStatsLeft.map((d, index) => (
-              <PerformanceRow key={`left-${index}`} data={d} />
-            ))}
-          </TableSection>
+                                                                         }) => {
+    return (
+        <div className="row">
+            <div className="col">
+                <TableSection title="Performance" columns={classificationLabel.label1}>
+                    {selectedModelLeft && dataStatsLeft.map((d, index) => (
+                        <PerformanceRow key={`left-${index}`} data={d}/>
+                    ))}
+                </TableSection>
+            </div>
+            <div className="col">
+                <TableSection title="Performance" columns={classificationLabel.label2}>
+                    {selectedModelRight && dataStatsRight.map((d, index) => (
+                        <PerformanceRow key={`right-${index}`} data={d}/>
+                    ))}
+                </TableSection>
+            </div>
         </div>
-        <div className="col">
-          <TableSection title="Performance" columns={classificationLabel.label2}>
-            {selectedModelRight && dataStatsRight.map((d, index) => (
-              <PerformanceRow key={`right-${index}`} data={d} />
-            ))}
-          </TableSection>
-        </div>
-      </div>
-)};
+    )
+};
 
 
 const ModelRow: React.FC<any> = ({state}) => {
@@ -139,22 +147,22 @@ const ModelRow: React.FC<any> = ({state}) => {
 
     const [classificationLabel, setClassificationLabel] = useState<any>([]);
 
+    useEffect(() => {
+        const fetchLabels = async () => {
+            try {
+                const label1 = selectedModelLeft ? await extractLabelsFromDataset(selectedModelLeft) : null;
+                const label2 = selectedModelRight ? await extractLabelsFromDataset(selectedModelRight) : null;
 
-  useEffect(() => {
-    const fetchLabels = async () => {
-        try {
-            const label1 = await extractLabelsFromDataset(selectedModelLeft);
-            const label2 = await extractLabelsFromDataset(selectedModelRight);
-            const labels = { label1 , label2}
-            setClassificationLabel(labels);
-            console.log(labels);
-        } catch (error) {
-            console.error('Error fetching classification labels:', error);
-        }
-    };
+                const labels = {label1, label2};
+                setClassificationLabel(labels);
+                console.log(labels);
+            } catch (error) {
+                console.error('Error fetching classification labels:', error);
+            }
+        };
 
-    fetchLabels();
-}, [dataBuildConfigLeft, cmConfigRight, dataStatsLeft, dataStatsRight, cmConfigLeft, selectedModelLeft, selectedModelRight]);
+        fetchLabels();
+    }, [dataBuildConfigLeft, cmConfigRight, dataStatsLeft, dataStatsRight, cmConfigLeft, selectedModelLeft, selectedModelRight]);
 
 
     return (
@@ -172,7 +180,7 @@ const ModelRow: React.FC<any> = ({state}) => {
                     selectedModelRight={selectedModelRight}
                     dataStatsLeft={dataStatsLeft}
                     dataStatsRight={dataStatsRight}
-                    classificationLabel ={classificationLabel}
+                    classificationLabel={classificationLabel}
                 />
             }
 
@@ -188,7 +196,6 @@ const ModelRow: React.FC<any> = ({state}) => {
             }
 
         </div>
-
     )
 };
 

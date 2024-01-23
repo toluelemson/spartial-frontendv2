@@ -7,23 +7,19 @@ export interface ILIMEParametersState {
     positiveChecked: boolean;
     negativeChecked: boolean;
     modelId: string,
-    label: string,
+    label: string | null,
     numberSamples: number,
     maxDisplay: number,
     maskedFeatures: string[]
     pieData: PieChartData[],
     dataTableProbs: ProbabilityData[],
     isRunning: any,
-    limeValues: string[],
+    limeValues?: Array<{ feature: string, value: any }>,
     isLabelEnabled: boolean,
-    predictions: null | string,
-    pieDataLeft: null,
-    pieDataRight: null,
-    pieTableLeft: null,
-    pieTableRight: null
+    predictions: null | string
 }
 
 export interface LIMETabProps {
-    state: any;
+    state: ILIMEParametersState;
     updateState: any
 }
