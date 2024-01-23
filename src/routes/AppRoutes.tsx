@@ -11,7 +11,7 @@ import NoMatchComponent from "../customComponents/NoMatchComponent";
 import AllModels from "../customComponents/models/ModelList";
 import DatasetList from "../customComponents/datasets/DatasetList";
 import LimeAnalysis from "../customComponents/XAI/LimeAnalysis";
-import ModelComparison from "../customComponents/models/ModelComparison";
+import ModelComparison from "../customComponents/models/modelComparison/ModelComparison";
 import Fairness from "../customComponents/Services/Fairness/Fairness";
 import Privacy from "../customComponents/Services/Privacy/Privacy";
 import EnhancedX from "../customComponents/Services/EnhancedX/EnhancedX";
@@ -47,9 +47,8 @@ const routeConfig: RouteConfig[] = [
         {path: '/protected', Component: ProtectedComponent},
         {path: '/datasets/:type/:action', Component: DatasetList},
         {path: '/xai/lime/:modelId', Component: LimeAnalysis},
-        {path: '/spatial/:fp/:modelId', Component: Spatial},
-        {path: '/spatial/:fp', Component: Spatial},
-        {path: '/spatial/:modelId/all', Component: Spatial},
+        {path: '/spatial/dashboard/:modelId', Component: Spatial},
+        {path: '/spatial/dashboard/', Component: Spatial},
         {path: '/xai/lime', Component: LimeAnalysis},
         {path: '/xai/models/comparison', Component: ModelComparison},
         {path: '/xai/service/fairness', Component: Fairness},

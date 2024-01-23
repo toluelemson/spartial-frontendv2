@@ -22,7 +22,7 @@ const PieChartComponent: React.FC<PieChartComponentProps> = ({data}) => {
         datasets: [
             {
                 data: data.map(item => item.value),
-                backgroundColor:  ['#ff6384', '#36a2eb', '#cc65fe'],
+                backgroundColor: ['#ff6384', '#36a2eb', '#cc65fe'],
                 hoverBackgroundColor: ['#ff6384', '#36a2eb', '#cc65fe']
             }
         ]
@@ -39,11 +39,9 @@ const PieChartComponent: React.FC<PieChartComponentProps> = ({data}) => {
             },
             title: {
                 display: true,
-                text: 'Custom Pie Chart Title',
+                text: 'Probability Pie Chart',
             },
-            tooltip: {
-
-            },
+            tooltip: {},
         },
         animation: {
             animateScale: true,

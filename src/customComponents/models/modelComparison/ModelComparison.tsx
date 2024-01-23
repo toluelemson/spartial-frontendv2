@@ -1,17 +1,17 @@
 import React, {useEffect, useState} from 'react';
-import ModelRow from './ModelRow';
-import {requestAllModels, requestBuildConfigModel, requestPredictionsModel} from "../../api";
+import ModelRow from '../ModelRow';
+import {requestAllModels, requestBuildConfigModel, requestPredictionsModel} from "../../../api";
 import {
     getConfigConfusionMatrix,
     getTablePerformanceStats,
     removeCsvPath,
     transformConfigStrToTableData,
-} from "../util/utility";
-import {CRITERIA_LIST} from "../../constants";
-import ModelSelection from "./modelComparison/ModelSelection";
-import SelectionCriteria from "./modelComparison/SelectionCriteria";
-import {ModelListType} from "../../types/types";
-import PredictionsLoader from "../util/PredictiionLoader/PredictionLoader";
+} from "../../util/utility";
+import {CRITERIA_LIST} from "../../../constants";
+import ModelSelection from "../modelComparison/ModelSelection";
+import SelectionCriteria from "../modelComparison/SelectionCriteria";
+import {ModelListType} from "../../../types/types";
+import PredictionsLoader from "../../util/PredictiionLoader/PredictionLoader";
 
 interface Performance {
     web: number;

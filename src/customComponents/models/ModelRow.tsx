@@ -182,6 +182,11 @@ const ModelRow: React.FC<any> = ({state}) => {
                     cmConfigRight={cmConfigRight}
                 />
             }
+
+            {selectedCriteria === "Result" &&
+                <CSVComparator/>
+            }
+
         </div>
 
     )

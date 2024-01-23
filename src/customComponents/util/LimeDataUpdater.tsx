@@ -1,63 +1,34 @@
-import React, {useEffect} from 'react';
-import {PieChartData, ProbabilityData, ILIMEParametersState} from '../../types/LimeTypes';
-import {processProbsData} from "./LimeUtility";
+import React, { useEffect } from 'react';
+import { ILIMEParametersState } from '../../types/LimeTypes';
+import { processProbsData } from "./LimeUtility";
 
 interface DataUpdaterProps {
     state: ILIMEParametersState;
-    updateState: (state: ILIMEParametersState) => void;
+    updateState: (state: (prevState: any) => any) => void;
     triggerUpdate: boolean;
-    selectedModelId?: string
+    selectedModelId?: string;
 }
 
-const LimeDataUpdater: React.FC<DataUpdaterProps> = ({state, selectedModelId, updateState, triggerUpdate}) => {
+const LimeDataUpdater: React.FC<DataUpdaterProps> = ({ state, updateState, triggerUpdate, selectedModelId }) => {
+    const { modelId, sampleId } = state;
 
-    const modelId = state.modelId
-    const updateData = async () => {
-        let storedPieData: PieChartData[] | null = null;
-        let storedDataTableProbs: ProbabilityData[] | null = null;
+    const fetchAndUpdateData = async () => {
+        if (!modelId) return;
 
-        const storedPieDataString = localStorage.getItem('pieData' + modelId);
-        const storedDataTableProbsString = localStorage.getItem('dataTableProbs' + modelId);
-
-        if (storedPieDataString) {
-            const pieDataObject: { [modelId: string]: PieChartData[] } = JSON.parse(storedPieDataString);
-            if (modelId) storedPieData = pieDataObject[modelId];
-        }
-
-        if (storedDataTableProbsString) {
-            const dataTableProbsObject: {
-                [modelId: string]: ProbabilityData[]
-            } = JSON.parse(storedDataTableProbsString);
-            if (modelId) storedDataTableProbs = dataTableProbsObject[modelId];
-        }
-
-        if (storedPieData && storedDataTableProbs) {
-
-            updateState({...state, pieData: storedPieData, dataTableProbs: storedDataTableProbs});
-            console.log(storedPieData)
-        } else {
-
-            if (modelId) {
-                console.log(modelId)
-                const {dataTableProbs, pieData} = await processProbsData(modelId, state.sampleId);
-
-                updateState({...state, pieData: pieData, dataTableProbs: dataTableProbs});
-            }
+        try {
+            const { dataTableProbs, pieData } = await processProbsData(modelId, sampleId);
+            updateState(prevState => ({ ...prevState, pieData, dataTableProbs }));
+        } catch (error) {
+            console.error("Error fetching and updating data:", error);
         }
     };
 
     useEffect(() => {
-        const updateDataFunction = async () => {
-
-            if (triggerUpdate) {
-                await updateData();
-            }
+        if (triggerUpdate) {
+            fetchAndUpdateData();
         }
+    }, [triggerUpdate, selectedModelId]);
 
-        updateDataFunction()
-        console.log(state)
-    }, [triggerUpdate, selectedModelId, modelId, state.sampleId]);
-//
     return null;
 };
 
