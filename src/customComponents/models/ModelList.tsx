@@ -48,10 +48,10 @@ const AllModels: FC = () => {
 
     };
 
-    const [filterPrefix, setFilterPrefix] = useState<string>('all');
+    const [filterPrefix, setFilterPrefix] = useState<string>('compare');
 
     const filteredModels = useMemo(() => {
-        return filterPrefix !== 'all'
+        return filterPrefix !== 'compare'
             ? models && models.filter(model => model.modelId.toLowerCase().startsWith(filterPrefix))
             : models;
     }, [models, filterPrefix]);
@@ -64,11 +64,6 @@ const AllModels: FC = () => {
                 return prev.filter(id => id !== modelId);
             }
         });
-    };
-
-
-    const sendToSpatial = () => {
-        console.log("Sending these models to Spatial:", selectedModels);
     };
 
     const handleButtonNavigate = (targetPath: To) => {
@@ -224,7 +219,7 @@ const AllModels: FC = () => {
                         <td>
                             <DropdownButton id="dropdown-item-button" title="Select an action">
                                 <Dropdown.Item as="button"
-                                               onClick={() => handleNavigation(`/spatial/${filterPrefix}/${model.modelId}`)}>Send to
+                                               onClick={() => handleNavigation(`/spatial/dashboard/${model.modelId}`)}>Send to
                                     Spatial </Dropdown.Item>
                                 {/*<Dropdown.Item as="button" onClick={() => handleNavigation(`/xai/lime/${model.modelId}`)}>Lime </Dropdown.Item>*/}
                             </DropdownButton>
