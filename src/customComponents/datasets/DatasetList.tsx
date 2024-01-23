@@ -1,10 +1,10 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {requestViewModelDatasets} from "../../api";
-import Papa from 'papaparse';
+import useFetchModelDataset from "./useFetchModelDataset";
+import * as api from "../../api";
 
 interface TableComponentProps {
-    modelIdProp?: string;
+    modelIdProp?: string | null;
     datasetTypeProp?: string;
 }
 
@@ -26,26 +26,14 @@ const TableComponent: React.FC<TableComponentProps> = ({modelIdProp, datasetType
     const modelId = modelIdProp || secondToLastPath;
     const datasetType = datasetTypeProp || lastPath;
 
+    const {data, error} = useFetchModelDataset(modelId, api);
+
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-
-                const csvDataString = await requestViewModelDatasets(modelId, datasetType);
-                Papa.parse(csvDataString, {
-                    complete: result => {
-                        if (Array.isArray(result.data)) {
-                            setViewDatasetModel(result.data);
-                        }
-                    },
-                    header: true,
-                });
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-
-        fetchData();
-    }, [datasetType, modelId, modelIdProp]);
+        if (data && data.resultData && data.resultData.length > 0) {
+            setViewDatasetModel(data.resultData);
+        }
+    }, [data, datasetType, modelId, modelIdProp]);
 
     const [currentPage, setCurrentPage] = useState(1);
     // Assuming 10 rows per page
