@@ -1,7 +1,7 @@
 import React from "react";
 import { Bar } from "react-chartjs-2";
 
-interface BarChartProps {
+export interface BarChartProps {
   labels: string[];
   dataAge: (string | number | string[])[];
   dataGender: (string | number | string[])[];

@@ -11,6 +11,7 @@ import {
 import ConfusionMatrix from "./ConfusionMatrix";
 import { extractLabelsFromDataset } from "../util/utility";
 import CSVComparator from "./modelComparison/CSVComparator";
+import FairnessComparator from "../Services/Fairness/FairnessComparer";
 
 interface PerformanceMetrics {
   metric: string;
@@ -231,7 +232,7 @@ const ModelRow: React.FC<any> = ({ state }) => {
 
       {selectedCriteria === "Result" && <CSVComparator />}
 
-      {selectedCriteria === "Fairness" && <CSVComparator />}
+      {selectedCriteria === "Fairness" && <FairnessComparator />}
     </div>
   );
 };
