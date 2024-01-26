@@ -1,4 +1,4 @@
-export const LOCAL_HOST = "0.0.0.0";
+export const LOCAL_HOST = "127.0.0.1";
 export const LOCAL_PORT = 31057;
 export const SERVER_HOST = "193.40.154.143";
 export const SERVER_PORT = 8000;
