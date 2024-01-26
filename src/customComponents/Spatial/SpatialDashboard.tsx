@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {Col, Container, Form, Row, Tab, Tabs,} from 'react-bootstrap';
+import {Col, Container, Form, Nav, Row, Tab, Tabs,} from 'react-bootstrap';
 import {getLabelsListAppXAI} from '../util/utility'
 
 import {useSpatialContext} from "../../context/context";
@@ -15,41 +15,23 @@ import ModelRow from "../models/ModelRow";
 import {ModelListType} from "../../types/types";
 import PredictionsLoader from "../util/PredictiionLoader/PredictionLoader";
 import {requestAllModels} from "../../api";
-import PieChartComponent from "../Charts/PieChartComponent";
-import LimeComparisonLoader from "../util/LimeResultLoader/LimeComparisonLoader";
-import LimeDataUpdater from "../util/LimeDataUpdater";
 
-type ProbabilityData = { key: number; label: string; probability: string };
-type PieChartData = { type: string; value: number };
+import DatasetList from "../datasets/DatasetList";
+import {ILIMEParametersState} from "../../types/LimeTypes";
 
-interface ILIMEParametersState {
-    sampleId: number;
-    featuresToDisplay: number;
-    positiveChecked: boolean;
-    negativeChecked: boolean;
-    label: string,
-    numberSamples: number,
-    maxDisplay: number,
-    maskedFeatures: string[],
-    pieData: PieChartData[],
-    dataTableProbs: ProbabilityData[],
-    isRunning: any,
-    limeValues: string[],
-    isLabelEnabled: boolean,
-    predictions: null | string
-}
 
 const SpatialDashboard: React.FC = () => {
-    const {modelId: routeModelId} = useParams();
-    const {fp: filterPrefix} = useParams();
+    const {modelId: routeModelId}: string | any = useParams();
+
     const {XAIStatusState, allModel} = useSpatialContext();
 
     const isDisabled = routeModelId !== undefined && routeModelId !== '';
-    // const allowedValues = [1, 5, 10, 15, 20, 25, 30]; //TODO DETERMINE IF ALL MODEL SHOULD BE CALLED GLOBAL
+    const allowedValues = [1, 5, 10, 15, 20, 25, 30]; //TODO DETERMINE IF ALL MODEL SHOULD BE CALLED GLOBAL
 
     const initialState: ILIMEParametersState = {
+        modelId: "",
         sampleId: 5,
-        featuresToDisplay: 10,
+        featuresToDisplay: 5,
         positiveChecked: true,
         negativeChecked: true,
         label: getLabelsListAppXAI("ac")[1],
@@ -61,7 +43,7 @@ const SpatialDashboard: React.FC = () => {
         isRunning: XAIStatusState ? XAIStatusState.isRunning : null,
         limeValues: [],
         isLabelEnabled: false,
-        predictions: null,
+        predictions: null
     }
 
     interface ComparisonState {
@@ -81,10 +63,6 @@ const SpatialDashboard: React.FC = () => {
         cutoffProb: number
         confusionMatrix?: any;
         classificationData?: any;
-        pieDataLeft: any;
-        pieDataRight: any;
-        pieTableLeft: any
-        pieTableRight: any
     }
 
 
@@ -103,27 +81,27 @@ const SpatialDashboard: React.FC = () => {
         selectedCriteria: null,
         cutoffProb: 0.5,
         stats: null,
-        pieDataLeft: null,
-        pieDataRight: null,
-        pieTableLeft: null,
-        pieTableRight: null
+
     };
 
     const [comparisonState, setComparisonState] = useState<ComparisonState>(initialComparisonState);
 
     const [state, setState] = useState({...initialState, modelId: routeModelId || comparisonState.selectedModelLeft});
 
-    console.log(state, comparisonState)
+
+    const getFirstTwoCharsOfModelId = (params: string): string => {
+        return params.length >= 2 ? params.substring(0, 2) : '';
+    }
+
     const filteredModels = useMemo(() => {
-        // Check if filterPrefix is defined and not equal to 'all'
-        if (filterPrefix && filterPrefix !== 'all') {
+        if (routeModelId && routeModelId) {
             return comparisonState.models?.filter(model =>
-                model.modelId.toLowerCase().startsWith(filterPrefix.toLowerCase())
+                model.modelId.toLowerCase().startsWith(getFirstTwoCharsOfModelId(routeModelId))
             );
         } else {
             return comparisonState.models;
         }
-    }, [comparisonState.models, filterPrefix]);
+    }, [comparisonState.models, routeModelId]);
 
 
     useEffect(() => {
@@ -181,12 +159,30 @@ const SpatialDashboard: React.FC = () => {
             </Form>
             <Tabs defaultActiveKey="tab1" id="uncontrolled-tab-example" className="mb-3">
                 {comparisonState.selectedModelLeft?.startsWith('ac-') && (
-                    <Tab eventKey="tab7" title={"Configure Network Traffic"}>Configure</Tab>
+                    <Tab eventKey="tab7" title="Configure Network Traffic">
+                        <div className="d-flex">
+                            {/* Nested Tabs with Bootstrap 5 classes */}
+                            <Tabs defaultActiveKey="subtab1" className="flex-column">
+                                <Tab eventKey="subtab1" title="LIME">
+                                    <div className="side-content px-3"><LIMETab state={state} updateState={setState}/>
+                                    </div>
+                                </Tab>
+                                <Tab eventKey="subtab2" title="SHAP">
+                                    <div className="px-3">Content for Sub Tab 2</div>
+                                </Tab>
+                                <Tab eventKey="subtab3" title="RESILIENCE">
+                                    <div className="px-3">Content for Sub Tab 2</div>
+                                </Tab>
+                                <Tab eventKey="subtab4" title="ATTACKS">
+                                    <div className="px-3">Content for Sub Tab 2</div>
+                                </Tab>
+                            </Tabs>
+                        </div>
+                    </Tab>
                 )}
                 {comparisonState.selectedModelLeft?.startsWith('model_') && (
                     <Tab eventKey="tab8" title={"Configure Another Service"}>Configure Another Service</Tab>
                 )}
-                {/*{filterPrefix === 'ac-' && <Tab eventKey="tab7" title={"Configure"}>Configure</Tab>}*/}
                 <Tab eventKey="tab1" title={"Compare"}>
                     <ModelSelection models={filteredModels as any}
                                     selectedModel={comparisonState.selectedModelRight || ''}
@@ -211,25 +207,25 @@ const SpatialDashboard: React.FC = () => {
                                 cutoffProb={comparisonState.cutoffProb}
                             />
                         }
-                        {
-                            // comparisonState.selectedModelLeft &&
-                            // <LimeComparisonLoader state={state} selectedModelId={comparisonState.selectedModelLeft}
-                            //                       isLeft={true} updateComparisonState={updateComparisonState}/>
-                        }
+                        {/*{*/}
+                        {/*    comparisonState.selectedModelLeft &&*/}
+                        {/*    <LimeComparisonLoader state={state} selectedModelId={comparisonState.selectedModelLeft}*/}
+                        {/*                          isLeft={true} updateComparisonState={updateComparisonState}/>*/}
+                        {/*}*/}
                         <div className="model-list">
                             <ModelRow state={comparisonState}/>
                         </div>
                     </div>
                 </Tab>
-                {/*<Tab eventKey="tab1" title="Train Dataset">*/}
-                {/*    <DatasetList modelIdProp={state.modelId} datasetTypeProp="train"/>*/}
-                {/*</Tab>*/}
-                {/*<Tab eventKey="tab2" title="Test Dataset">*/}
-                {/*    <DatasetList modelIdProp={state.modelId} datasetTypeProp="test"/>*/}
-                {/*</Tab>*/}
-                <Tab eventKey="tab3" title="Lime">
-                    <LIMETab state={state} updateState={setState}/>
+                <Tab eventKey="tab2" title="Train Dataset">
+                    <DatasetList modelIdProp={state.modelId} datasetTypeProp="train"/>
                 </Tab>
+                <Tab eventKey="tab3" title="Test Dataset">
+                    <DatasetList modelIdProp={state.modelId} datasetTypeProp="test"/>
+                </Tab>
+                {/*<Tab eventKey="tab3" title="Lime">*/}
+                {/*   */}
+                {/*</Tab>*/}
                 {/*<Tab eventKey="tab4" title="XExplanability">*/}
                 {/*    <EnhancedX/>*/}
                 {/*</Tab>*/}

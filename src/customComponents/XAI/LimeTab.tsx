@@ -1,96 +1,36 @@
-import Papa from 'papaparse';
 import React, {useState, FormEvent, useEffect} from 'react';
 import {Container, Form, Row, Col, Button, InputGroup, Card, Spinner} from 'react-bootstrap';
 import PieChartComponent from '../Charts/PieChartComponent';
 import ProbabilityTable from "../Charts/ProbabilityTable";
 import LimeDataUpdater from '../util/LimeDataUpdater';
 import * as api from '../../api';
+import useFetchModelDataset from "../datasets/useFetchModelDataset";
+import {runLimeAndMonitorStatus} from "../util/LimeUtility";
+import {requestLimeValues} from "../../api";
+import LollipopChart from "../Plots/LolipopChart";
 
-type ProbabilityData = { key: number; label: string; probability: string };
-type PieChartData = { type: string; value: number };
-
-interface ILIMEParametersState {
-    sampleId: number;
-    featuresToDisplay: number;
-    positiveChecked: boolean;
-    negativeChecked: boolean;
-    modelId: string,
-    label: string,
-    numberSamples: number,
-    maxDisplay: number,
-    maskedFeatures: string[]
-    pieData: PieChartData[],
-    dataTableProbs: ProbabilityData[],
-    isRunning: any,
-    limeValues: string[],
-    isLabelEnabled: boolean,
-    predictions: null | string
-}
-
-interface LIMETabProps {
-    state: any;
-    updateState: any
-}
+import {LIMETabProps} from '../../types/LimeTypes';
 
 
 export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
 
     const allowedValues = [1, 5, 10, 15, 20, 25, 30];
     const [triggerDataUpdate, setTriggerDataUpdate] = useState(false);
-    const [selectedOptions, setSelectedOptions] = useState<string[]>([]);
+    const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
-
-
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const csvDataString = await api.requestViewModelDatasets("ac-xgboost", "train");
-                Papa.parse(csvDataString, {
-                    complete: result => {
-                        if (Array.isArray(result.data)) {
-                            updateState((prevState: any) => ({...prevState, maskedFeatures: result.data as string[]}))
-                        }
-                    }, header: true,
-                });
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-        };
-        fetchData();
-    }, [state.modelId, updateState]);
+    const {data, error} = useFetchModelDataset(state.modelId, api);
 
     useEffect(() => {
-        const loadDataFromStorage = () => {
-            if (!state.modelId) return;
-            try {
-                const storedPieData = localStorage.getItem('pieData' + state.modelId);
-                const storedDataTableProbs = localStorage.getItem('dataTableProbs' + state.modelId);
-
-                let newState: Partial<ILIMEParametersState> = {};
-
-                if (storedPieData) {
-                    const pieData = JSON.parse(storedPieData);
-                    if (pieData[state.modelId]) {
-                        newState.pieData = pieData[state.modelId];
-                    }
-                }
-
-                if (storedDataTableProbs) {
-                    const dataTableProbs = JSON.parse(storedDataTableProbs);
-                    if (dataTableProbs[state.modelId]) {
-                        newState.dataTableProbs = dataTableProbs[state.modelId];
-                    }
-                }
-
-                if (Object.keys(newState).length > 0) {
-                    updateState((prevState: ILIMEParametersState) => ({...prevState, ...newState}));
-                }
-            } catch (error) {
-                console.error('Error loading data from localStorage:', error);
-            }
+        if (data && data.resultData && data.resultData.length > 0) {
+            console.log(data);
+            updateState((prevState: any) => ({...prevState, maskedFeatures: data.resultData}));
         }
-        loadDataFromStorage();
-    }, [state.modelId]);
+    }, [data, selectedFeatures, updateState]);
+
+
+    // if (loading) return <div>Loading...</div>;
+    // if (error) return <div>Error: {error.message}</div>;
+
 
     const handleInputChange = (
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -100,7 +40,7 @@ export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
         if (target instanceof HTMLSelectElement && target.multiple) {
             // Handle multi-select
             const selectedOptions = Array.from(target.selectedOptions, option => option.value);
-            setSelectedOptions(selectedOptions);
+            setSelectedFeatures(selectedOptions);
         } else if (target.type === 'checkbox') {
             // Handle checkbox
             updateState({
@@ -114,39 +54,136 @@ export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
             });
         }
     }
-    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    const handleRunAnalysis = async (event: FormEvent<HTMLFormElement>) => {
 
         event.preventDefault();
         setLoading(true)
 
-        if (!state.modelId) return
+        if (!state.modelId) {
+            setLoading(false);
+            return;
+        }
 
         setTriggerDataUpdate(true);
+        await runLimeAndMonitorStatus(state.modelId, state.sampleId, state.featuresToDisplay).catch((e) => console.log(e))
+
+        const limeVal = await requestLimeValues(state.modelId, 1)
+        updateState((prevState: any) => ({...prevState, limeValues: limeVal}));
+
         setLoading(false);
     }
 
+    const arrayToCSV = (array: (string | string[][])[]): string => array.join('\n');
+
+    const downloadCSV = (csvContent: string, filename: string): void => {
+        const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
+        const link = document.createElement('a');
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
+
+    const createCSVContent = (title: string, headers: string[], data: Array<Array<string | number | undefined>>): string => {
+        const headerRow = headers.join(',');
+        const dataRows = data.map(row => row.join(','));
+        return [title, headerRow, ...dataRows].join('\n');
+    };
+
+    const handleExportToCSV = (): void => {
+        // Model Details
+        const modelDetails: Array<Array<string | number>> = [
+            [`Model ID`, state.modelId],
+            [`Sample ID`, state.sampleId],
+            [`Number of Samples`, state.numberSamples],
+            [`Max Display`, state.maxDisplay]
+        ];
+        const modelDetailsCSV = createCSVContent('Model Details:', [], modelDetails);
+
+        // Separator
+        const separator = [[''], ['---'], ['']];
+
+        // Selected Features
+        const selectedFeaturesCSV = createCSVContent(
+            'Selected Features:',
+            ['count', 'Features'],
+            selectedFeatures.map((feature, index) => [index.toString(), feature])
+        );
+
+        // LIME Values
+        const limeValuesCSV = createCSVContent(
+            'LIME Values:',
+            ['Feature', 'Value'],
+            state.limeValues ? state.limeValues.map((item: {
+                feature: any;
+                value: { toString: () => any; };
+            }) => [item.feature, item.value.toString()]) : []
+        );
+
+        // Data Table Probabilities
+        const dataTableProbsCSV = createCSVContent(
+            'Data Table Probabilities:',
+            ['Key', 'Label', 'Probability'],
+            state.dataTableProbs.map((prob: {
+                key: any;
+                label: any;
+                probability: { toString: () => any; };
+            }) => [prob.key, prob.label, prob.probability.toString()])
+        );
+
+        // Pie Chart Data
+        const pieDataCSV = createCSVContent(
+            'Pie Chart Data:',
+            ['Type', 'Value'],
+            state.pieData.map((data: {
+                type: any;
+                value: { toString: () => any; };
+            }) => [data.type, data.value.toString()])
+        );
+
+        // Combining all sections with separators
+        const combinedCSV = arrayToCSV([
+            modelDetailsCSV,
+            separator,
+            selectedFeaturesCSV,
+            separator,
+            limeValuesCSV,
+            separator,
+            dataTableProbsCSV,
+            separator,
+            pieDataCSV
+        ]);
+
+        // Download CSV
+        downloadCSV(combinedCSV, `${state.modelId}_analysis.csv`);
+    };
+
+
     return (
-        <Container fluid>
-            <h2 className="my-4 text-center"> Explainable AI with Local Interpretable Model-agnostic Explanations
-                (LIME) </h2>
-            <Form onSubmit={handleSubmit}>
+
+        <Container>
+            <h2 className="my-4 text-center">Explainable AI with Local Interpretable Model-agnostic Explanations
+                (LIME)</h2>
+
+            <Form onSubmit={handleRunAnalysis}>
                 <Row>
                     <Col md={6}>
                         <Card className="mb-4">
                             <LimeDataUpdater state={state} updateState={updateState} triggerUpdate={triggerDataUpdate}/>
                             <Card.Body>
-                                <Form.Group controlId="sampleID" className="mb-3">
+                                <h3 className="mb-4">Analysis Settings</h3>
+                                <Form.Group className="mb-3">
                                     <Form.Label>Sample ID</Form.Label>
-                                    <Form.Control
-                                        type="number"
-                                        name="sampleId"
-                                        placeholder="Enter Sample ID"
-                                        value={state.sampleId}
-                                        onChange={handleInputChange}
-                                    />
+                                    <Form.Control type="number" name="sampleId" placeholder="Enter Sample ID"
+                                                  value={state.sampleId} onChange={handleInputChange}/>
                                 </Form.Group>
-                                <Form.Group controlId="featuresToMask" className="mb-3">
-                                    <Form.Label>Feature(s) to Mask</Form.Label>
+                                <Form.Group className="mb-3">
+                                    <Form.Label htmlFor="featuresToMask">Feature(s) to Mask</Form.Label>
                                     <InputGroup>
                                         <Form.Select
                                             multiple={true}
@@ -165,25 +202,26 @@ export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                     <div className="mt-3">
                                         <strong>Selected Features:</strong>
                                         <div>
-                                            {selectedOptions.map((feature, index) => (
+                                            {selectedFeatures.map((feature, index) => (
                                                 <span key={index} className="badge bg-secondary me-2">{feature}</span>
                                             ))}
                                         </div>
                                     </div>
                                 </Form.Group>
-                                <Button variant="primary" type="submit" className="mt-3 w-100">Run Analysis</Button>
                             </Card.Body>
                         </Card>
                     </Col>
+
                     <Col md={6}>
                         <Card className="mb-4">
                             <Card.Body>
-                                <Form.Group controlId="featuresToDisplay" className="mb-3">
-                                    <Form.Label>
+                                <h3 className="mb-4">Display Options</h3>
+                                <Form.Group className="mb-3">
+                                    <Form.Label htmlFor="featuresToDisplay">
                                         Features to display:
                                         <span className="ms-2 badge bg-secondary">
-                                                {allowedValues[state.featuresToDisplay]}
-                                            </span>
+                                    {allowedValues[state.featuresToDisplay]}
+                                </span>
                                     </Form.Label>
                                     <Form.Range
                                         name="featuresToDisplay"
@@ -195,20 +233,8 @@ export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                         className="form-range custom-range-slider"
                                     />
                                 </Form.Group>
-                                {/* Positive/Negative Checkboxes */}
-                                <Form.Group controlId="contributionsToDisplay" className="mb-2">
-                                    <Form.Check
-                                        type="checkbox"
-                                        id="positiveCheck"
-                                        name="positiveChecked"
-                                        label="Positive"
-                                        checked={state.positiveChecked}
-                                        onChange={handleInputChange}
-                                    />
-                                </Form.Group>
-
                                 <div className="p-3 mb-3 border rounded">
-                                    <Form.Group controlId="contributionsToDisplay" className="mb-2">
+                                    <Form.Group className="mb-2">
                                         <div className="d-flex align-items-center">
                                             <Form.Check
                                                 type="checkbox"
@@ -221,7 +247,7 @@ export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                             <Form.Label htmlFor="positiveCheck" className="mb-0">Positive</Form.Label>
                                         </div>
                                     </Form.Group>
-                                    <Form.Group controlId="contributionsToDisplay">
+                                    <Form.Group>
                                         <Form.Check
                                             type="checkbox"
                                             id="negativeCheck"
@@ -232,14 +258,30 @@ export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                         />
                                     </Form.Group>
                                 </div>
+                                <Button variant="primary" type="submit" className="mt-3 w-100">Run Analysis</Button>
                             </Card.Body>
                         </Card>
                     </Col>
-
                 </Row>
-                {loading ? <SpinnerComponent/> : <ChartsDisplay state={state}/>}
+                <Row>
+
+
+                    <Col md={9}>
+                        <LimeChartsDisplay state={state} loading={loading}/>
+                    </Col>
+
+
+                    <Col md={3} className="d-flex align-items-center">
+                        <Button variant="primary" onClick={handleExportToCSV} className="w-100 mt-3">Save Data to
+                            CSV</Button>
+                    </Col>
+                </Row>
+
+
             </Form>
         </Container>
+
+
     )
 }
 
@@ -251,13 +293,24 @@ const SpinnerComponent = () => (
     </div>
 );
 
-export const ChartsDisplay = ({state}: any) => (
-    <Row className="mt-4">
-        <Col md={6}>
-            <PieChartComponent data={state.pieData}/>
-        </Col>
-        <Col md={6}>
-            <ProbabilityTable data={state.dataTableProbs as any}/>
-        </Col>
-    </Row>
+export const LimeChartsDisplay = ({state}: any, {loading}: any) => (
+    <Card>
+        <Card.Body>
+            <Row>
+                <Col md={12}>
+                    <ProbabilityTable data={state.dataTableProbs}/>
+                </Col>
+            </Row>
+
+            <Row>
+                <Col md={6}>
+                    {loading ? <SpinnerComponent/> : <LollipopChart data={state.limeValues}/>}
+                </Col>
+
+                <Col md={6}>
+                    <PieChartComponent data={state.pieData}/>
+                </Col>
+            </Row>
+        </Card.Body>
+    </Card>
 );

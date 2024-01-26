@@ -1,38 +1,39 @@
 import React, {useEffect, useState} from 'react';
-import {ChartsDisplay} from "../../XAI/LimeTab";
+import {LimeChartsDisplay} from "../../XAI/LimeTab";
 
 interface PredictionsLoaderProps {
     state: any;
     isLeft: boolean;
-    updateComparisonState: (updates: any) => void;
-    selectedModelId: string
+    updateComparisonState: (updates: any) => void
+    selectedModelId: string;
 }
 
+
+//TODO THIS is not used right now. It might be used to dynamically fetch Lime result based on ID
 const LimeComparisonLoader: React.FC<PredictionsLoaderProps> = ({
-                                                                state,
-                                                                selectedModelId,
-                                                                isLeft,
-                                                                updateComparisonState
-                                                            }) => {
-
-    const [triggerDataUpdate, setTriggerDataUpdate] = useState(false);
+                                                                    state, selectedModelId
+                                                                }) => {
     const [loading, setLoading] = useState(false);
-    const modelId = selectedModelId
-
 
     useEffect(() => {
-        const updateDataFunction = async () => {
-            if (!modelId) return;
-        }
+        const fetchDataAndUpdateState = () => {
+            if (!selectedModelId) return;
 
-        updateDataFunction()
-    }, [triggerDataUpdate, selectedModelId, modelId, state.sampleId]);
+            setLoading(true);
+            // Implement data fetching and state updating logic here
+            // Example: const data = await fetchData(selectedModelId);
+            // updateComparisonState({ ...state, newData: data });
+            setLoading(false);
+        };
 
+        fetchDataAndUpdateState();
+    }, [selectedModelId, state.sampleId]);
 
-    return <>
-
-        {loading ? 'loading' : <ChartsDisplay state={state}/>}
-    </>
+    return (
+        <>
+            {loading ? <div>Loading...</div> : <LimeChartsDisplay state={state} loading={loading}/>}
+        </>
+    );
 };
 
 export default LimeComparisonLoader;

@@ -1,65 +1,89 @@
 import * as api from "../../api";
-import {AC_OUTPUT_LABELS, AD_OUTPUT_LABELS} from "../../constants";
+import {extractLabelsFromDataset} from "./utility";
+import {requestRunLime, requestXAIStatus} from "../../api";
 
-type ProbabilityData = { key: number; label: string; probability: string };
 type PieChartData = { type: string; value: number };
 
+interface ProbabilityData {
+    key: number;
+    label: string;
+    probability: string;
+}
 
- export const runLimeAndMonitorStatus = async ({modelId, sampleId, featuresToDisplay} : any) => {
-            let intervalId: NodeJS.Timer | null = null;
-            try {
-                //TODO Replace 'any' with actual type for modelId, sampleId, featuresToDisplay, and res
-                const res: any = await api.requestRunLime(modelId, sampleId, featuresToDisplay);
-                console.log(res)
+type LimeResult = {
+    isRunning: boolean;
+}
 
-                if (res && res.isRunning) {
-                    intervalId = setInterval(() => {
-                        api.requestXAIStatus();
-                    }, 1000);
+type StatusResult = {
+    isRunning: boolean;
+};
+
+export const runLimeAndMonitorStatus = async (modelId: string, sampleId: number | string[], featuresToDisplay: number) => {
+    let intervalId: NodeJS.Timer | null = null;
+
+    try {
+        const res: LimeResult = await requestRunLime(modelId, sampleId, featuresToDisplay);
+
+        if (res && res.isRunning) {
+            intervalId = setInterval(async () => {
+                const status: StatusResult = await requestXAIStatus();
+                console.log(status);
+                if (!status.isRunning && intervalId) {
+                    clearInterval(intervalId);
+                    console.log(res)
+                    intervalId = null;
+                    console.log('Task completed, interval cleared.');
                 }
-            } catch (error: any) {
-                console.error('Error during requestRunLime:', error);
+            }, 1000);
+        }
+        console.log(res);
+    } catch (error) {
+        console.error('Error during requestRunLime:', error);
+        if (intervalId) clearInterval(intervalId);
+    }
 
-                if (intervalId) clearInterval(intervalId);
-            }
+    // Ensure the interval is cleared when the task is complete or an error occurs
+    return () => {
+        if (intervalId) clearInterval(intervalId);
+    };
+};
 
-            if (intervalId) clearInterval(intervalId);
-        };
+export const formatProbabilityData = async (yProbs: number[][], labelsPromise: Promise<string[]>, sampleId: number | null): Promise<ProbabilityData[]> => {
+    const labels = await labelsPromise;
 
-      export const formatProbabilityData = (yProbs: number[][], labels: string[], sampleId: number | null): ProbabilityData[] => {
-            return labels.map((label, index) => ({
-                key: index,
-                label,
-                probability: sampleId && yProbs[sampleId] ? yProbs[sampleId][index].toFixed(6) : '-'
-            }));
-        };
+    return labels.map((label, index) => ({
+        key: index,
+        label,
+        probability: sampleId != null && yProbs[sampleId] ? yProbs[sampleId][index].toFixed(6) : '-'
+    }));
+};
 
-      export const formatPieChartData = (yProbs: number[][], sampleId: number | null, labels: string[]): PieChartData[] => {
-            return sampleId ? yProbs[sampleId].map((prob, i) => ({
-                type: labels[i],
-                value: parseFloat((prob * 100).toFixed(2))
-            })) : [];
-        };
+export const formatPieChartData = (yProbs: number[][], sampleId: number | null, labels: string[]): PieChartData[] => {
+    return sampleId ? yProbs[sampleId].map((prob, i) => ({
+        type: labels[i],
+        value: parseFloat((prob * 100).toFixed(2))
+    })) : [];
+};
 
-      export const parsePredictedProbs = (probs: string, sampleId: number | null): number[][] => {
-            return probs.split('\n').slice(1).map(line =>
-                line.split(',').map(val => parseFloat(val))
-            );
-        };
+export const parsePredictedProbs = (probs: string, sampleId: number | null): number[][] => {
+    return probs.split('\n').slice(1).map(line =>
+        line.split(',').map(val => parseFloat(val))
+    );
+};
 
-      export const processProbsData = async (modelId: string, sampleId: number | null) => {
-            const predictedProbsResponse = await api.requestPredictedProbsModel(modelId);
-            const yProbs = parsePredictedProbs(predictedProbsResponse, sampleId);
-            let dataTableProbs: ProbabilityData[] = [];
-            let pieData: PieChartData[] = [];
+export const processProbsData = async (modelId: string, sampleId: number | null) => {
+    const predictedProbsResponse = await api.requestPredictedProbsModel(modelId);
+    const yProbs = parsePredictedProbs(predictedProbsResponse, sampleId);
+    let dataTableProbs: ProbabilityData[] = [];
+    let pieData: PieChartData[] = [];
 
-            if (modelId.startsWith('ac-')) {
-                dataTableProbs = formatProbabilityData(yProbs, ['Web', 'Interactive', 'Video'], sampleId);
-                pieData = formatPieChartData(yProbs, sampleId, AC_OUTPUT_LABELS);
-            } else {
-                dataTableProbs = formatProbabilityData(yProbs, ['Normal traffic', 'Malware traffic'], sampleId);
-                pieData = formatPieChartData(yProbs, sampleId, AD_OUTPUT_LABELS);
-            }
+    if (modelId.startsWith('ac-')) {
+        dataTableProbs = await formatProbabilityData(yProbs, extractLabelsFromDataset(modelId), sampleId);
+        pieData = formatPieChartData(yProbs, sampleId, await extractLabelsFromDataset(modelId));
+    } else {
+        dataTableProbs = await formatProbabilityData(yProbs, extractLabelsFromDataset(modelId), sampleId);
+        pieData = formatPieChartData(yProbs, sampleId, await extractLabelsFromDataset(modelId));
+    }
 
-            return {dataTableProbs, pieData};
-        };
+    return {dataTableProbs, pieData};
+};
