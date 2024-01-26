@@ -3,6 +3,7 @@ import FileUpload from "../Fairness/FileUploadForm";
 import { fairnessAPI } from "../../../api";
 
 import FairnessBarchart from "./FairnessBarchart";
+import { exportToCSV, CSVData } from "../../util/FairnessUtil";
 
 interface FairnessSummary {
   [key: string]: string | string[];
@@ -34,6 +35,24 @@ const FairnessTable: React.FC<{ fairnessSummary: FairnessSummary }> = ({
   const dataGender = labels.map(
     (metric) => fairnessSummary[`${metric}_Gender`]
   );
+
+  // Create an array of objects for CSV export
+  const labelss = Array.from(metrics);
+
+  const csvData: CSVData[] = labelss.map((metric) => {
+    const ageValue = fairnessSummary[`${metric}_Age`];
+    const genderValue = fairnessSummary[`${metric}_Gender`];
+
+    return {
+      Metric: metric.replace(/_/g, " "),
+      Age: Array.isArray(ageValue) ? ageValue.join(", ") : ageValue,
+      Gender: Array.isArray(genderValue) ? genderValue.join(", ") : genderValue,
+    };
+  });
+
+  const exportCSV = () => {
+    exportToCSV(csvData, "${state.modelId}_fairness_results.csv");
+  };
 
   return (
     <>
@@ -71,16 +90,19 @@ const FairnessTable: React.FC<{ fairnessSummary: FairnessSummary }> = ({
         </table>{" "}
       </div>
       <div className="container ">
-        <br />
-        <p className="mb-2">
-          <b>Bar Plot:</b>
-        </p>
         {showChart && (
-          <FairnessBarchart
-            labels={labels}
-            dataAge={dataAge}
-            dataGender={dataGender}
-          />
+          <>
+            <button onClick={exportCSV}>Export to CSV</button>
+            <br />
+            <p className="container">
+              <b>Bar Plot:</b>
+            </p>
+            <FairnessBarchart
+              labels={labels}
+              dataAge={dataAge}
+              dataGender={dataGender}
+            />
+          </>
         )}
       </div>
     </>
