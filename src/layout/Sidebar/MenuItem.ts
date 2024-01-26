@@ -48,7 +48,7 @@ export function useMenuData() {
         },
         { id: 2, title: 'Privacy', icon: 'bi bi-speedometer2', path: '/xai/service/privacy', secure: true},
         { id: 3, title: 'EnhancedX', icon: 'bi bi-speedometer2', path: '/xai/service/enhancedX', secure: true},
-        { id: 4, title: 'Fairness', icon: 'bi bi-hand-thumbs-up', path: '/xai/service/fairness', secure: false },
+        { id: 4, title: 'Fairness', icon: 'bi bi-hand-thumbs-up', path: '/xai/service/fairness', secure: true },
         { id: 5, title: 'Metrics', icon: 'bi bi-hand-thumbs-up', path: '/Metrics/metricsHomepage', secure: true },
         { id: 8, title: 'Medical', icon: 'bi bi-hand-thumbs-up', path: '/medicalHomepage', secure: true },
         { id: 9, title: 'XAI', icon: 'bi bi-hand-thumbs-up', path: '/XAI/XAIHomepage', secure: true },
