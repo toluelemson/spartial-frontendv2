@@ -87,13 +87,16 @@ const FairnessTable: React.FC<{ fairnessSummary: FairnessSummary }> = ({
               );
             })}
           </tbody>
-        </table>{" "}
+        </table>
+        <label onClick={exportCSV} className="btn btn-primary mt-2">
+          Export to CSV
+        </label>
       </div>
       <div className="container ">
         {showChart && (
           <>
-            <button onClick={exportCSV}>Export to CSV</button>
-            <br />
+            {/* <button onClick={exportCSV}>Export to CSV</button> */}
+
             <p className="container">
               <b>Bar Plot:</b>
             </p>
