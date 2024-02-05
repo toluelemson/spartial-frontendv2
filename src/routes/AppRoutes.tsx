@@ -31,6 +31,7 @@ import ConsistencyMetric from "../customComponents/Services/Metrics/ConsistencyM
 import XAIHomepage from "../customComponents/Services/XAIS/XAIHomepage";
 import EnhancedX from "../customComponents/Services/EnhancedX/EnhancedX";
 import Spatial from "../customComponents/Spatial/SpatialDashboard";
+import CompacityMetric from "../customComponents/Services/Metrics/CompacityMetric";
 
 interface RouteConfig {
   path: string;
@@ -70,6 +71,7 @@ const routeConfig: RouteConfig[] = [
   { path: "/Metrics/ConsistencyMetric", Component: ConsistencyMetric },
   { path: "/XAI/XAIHomepage", Component: XAIHomepage },
   { path: "*", Component: NoMatchComponent, isProtected: false },
+  { path: "/Metrics/CompacityMetric", Component: CompacityMetric },
 ];
 const AppRoutes: React.FC = () => (
   <Routes>

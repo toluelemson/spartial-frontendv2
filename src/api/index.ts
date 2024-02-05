@@ -416,6 +416,84 @@ export const evasion_impact_metric = async (ground_truth: number[], predictions:
         throw error;
     }
 }
+interface ContributionDict {
+    KernelSHAP: number[][];
+    LIME: number[][];
+    SamplingSHAP: number[][];
+  }
+
+  export const consistencyMetricAPI = async (data: { contribution_dict: ContributionDict }): Promise<any> => {
+    try {
+      const response = await makeApiRequest<any>(
+        '/consistency_metric',
+        'post',
+        data, // Pass the entire data object directly
+        'json'
+      );
+      console.log('API Response in consistencyMetricAPI:', response);
+      return response;
+    } catch (error) {
+      console.error('Error in consistencyMetricAPI:', error);
+      throw error;
+    }
+  };
+  
+  export const consistencyMetricAPIPlot = async (data: { contribution_dict: ContributionDict }): Promise<any> => {
+    try {
+      const response = await makeApiRequest<any>(
+        '/consistency_metric_plot',
+        'post',
+        data, // Pass the entire data object directly
+        'blob'
+      );
+      console.log('API Response in consistencyMetricAPIPlot:', response);
+      return response;
+    } catch (error) {
+      console.error('Error in consistencyMetricAPIPlot:', error);
+      throw error;
+    }
+  };
+
+//   interface CompacityDict {
+//     contributions: number[][];
+//     selection: number[];
+//     distance: number;
+//     nb_features: number;
+//   }
+
+
+  export const compacityMetricAPI = async (data: { contributions: number[][]; selection: number[]; distance: number; nb_features: number; }): Promise<any> => {
+    try {
+    
+      const response = await makeApiRequest<any>(
+        '/compacity_metric',
+        'post',
+        data,
+        'json'
+      );
+      console.log('API Response in CompacityMetricAPI:', response);
+      return response;
+    } catch (error) {
+      console.error('Error in CompacityMetricAPI:', error);
+      throw error;
+    }
+  };
+  
+  export const compacityMetricAPIPlot = async (data: { contributions: number[][]; selection: number[]; distance: number; nb_features: number; }): Promise<any> => {
+    try {
+      const response = await makeApiRequest<any>(
+        '/compacity_metric_plot',
+        'post',
+        data, // Pass the entire data object directly
+        'blob'
+      );
+      console.log('API Response in CompacityMetricAPIPlot:', response);
+      return response;
+    } catch (error) {
+      console.error('Error in CompacityMetricAPIPlot:', error);
+      throw error;
+    }
+  };
 
 
 export const xaiAPI = async (xai_method: string, image: File, mlModel: File, imagetype:  string) => {

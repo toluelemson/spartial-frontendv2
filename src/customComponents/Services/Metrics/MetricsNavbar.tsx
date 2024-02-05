@@ -17,7 +17,7 @@ const MetricsNavbar: React.FC = () => {
           <Nav className="mr-auto">
             <Nav.Link href="/Metrics/metricsHomepage">CLF Accuracy</Nav.Link>
             <Nav.Link href="/Metrics/ConsistencyMetric">Consistency</Nav.Link>
-            <Nav.Link href="#">Compacity</Nav.Link>
+            <Nav.Link href="/Metrics/CompacityMetric">Compacity</Nav.Link>
             <Nav.Link href="/Metrics/EvasionImpact">Evasion Impact</Nav.Link>
           </Nav>
         </BootstrapNavbar.Collapse>

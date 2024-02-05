@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import MetricsNavbar from "./MetricsNavbar";
 import { clf_accuracy_metric } from "../../../api";
+import { Form } from "react-bootstrap";
 
 // interface Result {
 //   accuracy: number | null;
@@ -14,7 +15,9 @@ const MetricsHomepage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
     setterFunction: React.Dispatch<React.SetStateAction<string>>
   ) => {
     setError(null); // Reset error on input change
@@ -74,27 +77,50 @@ const MetricsHomepage: React.FC = () => {
                 <label htmlFor="groundTruthInput" className="form-label">
                   <b> Enter Ground Truth values:</b> &nbsp;
                 </label>
-                <input
+
+                {/* <input
                   type="text"
                   id="groundTruthInput"
                   placeholder="e.g., 1, 2, 3, 4, 5"
                   value={groundTruth}
                   onChange={(event) => handleInputChange(event, setGroundTruth)}
                   required
-                />
+                /> */}
+                <Form.Group controlId="groundTruthInput">
+                  <Form.Control
+                    type="text"
+                    name="groundTruthInput"
+                    value={groundTruth}
+                    placeholder="e.g., 1, 2, 3, 3, 5"
+                    onChange={(event) =>
+                      handleInputChange(event, setGroundTruth)
+                    }
+                    required
+                  />
+                </Form.Group>
               </div>
               <br />
               <label htmlFor="predictionsInput" className="form-label">
                 <b>Enter Predictions values: </b> &nbsp; &nbsp; &nbsp;
               </label>
-              <input
+              <Form.Group controlId="predictionsInput">
+                <Form.Control
+                  type="text"
+                  name="predictionsInput"
+                  value={predictions}
+                  placeholder="e.g., 1, 2, 3, 4, 5"
+                  onChange={(event) => handleInputChange(event, setPredictions)}
+                  required
+                />
+              </Form.Group>
+              {/* <input
                 type="text"
                 id="predictionsInput"
                 placeholder="e.g., 1, 2, 3, 4, 5"
                 value={predictions}
                 onChange={(event) => handleInputChange(event, setPredictions)}
                 required
-              />{" "}
+              />{" "} */}
               <br /> <br />
               {error && <p style={{ color: "red" }}>{error}</p>}
               <button
