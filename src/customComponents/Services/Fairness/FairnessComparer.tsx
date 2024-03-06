@@ -103,6 +103,9 @@ const FairnessComparer: React.FC = () => {
             dataAge={metricsSet.map((row) => row.Age ?? 0)}
             dataGender={metricsSet.map((row) => row.Gender ?? "")}
           />
+          <br />
+          <br />
+          <br />
         </React.Fragment>
       );
     });
@@ -112,15 +115,20 @@ const FairnessComparer: React.FC = () => {
     tableData: any[],
     index: React.Key | null | undefined
   ) => {
+    const fairnessTableData = tableData.slice(1);
     return (
       <div key={index}>
         <table className="table table-bordered table-striped table-hover">
           <thead>
+            {" "}
             <tr>
               {Object.keys(tableData[0]).map((header, idx) => (
-                <th key={header}>{header}</th>
-              ))}
-            </tr>
+                <th key={header}>
+                  {" "}
+                  <b>{header}</b>
+                </th>
+              ))}{" "}
+            </tr>{" "}
           </thead>
           <tbody>
             {tableData.map((row, rowIndex) => (
@@ -166,9 +174,12 @@ const FairnessComparer: React.FC = () => {
         {filesData.map((data: any, index: any) => (
           <div key={fileNames[index]} className="col-md-6">
             <h5>{fileNames[index]}</h5>
+
             <div>
               {separateObjects(data).map((tableData, innerIndex) => (
                 <React.Fragment key={innerIndex}>
+                  <br />
+                  <h6>Fairness Analysis: </h6>
                   {renderTable(tableData, innerIndex as number)}
                 </React.Fragment>
               ))}

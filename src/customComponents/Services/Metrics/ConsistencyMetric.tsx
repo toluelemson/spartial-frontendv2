@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import MetricsNavbar from "./MetricsNavbar";
-import { Col, Table } from "react-bootstrap";
+import { Col, Table, Button } from "react-bootstrap";
 import {
   consistencyMetricAPI as jsonAPI,
   consistencyMetricAPIPlot as imageAPI,
@@ -32,6 +32,7 @@ const ConsistencyMetric: React.FC = () => {
 
   const [jsonResults, setJsonResults] = useState<any | null>(null); // State for JSON results
   const [imageResult, setImageResult] = useState<string | null>(null); // State for image result
+  const [imageRes, setImageRes] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -70,11 +71,165 @@ const ConsistencyMetric: React.FC = () => {
         console.log("Setting image result:", imageUrl);
         setImageResult(imageUrl);
       }
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        if (event.target) {
+          const imageUrl = event.target.result as string;
+
+          // Now, you can save the imageUrl to a CSV file or perform any other operation
+          saveToCSV(imageUrl);
+          console.log("imageUrl", imageUrl);
+          // setImageRes(imageUrl);
+        }
+      };
+      reader.readAsDataURL(imageRes);
+
+      function saveToCSV(imageUrl: string | ArrayBuffer | null) {
+        // Assuming you have a CSV file handling mechanism in place
+        // For example, using Blob and createObjectURL to create a download link
+        const csvContent = `imageURL\n${imageUrl}`;
+        // const csvContent = `imageURL\n${imageUrl}`;
+        const blob = new Blob([csvContent], { type: "text/csv" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        console.log(csvContent);
+        // link.download = "imageUrls.csv";
+        // link.click();
+        setImageRes(csvContent);
+      }
     } catch (error) {
       setError("An error occurred during submission. Please try again.");
     } finally {
       setLoading(false);
     }
+  };
+
+  const arrayToCSV = (array: (string | string[][])[]): string =>
+    array.join("\n");
+
+  const downloadCSV = (csvContent: string, filename: string): void => {
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const createCSVContent = (
+    title: string,
+    headers: string[],
+    data: Array<Array<string | number | undefined>>
+  ): string => {
+    const headerRow = headers.join(",");
+    const dataRows = data.map((row) => row.join(","));
+    return [title, headerRow, ...dataRows].join("\n");
+  };
+
+  const handleExportToCSV = (): void => {
+    // Model Details
+    const modelDetails: Array<Array<string | number>> = [
+      [`Model ID`, 1],
+      [`Sample ID`, 2],
+      [`Number of Samples`, 3],
+      [`Max Display`, 4],
+    ];
+    const modelDetailsCSV = createCSVContent(
+      "Model Details:",
+      [],
+      modelDetails
+    );
+
+    interface ContributionValue {
+      Feature: string;
+      Values: number[];
+    }
+
+    const contributionDict_list: ContributionValue[] = Object.entries(
+      contributionDict
+    ).map(([method, values]) => ({
+      Feature: method,
+      Values: values.flat(), // Flatten the array of values
+    }));
+
+    const contribution_scoresCSV = createCSVContent(
+      "Contribution Dict:",
+      ["Feature", "Values"],
+      contributionDict_list.map(({ Feature, Values }) => [
+        Feature,
+        Values.join(", "), // Join the values into a comma-separated string
+      ])
+    );
+
+    // Separator
+    const separator = [[""], ["---"], [""]];
+
+    const averageConsistencyValue =
+      jsonResults.average_consistency?.toString() || "";
+    const average_consistencyCSV = createCSVContent(
+      "Average Consistency:",
+      [],
+      [[averageConsistencyValue]]
+    );
+
+    const pairwiseScoresList = Object.entries(jsonResults.pairwise_scores).map(
+      ([pair, score]) => [
+        pair,
+        String(score), // Ensure score is converted to string
+      ]
+    );
+
+    const pairwise_scoresCSV = createCSVContent(
+      "Pairwise Values:",
+      ["Feature", "Value"],
+      pairwiseScoresList
+    );
+
+    // Pie Chart Data
+    // const pieDataCSV = createCSVContent(
+    //   "Pie Chart Data:",
+    //   ["Type", "Value"],
+    //   state.pieData.map(
+    //     (data: { type: any; value: { toString: () => any } }) => [
+    //       data.type,
+    //       data.value.toString(),
+    //     ]
+    //   )
+    // );
+    console.log("imageRes", imageRes);
+    const ImageURLCSV = imageRes
+      ? createCSVContent(
+          "Image Values:",
+          ["Feature", "Value"],
+          [["Image Value", imageRes.toString()]] // Assuming imageRes is a string or has a meaningful toString method
+        )
+      : "";
+    console.log("ImageURLCSV", ImageURLCSV);
+
+    // Combining all sections with separators
+    const combinedCSV = arrayToCSV([
+      modelDetailsCSV,
+      separator,
+      separator,
+      contribution_scoresCSV,
+      separator,
+      separator,
+      average_consistencyCSV,
+      separator,
+      separator,
+      pairwise_scoresCSV,
+      separator,
+      separator,
+      ImageURLCSV,
+    ]);
+
+    // Download CSV
+    downloadCSV(combinedCSV, `analysis2.csv`);
   };
 
   return (
@@ -195,6 +350,15 @@ const ConsistencyMetric: React.FC = () => {
                       )
                     )}
                   </ul>
+                  <Col md={3} className="d-flex align-items-center">
+                    <Button
+                      variant="primary"
+                      onClick={handleExportToCSV}
+                      className="w-100 mt-3"
+                    >
+                      Save Data to CSV
+                    </Button>
+                  </Col>
                 </div>
 
                 {/* Image */}

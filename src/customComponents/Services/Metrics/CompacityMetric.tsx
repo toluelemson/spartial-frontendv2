@@ -116,6 +116,138 @@ const CompacityMetric: React.FC = () => {
     }
   };
 
+  const arrayToCSV = (array: (string | string[][])[]): string =>
+    array.join("\n");
+
+  const downloadCSV = (csvContent: string, filename: string): void => {
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const createCSVContent = (
+    title: string,
+    headers: string[],
+    data: Array<Array<string | number | undefined>>
+  ): string => {
+    const headerRow = headers.join(",");
+    const dataRows = data.map((row) => row.join(","));
+    return [title, headerRow, ...dataRows].join("\n");
+  };
+
+  const handleExportToCSV = (): void => {
+    // Model Details
+    const modelDetails: Array<Array<string | number>> = [
+      [`Model ID`, 1],
+      [`Sample ID`, 2],
+      [`Number of Samples`, 3],
+      [`Max Display`, 4],
+    ];
+    const modelDetailsCSV = createCSVContent(
+      "Model Details:",
+      [],
+      modelDetails
+    );
+
+    interface ContributionValue {
+      Feature: string;
+      Values: number[];
+    }
+
+    const contributionDict_list: ContributionValue[] = Object.entries(
+      contributions
+    ).map(([method, values]) => ({
+      Feature: method,
+      Values: values.flat(), // Flatten the array of values
+    }));
+
+    const contribution_scoresCSV = createCSVContent(
+      "Contribution Dict:",
+      ["Feature", "Values"],
+      contributionDict_list.map(({ Feature, Values }) => [
+        Feature,
+        Values.join(", "), // Join the values into a comma-separated string
+      ])
+    );
+
+    // Separator
+    const separator = [[""], ["---"], [""]];
+
+    const averageConsistencyValue = Object.entries(
+      jsonResults.features_needed
+    ).map(([pair, score]) => [
+      pair,
+      String(score), // Ensure score is converted to string
+    ]);
+
+    const average_consistencyCSV = createCSVContent(
+      "Features Needed:",
+      ["Feature", "Value"],
+      averageConsistencyValue
+    );
+
+    const pairwiseScoresList = Object.entries(jsonResults.distance_reached).map(
+      ([pair, score]) => [
+        pair,
+        String(score), // Ensure score is converted to string
+      ]
+    );
+
+    const pairwise_scoresCSV = createCSVContent(
+      "Distance Reached:",
+      ["Feature", "Value"],
+      pairwiseScoresList
+    );
+
+    // Pie Chart Data
+    // const pieDataCSV = createCSVContent(
+    //   "Pie Chart Data:",
+    //   ["Type", "Value"],
+    //   state.pieData.map(
+    //     (data: { type: any; value: { toString: () => any } }) => [
+    //       data.type,
+    //       data.value.toString(),
+    //     ]
+    //   )
+    // );
+
+    const ImageURLCSV = imageResult
+      ? createCSVContent(
+          "Image Values:",
+          ["Feature", "Value"],
+          [["Image Value", imageResult.toString()]] // Assuming imageRes is a string or has a meaningful toString method
+        )
+      : "";
+
+    // Combining all sections with separators
+    const combinedCSV = arrayToCSV([
+      modelDetailsCSV,
+      separator,
+      separator,
+      contribution_scoresCSV,
+      separator,
+      separator,
+      average_consistencyCSV,
+      separator,
+      separator,
+      pairwise_scoresCSV,
+      separator,
+      separator,
+      ImageURLCSV,
+    ]);
+
+    // Download CSV
+    downloadCSV(combinedCSV, `analysis2.csv`);
+  };
+
   return (
     <div>
       <MetricsNavbar /> <br />
@@ -221,6 +353,15 @@ const CompacityMetric: React.FC = () => {
                       )
                     )}
                   </ul> */}
+                  <Col md={3} className="d-flex align-items-center">
+                    <Button
+                      variant="primary"
+                      onClick={handleExportToCSV}
+                      className="w-100 mt-3"
+                    >
+                      Save Data to CSV
+                    </Button>
+                  </Col>
                 </div>
 
                 {/* Image */}

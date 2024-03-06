@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import FileUpload from "../Fairness/FileUploadForm";
+import { Col, Table, Button } from "react-bootstrap";
 import { fairnessAPI } from "../../../api";
 
 import FairnessBarchart from "./FairnessBarchart";
@@ -14,6 +15,7 @@ const FairnessTable: React.FC<{ fairnessSummary: FairnessSummary }> = ({
 }) => {
   const metrics = new Set<string>();
   const categories = new Set<string>();
+  const [date, setDate] = useState(new Date());
 
   console.log(fairnessSummary);
   // Check if fairnessSummary is available before rendering the chart
@@ -51,7 +53,85 @@ const FairnessTable: React.FC<{ fairnessSummary: FairnessSummary }> = ({
   });
 
   const exportCSV = () => {
-    exportToCSV(csvData, "${state.modelId}_fairness_results.csv");
+    const currentDate = new Date();
+    const day = currentDate.getDate().toString().padStart(2, "0");
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, "0"); // Months are zero-indexed, so we add 1
+    const year = currentDate.getFullYear().toString();
+    const hours = currentDate.getHours();
+    const minutes = currentDate.getMinutes().toString().padStart(2, "0");
+    const seconds = currentDate.getSeconds().toString().padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+
+    // Convert 24-hour format to 12-hour format
+    const formattedHours = (hours % 12 || 12).toString().padStart(2, "0");
+
+    const formattedDate = `${day}_${month}_${year}_${formattedHours}:${minutes}:${seconds}_${ampm}_fairness_results.csv`;
+
+    exportToCSV(csvData, formattedDate);
+  };
+
+  const arrayToCSV = (array: (string | string[][])[]): string =>
+    array.join("\n");
+
+  const createCSVContent = (
+    title: string,
+    headers: string[],
+    data: Array<Array<string | number | undefined>>
+  ): string => {
+    const headerRow = headers.join(",");
+    const dataRows = data.map((row) => row.join(","));
+    return [title, headerRow, ...dataRows].join("\n");
+  };
+
+  const handleExportToCSV = (): void => {
+    // Separator
+    const separator = [[""], ["---"], [""]];
+
+    const metricList = csvData.map((data) => [
+      data.Metric,
+      data.Age,
+      data.Gender,
+    ]);
+
+    const metric_scoresCSV = createCSVContent(
+      "Fairness:",
+      ["Metric", "Age", "Gender"],
+      metricList
+    );
+
+    const currentDate = new Date();
+    const day = currentDate.getDate().toString().padStart(2, "0");
+    const month = (currentDate.getMonth() + 1).toString().padStart(2, "0"); // Months are zero-indexed, so we add 1
+    const year = currentDate.getFullYear().toString();
+    const hours = currentDate.getHours();
+    const minutes = currentDate.getMinutes().toString().padStart(2, "0");
+    const seconds = currentDate.getSeconds().toString().padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+
+    // Convert 24-hour format to 12-hour format
+    const formattedHours = (hours % 12 || 12).toString().padStart(2, "0");
+
+    const formattedDate = `${day}_${month}_${year}_${formattedHours}:${minutes}:${seconds}_${ampm}_fairness_results.csv`;
+
+    // Combining all sections with separators
+    const combinedCSV = arrayToCSV([metric_scoresCSV]);
+
+    // Download CSV
+    downloadCSV(combinedCSV, formattedDate);
+  };
+
+  const downloadCSV = (csvContent: string, filename: string): void => {
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute("href", url);
+      link.setAttribute("download", filename);
+      link.style.visibility = "hidden";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   };
 
   return (
@@ -88,23 +168,40 @@ const FairnessTable: React.FC<{ fairnessSummary: FairnessSummary }> = ({
             })}
           </tbody>
         </table>
-        <label onClick={exportCSV} className="btn btn-primary mt-2">
-          Export to CSV
-        </label>
+
+        {/* 
+        <Col md={3} className="d-flex align-items-center">
+          <Button
+            variant="primary"
+            onClick={handleExportToCSV}
+            className="w-100 mt-3"
+          >
+            Save Data to CSV
+          </Button>
+        </Col> */}
       </div>
       <div className="container ">
         {showChart && (
           <>
-            {/* <button onClick={exportCSV}>Export to CSV</button> */}
-
-            <p className="container">
+            {" "}
+            <label onClick={exportCSV} className="btn btn-primary mt-2">
+              Export to CSV
+            </label>
+            <br />
+            <div className="col-6">
+              {" "}
+              <br />
               <b>Bar Plot:</b>
-            </p>
-            <FairnessBarchart
-              labels={labels}
-              dataAge={dataAge}
-              dataGender={dataGender}
-            />
+              <br />
+              <FairnessBarchart
+                labels={labels}
+                dataAge={dataAge}
+                dataGender={dataGender}
+              />
+            </div>
+            <br />
+            <br />
+            <br />
           </>
         )}
       </div>
