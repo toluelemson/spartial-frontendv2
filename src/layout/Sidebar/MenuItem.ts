@@ -46,16 +46,17 @@ export function useMenuData() {
                 }
             ]
         },
-        { id: 2, title: 'Privacy', icon: 'bi bi-speedometer2', path: '/xai/service/privacy', secure: true},
-        { id: 3, title: 'EnhancedX', icon: 'bi bi-speedometer2', path: '/xai/service/enhancedX', secure: true},
-        { id: 4, title: 'Fairness', icon: 'bi bi-hand-thumbs-up', path: '/xai/service/fairness', secure: true },
-        { id: 5, title: 'Metrics', icon: 'bi bi-hand-thumbs-up', path: '/Metrics/metricsHomepage', secure: true },
-        { id: 8, title: 'Medical', icon: 'bi bi-hand-thumbs-up', path: '/medicalHomepage', secure: true },
-        { id: 9, title: 'XAI', icon: 'bi bi-hand-thumbs-up', path: '/XAI/XAIHomepage', secure: true },
+        { id: 2, title: 'Privacy', icon: 'bi bi-shield-shaded', path: '/xai/service/privacy', secure: true},
+        { id: 3, title: 'E.Int', icon: 'bi bi-hand-thumbs-up', path: '/xai/service/enhancedX', secure: true},
+        { id: 4, title: 'Fairness', icon: 'fs-5 bi bi-transparency', path: '/xai/service/fairness', secure: true },
+        { id: 5, title: 'Metrics', icon: 'bi bi-rulers', path: '/Metrics/metricsHomepage', secure: true },
+        { id: 8, title: 'Medical', icon: 'fs-5 bi bi-heart-pulse-fill', path: '/medicalHomepage', secure: true },
+        { id: 9, title: 'XAI', icon: 'bi bi-x-diamond-fill', path: '/XAI/XAIHomepage', secure: true },
 
         { id: 6, title: 'About', icon: 'bi bi-info-circle', path: '/about', secure: false}, // Changed icon for 'About'
         { id: 7, title: 'Contact', icon: 'bi bi-telephone', path: '/contact', secure: false }, // Changed icon for 'Contact'
     ];
 
+  
     return menuData;
 }

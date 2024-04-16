@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import FileUpload from "../Fairness/FileUploadForm";
-import { Col, Table, Button } from "react-bootstrap";
+import { Col, Table, Button, Tooltip, OverlayTrigger } from "react-bootstrap";
 import { fairnessAPI } from "../../../api";
 
 import FairnessBarchart from "./FairnessBarchart";
@@ -16,29 +16,50 @@ const FairnessTable: React.FC<{ fairnessSummary: FairnessSummary }> = ({
   const metrics = new Set<string>();
   const categories = new Set<string>();
   const [date, setDate] = useState(new Date());
+  const [showHeaders, setShowHeaders] = useState(false);
 
   console.log(fairnessSummary);
+
+  const descriptions: { [key: string]: string } = {};
+  Object.keys(fairnessSummary).forEach((key) => {
+    const metricName = key.replace(/_des$/, ""); // Remove "_des" suffix from the key
+    if (key !== metricName) {
+      descriptions[metricName] = fairnessSummary[key] as string;
+    }
+  });
+  console.log(descriptions);
+
   // Check if fairnessSummary is available before rendering the chart
   const showChart = fairnessSummary && Object.keys(fairnessSummary).length > 0;
+  const exclusions = [
+    "overall_fairness_score",
+    "consistency_des",
+    "class_imbalance_des",
+    "disparate_impact_input_des",
+    "disparate_impact_prediction_des",
+    "equal_opportunity_des",
+    "equalized_odds_des",
+    "overall_fairness_score_des",
+  ];
 
   Object.keys(fairnessSummary).forEach((key) => {
-    const metricName = key.split("_").slice(0, -1).join("_");
-    const categoryName: string = key.split("_").slice(-1)[0];
-    categories.add("Metric");
-    categories.add(categoryName);
-    metrics.add(metricName);
+    if (!exclusions.includes(key)) {
+      const metricName = key.split("_").slice(0, -1).join("_");
+      const categoryName = key.split("_").slice(-1)[0];
+      categories.add("Metric");
+      categories.add(categoryName);
+      metrics.add(metricName);
+    }
   });
 
-  // Create arrays for bar chart data excluding 'overall_fairness_score'
   const labels = Array.from(metrics).filter(
-    (metric) => metric !== "overall_fairness_score"
+    (metric) => !exclusions.includes(metric)
   );
   const dataAge = labels.map((metric) => fairnessSummary[`${metric}_Age`]);
   const dataGender = labels.map(
     (metric) => fairnessSummary[`${metric}_Gender`]
   );
 
-  // Create an array of objects for CSV export
   const labelss = Array.from(metrics);
 
   const csvData: CSVData[] = labelss.map((metric) => {
@@ -134,16 +155,27 @@ const FairnessTable: React.FC<{ fairnessSummary: FairnessSummary }> = ({
     }
   };
 
+  // Function to render tooltip with description
+  const renderTooltip = (description: string) => (
+    <Tooltip id="tooltip-description">{description}</Tooltip>
+  );
+
+  if (showChart && !showHeaders) {
+    setShowHeaders(true);
+  }
+
   return (
     <>
       <div className="container mb-4">
         <table className="table mt-5">
           <thead>
-            <tr>
-              {Array.from(categories).map((category) => (
-                <th key={category}>{category}</th>
-              ))}
-            </tr>
+            {showHeaders && (
+              <tr>
+                <th>Metric</th>
+                <th>Age</th>
+                <th>Gender</th>
+              </tr>
+            )}
           </thead>
           <tbody>
             {Array.from(metrics).map((metric) => {
@@ -151,10 +183,25 @@ const FairnessTable: React.FC<{ fairnessSummary: FairnessSummary }> = ({
               const genderKey = `${metric}_Gender`;
               const ageValue = fairnessSummary[ageKey];
               const genderValue = fairnessSummary[genderKey];
+              const description = descriptions[metric];
 
               return (
                 <tr key={metric}>
-                  <td>{metric.replace(/_/g, " ")}</td>
+                  <td>
+                    {" "}
+                    {description && (
+                      <OverlayTrigger
+                        placement="right"
+                        overlay={renderTooltip(description)}
+                      >
+                        <Button variant="link" size="sm">
+                          ℹ️
+                        </Button>
+                      </OverlayTrigger>
+                    )}
+                    {metric.replace(/_/g, " ")}
+                  </td>
+                  {/* <td>{description}</td> */}
                   <td>
                     {Array.isArray(ageValue) ? ageValue.join(", ") : ageValue}
                   </td>
@@ -168,28 +215,15 @@ const FairnessTable: React.FC<{ fairnessSummary: FairnessSummary }> = ({
             })}
           </tbody>
         </table>
-
-        {/* 
-        <Col md={3} className="d-flex align-items-center">
-          <Button
-            variant="primary"
-            onClick={handleExportToCSV}
-            className="w-100 mt-3"
-          >
-            Save Data to CSV
-          </Button>
-        </Col> */}
       </div>
       <div className="container ">
         {showChart && (
           <>
-            {" "}
             <label onClick={exportCSV} className="btn btn-primary mt-2">
               Export to CSV
             </label>
             <br />
             <div className="col-6">
-              {" "}
               <br />
               <b>Bar Plot:</b>
               <br />
