@@ -420,39 +420,39 @@ interface ContributionDict {
     KernelSHAP: number[][];
     LIME: number[][];
     SamplingSHAP: number[][];
-  }
+}
 
-  export const consistencyMetricAPI = async (data: { contribution_dict: ContributionDict }): Promise<any> => {
+export const consistencyMetricAPI = async (data: { contribution_dict: ContributionDict }): Promise<any> => {
     try {
-      const response = await makeApiRequest<any>(
-        '/consistency_metric',
-        'post',
-        data, // Pass the entire data object directly
-        'json'
-      );
-      console.log('API Response in consistencyMetricAPI:', response);
-      return response;
+        const response = await makeApiRequest<any>(
+            '/consistency_metric',
+            'post',
+            data, // Pass the entire data object directly
+            'json'
+        );
+        console.log('API Response in consistencyMetricAPI:', response);
+        return response;
     } catch (error) {
-      console.error('Error in consistencyMetricAPI:', error);
-      throw error;
+        console.error('Error in consistencyMetricAPI:', error);
+        throw error;
     }
-  };
-  
-  export const consistencyMetricAPIPlot = async (data: { contribution_dict: ContributionDict }): Promise<any> => {
+};
+
+export const consistencyMetricAPIPlot = async (data: { contribution_dict: ContributionDict }): Promise<any> => {
     try {
-      const response = await makeApiRequest<any>(
-        '/consistency_metric_plot',
-        'post',
-        data, // Pass the entire data object directly
-        'blob'
-      );
-      console.log('API Response in consistencyMetricAPIPlot:', response);
-      return response;
+        const response = await makeApiRequest<any>(
+            '/consistency_metric_plot',
+            'post',
+            data, // Pass the entire data object directly
+            'blob'
+        );
+        console.log('API Response in consistencyMetricAPIPlot:', response);
+        return response;
     } catch (error) {
-      console.error('Error in consistencyMetricAPIPlot:', error);
-      throw error;
+        console.error('Error in consistencyMetricAPIPlot:', error);
+        throw error;
     }
-  };
+};
 
 //   interface CompacityDict {
 //     contributions: number[][];
@@ -462,41 +462,51 @@ interface ContributionDict {
 //   }
 
 
-  export const compacityMetricAPI = async (data: { contributions: number[][]; selection: number[]; distance: number; nb_features: number; }): Promise<any> => {
+export const compacityMetricAPI = async (data: {
+    contributions: number[][];
+    selection: number[];
+    distance: number;
+    nb_features: number;
+}): Promise<any> => {
     try {
-    
-      const response = await makeApiRequest<any>(
-        '/compacity_metric',
-        'post',
-        data,
-        'json'
-      );
-      console.log('API Response in CompacityMetricAPI:', response);
-      return response;
+
+        const response = await makeApiRequest<any>(
+            '/compacity_metric',
+            'post',
+            data,
+            'json'
+        );
+        console.log('API Response in CompacityMetricAPI:', response);
+        return response;
     } catch (error) {
-      console.error('Error in CompacityMetricAPI:', error);
-      throw error;
+        console.error('Error in CompacityMetricAPI:', error);
+        throw error;
     }
-  };
-  
-  export const compacityMetricAPIPlot = async (data: { contributions: number[][]; selection: number[]; distance: number; nb_features: number; }): Promise<any> => {
+};
+
+export const compacityMetricAPIPlot = async (data: {
+    contributions: number[][];
+    selection: number[];
+    distance: number;
+    nb_features: number;
+}): Promise<any> => {
     try {
-      const response = await makeApiRequest<any>(
-        '/compacity_metric_plot',
-        'post',
-        data, // Pass the entire data object directly
-        'blob'
-      );
-      console.log('API Response in CompacityMetricAPIPlot:', response);
-      return response;
+        const response = await makeApiRequest<any>(
+            '/compacity_metric_plot',
+            'post',
+            data, // Pass the entire data object directly
+            'blob'
+        );
+        console.log('API Response in CompacityMetricAPIPlot:', response);
+        return response;
     } catch (error) {
-      console.error('Error in CompacityMetricAPIPlot:', error);
-      throw error;
+        console.error('Error in CompacityMetricAPIPlot:', error);
+        throw error;
     }
-  };
+};
 
 
-export const xaiAPI = async (xai_method: string, image: File, mlModel: File, imagetype:  string) => {
+export const xaiAPI = async (xai_method: string, image: File, mlModel: File, imagetype: string) => {
     try {
 
         const requestBody = new FormData();
@@ -509,14 +519,14 @@ export const xaiAPI = async (xai_method: string, image: File, mlModel: File, ima
         // const imageFileBytes = await readFileAsBase64(file);
         // requestBody.append('ImageFileBytes', imageFileBytes);
 
-        
+
         for (const entry of requestBody.entries()) {
             console.log(entry[0], entry[1]);
         }
 
         if (xai_method == 'lime') {
             const response = await makeApiRequest<any>(
-                `/explain_lime/image?imagetype=${imagetype}`, 
+                `/explain_lime/image?imagetype=${imagetype}`,
                 'post',
                 requestBody,
                 'json'
@@ -530,7 +540,7 @@ export const xaiAPI = async (xai_method: string, image: File, mlModel: File, ima
                 'json'
             );
             return response;
-        } else if (xai_method == 'occ')  {
+        } else if (xai_method == 'occ') {
             const response = await makeApiRequest<any>(
                 `/explain_occlusion/image?imagetype=${imagetype}`,
                 'post',
@@ -553,18 +563,38 @@ export const xaiAPI = async (xai_method: string, image: File, mlModel: File, ima
 
 const readFileAsBlob = (file: File): Promise<Blob> => {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.result) {
-          const blob = new Blob([new Uint8Array(reader.result as ArrayBuffer)], { type: 'application/octet-stream' });
-          resolve(blob);
-        } else {
-          reject(new Error('Failed to read file content.'));
-        }
-      };
-      reader.onerror = (error) => {
-        reject(error);
-      };
-      reader.readAsArrayBuffer(file);
+        const reader = new FileReader();
+        reader.onload = () => {
+            if (reader.result) {
+                const blob = new Blob([new Uint8Array(reader.result as ArrayBuffer)], {type: 'application/octet-stream'});
+                resolve(blob);
+            } else {
+                reject(new Error('Failed to read file content.'));
+            }
+        };
+        reader.onerror = (error) => {
+            reject(error);
+        };
+        reader.readAsArrayBuffer(file);
     });
-  };
+};
+export const requestRunShap = async (modelId: string, numberBackgroundSamples: number, numberExplainedSamples: number, maxDisplay: number) => {
+
+    const url = `${LOCAL_URL}/api/xai/shap`;
+    const shapConfig = {
+        "modelId": modelId,
+        "numberBackgroundSamples": numberBackgroundSamples,
+        "numberExplainedSamples": numberExplainedSamples,
+        "maxDisplay": maxDisplay,
+    };
+
+    return makeApiRequest(url, "post", {shapConfig});
+
+}
+
+export const fetchSHAPValues = async (modelId: string, labelId: number) => {
+    const labelsList = getLabelsListXAI(modelId);
+    const url = `${LOCAL_URL}/api/xai/shap/importance-values/${modelId}/${labelId}`
+    const shapValues = await makeApiRequest(url, "post", {labelsList});
+    return shapValues;
+}
