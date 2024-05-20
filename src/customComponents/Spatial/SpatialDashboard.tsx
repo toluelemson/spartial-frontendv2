@@ -4,9 +4,9 @@ import {getLabelsListAppXAI} from '../util/utility'
 
 import {useSpatialContext} from "../../context/context";
 import {useParams} from "react-router";
-import Fairness from "../Services/Fairness/Fairness";
-import Privacy from "../Services/Privacy/Privacy";
-import EnhancedX from "../Services/EnhancedX/EnhancedX";
+// import Fairness from "../Services/Fairness/Fairness";
+// import Privacy from "../Services/Privacy/Privacy";
+// import EnhancedX from "../Services/EnhancedX/EnhancedX";
 import {LIMETab} from "../XAI/LimeTab";
 import ModelSelection from "../models/modelComparison/ModelSelection";
 import CriteriaSelection from "../models/modelComparison/SelectionCriteria";
@@ -18,6 +18,7 @@ import {requestAllModels} from "../../api";
 
 import DatasetList from "../datasets/DatasetList";
 import {ILIMEParametersState} from "../../types/LimeTypes";
+import SHAPTab from '../XAI/SHAPTab';
 
 
 const SpatialDashboard: React.FC = () => {
@@ -168,7 +169,7 @@ const SpatialDashboard: React.FC = () => {
                                     </div>
                                 </Tab>
                                 <Tab eventKey="subtab2" title="SHAP">
-                                    <div className="px-3">Content for Sub Tab 2</div>
+                                  <SHAPTab state={state} updateState={setState}/>
                                 </Tab>
                                 <Tab eventKey="subtab3" title="RESILIENCE">
                                     <div className="px-3">Content for Sub Tab 2</div>
