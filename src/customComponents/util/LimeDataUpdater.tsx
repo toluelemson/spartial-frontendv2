@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { ILIMEParametersState } from '../../types/LimeTypes';
-import { processProbsData } from "./LimeUtility";
+import { processProbsData } from "./XAIUtility";
 
 interface DataUpdaterProps {
     state: ILIMEParametersState;

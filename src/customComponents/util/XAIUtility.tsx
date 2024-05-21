@@ -1,6 +1,6 @@
 import * as api from "../../api";
 import {extractLabelsFromDataset} from "./utility";
-import {requestRunLime, requestXAIStatus} from "../../api";
+import {requestRunLime, requestXAIStatus, requestRunShap} from "../../api";
 
 type PieChartData = { type: string; value: number };
 
@@ -18,11 +18,45 @@ type StatusResult = {
     isRunning: boolean;
 };
 
-export const runLimeAndMonitorStatus = async (modelId: string, sampleId: number | string[], featuresToDisplay: number) => {
+// export const runLimeAndMonitorStatus = async (modelId: string, sampleId: number | string[], featuresToDisplay: number) => {
+//     let intervalId: NodeJS.Timer | null = null;
+//
+//     try {
+//         const res: LimeResult = await requestRunLime(modelId, sampleId, featuresToDisplay);
+//
+//         if (res && res.isRunning) {
+//             intervalId = setInterval(async () => {
+//                 const status: StatusResult = await requestXAIStatus();
+//                 console.log(status);
+//                 if (!status.isRunning && intervalId) {
+//                     clearInterval(intervalId);
+//                     console.log(res)
+//                     intervalId = null;
+//                     console.log('Task completed, interval cleared.');
+//                 }
+//             }, 1000);
+//         }
+//         console.log(res);
+//     } catch (error) {
+//         console.error('Error during requestRunLime:', error);
+//         if (intervalId) clearInterval(intervalId);
+//     }
+//
+//     // Ensure the interval is cleared when the task is complete or an error occurs
+//     return () => {
+//         if (intervalId) clearInterval(intervalId);
+//     };
+// };
+
+
+
+export const monitorStatus = async (method: string, config: any) => {
     let intervalId: NodeJS.Timer | null = null;
 
     try {
-        const res: LimeResult = await requestRunLime(modelId, sampleId, featuresToDisplay);
+        // const res: any = await requestRunShap("ac-xgboost", backgroundSamples, explainedSamples, newState.maxDisplay);
+
+        const res: LimeResult = method = 'LIME' ?  await requestRunLime(config.modelId, config.sampleId, config.featuresToDisplay) : await requestRunShap("ac-xgboost", config.backgroundSamples, config.explainedSamples, config.maxDisplay)
 
         if (res && res.isRunning) {
             intervalId = setInterval(async () => {

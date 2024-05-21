@@ -2,8 +2,9 @@ import React, {FormEvent, useEffect, useState} from 'react';
 import {Container, Row, Col, Form, Button, InputGroup, Table, Card} from 'react-bootstrap';
 import {LIMETabProps} from '../../types/LimeTypes';
 import {fetchSHAPValues, requestRunShap} from "../../api";
-// import FeatureImportanceBarChart from "../Plots/FeatureImportanceBarChart";
+import FeatureImportanceBarChart from "../Plots/FeatureImportanceBarChart";
 import useFetchModelDataset from "../datasets/useFetchDataset";
+import { monitorStatus } from '../util/XAIUtility';
 
 const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
 
@@ -15,8 +16,8 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
     };
 
     type ShapItem = {
+        feature: string;
         importance_value: number;
-        feature: string | number | any[];
     };
 
     const handleInputChange = (
@@ -50,8 +51,10 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
     const [explainedSamples, setExplainedSamples] = useState(10);
     const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
     const [shapResults, setShapResults] = useState<any | null>([]);
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState<any | null>(null)
     const [maskedFeatures, setMaskedFeatures] = useState<any>([]);
-    const {originalDataset, error} = useFetchModelDataset(newState.modelId, "train");
+    const {originalDataset} = useFetchModelDataset(newState.modelId, "train");
 
 
     useEffect(() => {
@@ -158,20 +161,29 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
         // Download CSV
         downloadCSV(combinedCSV, `${newState.modelId}_analysis.csv`);
     };
-
+    
     const handleShapExplain = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        let res = await requestRunShap("ac-xgboost", 10, 10, 5)
+        setIsLoading(true);
 
-        const shapValues: any = await fetchSHAPValues("ac-xgboost", 0)
-        // // let isModelIdPresent = getLastPath() !== "shap";
-        // //
-        // // const features = isModelIdPresent ?
-        // //               getFilteredFeaturesModel(modelId) : getFilteredFeatures(app);
 
-        console.log(shapValues)
-        setShapResults(shapValues);
+        try {
+            const {maxDisplay} = newState
+            const method : string = 'SHAP'
+            const SHAPConfig : any = {modelId : "ac-xgboost", backgroundSamples, explainedSamples, maxDisplay}
+            const res : any = await monitorStatus(method, SHAPConfig).catch((e: any) => console.log(e))
+            
+
+            const shapValues = await fetchSHAPValues("ac-xgboost", 0);
+            console.log(shapValues)
+            setShapResults(shapValues);
+        } catch (error) {
+            setError('Failed to fetch SHAP values. Please try again.');
+        } finally {
+            setIsLoading(false);
+        }
+        
     };
 
     const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -338,7 +350,7 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                 <Col md={6}>
                     {/*<LollipopShapChart data={shapResults} />*/}
                     {/* <FeatureImportanceLollipopChart data={shapResults} />*/}
-                    {/*<FeatureImportanceBarChart data={toDisplayShap}/>*/}
+                    <FeatureImportanceBarChart data={toDisplayShap}/>
                 </Col>
                 <Col>
                     <h3>Top Features</h3>

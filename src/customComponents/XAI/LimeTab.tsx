@@ -5,7 +5,7 @@ import ProbabilityTable from "../Charts/ProbabilityTable";
 import LimeDataUpdater from '../util/LimeDataUpdater';
 import * as api from '../../api';
 import useFetchModelDataset from "../datasets/useFetchModelDataset";
-import {runLimeAndMonitorStatus} from "../util/LimeUtility";
+import {monitorStatus} from "../util/XAIUtility";
 import {requestLimeValues} from "../../api";
 import LollipopChart from "../Plots/LolipopChart";
 
@@ -65,8 +65,13 @@ export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
         }
 
         setTriggerDataUpdate(true);
-        await runLimeAndMonitorStatus(state.modelId, state.sampleId, state.featuresToDisplay).catch((e) => console.log(e))
+        // await runLimeAndMonitorStatus(state.modelId, state.sampleId, state.featuresToDisplay).catch((e) => console.log(e))
 
+        
+        
+        const method : string = 'LIME'
+        const LIMEConfig : any = {modelId : state.modelId, sampleId:  state.sampleId, featuresToDisplay: state.featuresToDisplay}
+        await monitorStatus(method, LIMEConfig).catch((e: any) => console.log(e))
         const limeVal = await requestLimeValues(state.modelId, 1)
         updateState((prevState: any) => ({...prevState, limeValues: limeVal}));
 
