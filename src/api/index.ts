@@ -592,9 +592,9 @@ export const requestRunShap = async (modelId: string, numberBackgroundSamples: n
 
 }
 
-export const fetchSHAPValues = async (modelId: string, labelId: number) => {
+export const fetchSHAPValues = async (modelId: string, labelIndex: number) => {
     const labelsList = getLabelsListXAI(modelId);
-    const url = `${LOCAL_URL}/api/xai/shap/importance-values/${modelId}/${labelId}`
-    const shapValues = await makeApiRequest(url, "post", {labelsList});
+    const url = `${LOCAL_URL}/api/xai/shap/explanations/${modelId}/${labelIndex}`
+    const shapValues = await makeApiRequest(url, 'get', {labelsList});
     return shapValues;
 }
