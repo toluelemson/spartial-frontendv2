@@ -4,7 +4,7 @@ import {LIMETabProps} from '../../types/LimeTypes';
 import {fetchSHAPValues, requestRunShap} from "../../api";
 import FeatureImportanceBarChart from "../Plots/FeatureImportanceBarChart";
 import useFetchModelDataset from "../datasets/useFetchDataset";
-import { monitorStatus } from '../util/XAIUtility';
+import {monitorStatus} from '../util/XAIUtility';
 
 const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
 
@@ -161,7 +161,6 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
         // Download CSV
         downloadCSV(combinedCSV, `${newState.modelId}_analysis.csv`);
     };
-    
     const handleShapExplain = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
@@ -170,10 +169,10 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
 
         try {
             const {maxDisplay} = newState
-            const method : string = 'SHAP'
-            const SHAPConfig : any = {modelId : "ac-xgboost", backgroundSamples, explainedSamples, maxDisplay}
-            const res : any = await monitorStatus(method, SHAPConfig).catch((e: any) => console.log(e))
-            
+            const method: string = 'SHAP'
+            const SHAPConfig: any = {modelId: "ac-xgboost", backgroundSamples, explainedSamples, maxDisplay}
+            const res: any = await monitorStatus(method, SHAPConfig).catch((e: any) => console.log(e))
+
 
             const shapValues = await fetchSHAPValues("ac-xgboost", 0);
             console.log(shapValues)
@@ -183,7 +182,7 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
         } finally {
             setIsLoading(false);
         }
-        
+
     };
 
     const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -224,11 +223,11 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
 
 
     return (
-        <Container>
+        <Container fluid className="p-4">
             <Row>
-                <Col>
+                <Col md={9}>
                     <Card className="shadow-sm mb-4">
-                        <Card.Header as="h5" className="text-primary">
+                        <Card.Header as="h5" className="bg-primary text-white">
                             Explainable AI with SHapley Additive exPlanations (SHAP)
                         </Card.Header>
                         <Card.Body className="p-4">
@@ -236,9 +235,11 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                 Configure SHAP parameters and run the analysis to explain the model's predictions.
                             </Card.Text>
                             <Form onSubmit={handleShapExplain}>
-                                <Form.Group as={Row} controlId="backgroundSamples">
-                                    <Form.Label column sm={2}>Background samples:</Form.Label>
-                                    <Col sm={10}>
+                                <Form.Group as={Row} className="mb-3" controlId="backgroundSamples">
+                                    <Form.Label column sm={3}>
+                                        Background samples:
+                                    </Form.Label>
+                                    <Col sm={9}>
                                         <Form.Control
                                             type="number"
                                             value={backgroundSamples}
@@ -247,9 +248,11 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                     </Col>
                                 </Form.Group>
 
-                                <Form.Group as={Row} controlId="explainedSamples">
-                                    <Form.Label column sm={2}>Explained samples:</Form.Label>
-                                    <Col sm={10}>
+                                <Form.Group as={Row} className="mb-3" controlId="explainedSamples">
+                                    <Form.Label column sm={3}>
+                                        Explained samples:
+                                    </Form.Label>
+                                    <Col sm={9}>
                                         <Form.Control
                                             type="number"
                                             value={explainedSamples}
@@ -257,12 +260,11 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                         />
                                     </Col>
                                 </Form.Group>
-                                <Form.Group className="mb-3">
+
+                                <Form.Group className="mb-4">
                                     <Form.Label htmlFor="maxValue">
                                         Features to display:
-                                        <span className="ms-2 badge bg-secondary">
-                                    {newState.maxDisplay}
-                                </span>
+                                        <span className="ms-2 badge bg-secondary">{newState.maxDisplay}</span>
                                     </Form.Label>
                                     <Form.Range
                                         name="maxDisplay"
@@ -274,7 +276,7 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                         className="form-range custom-range-slider"
                                     />
                                 </Form.Group>
-                                <div className="p-3 mb-3 border rounded">
+                                <Card className="p-3 mb-4">
                                     <Form.Group className="mb-2">
                                         <div className="d-flex align-items-center">
                                             <Form.Check
@@ -298,8 +300,9 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                             onChange={handleCheckboxChange}
                                         />
                                     </Form.Group>
-                                </div>
-                                <Form.Group className="mb-3">
+                                </Card>
+
+                                <Form.Group className="mb-4">
                                     <Form.Label htmlFor="featuresToMask">Feature(s) to Mask</Form.Label>
                                     <InputGroup>
                                         <Form.Select
@@ -309,32 +312,64 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                             onChange={handleMultiSelectChange}
                                         >
                                             <option value="%tcp_protocol">%tcp_protocol</option>
-                                            {newState.maskedFeatures.length > 0 && Object.keys(newState.maskedFeatures[0]).sort()
-                                                .map((key, index) => (
-                                                    <option value={key} key={index}>{key}</option>
-                                                ))
-                                            }
+                                            {newState.maskedFeatures.length > 0 &&
+                                                Object.keys(newState.maskedFeatures[0])
+                                                    .sort()
+                                                    .map((key, index) => (
+                                                        <option value={key} key={index}>
+                                                            {key}
+                                                        </option>
+                                                    ))}
                                         </Form.Select>
                                     </InputGroup>
                                     <div className="mt-3">
                                         <strong>Selected Features:</strong>
                                         <div>
                                             {selectedFeatures.map((feature, index) => (
-                                                <span key={index} className="badge bg-secondary me-2">{feature}</span>
+                                                <span key={index} className="badge bg-secondary me-2">
+                      {feature}
+                    </span>
                                             ))}
                                         </div>
                                     </div>
                                 </Form.Group>
 
-                                <Button variant="primary" type="submit" className="mt-3 w-100">SHAP Explain</Button>
+                                <Button variant="primary" type="submit" className="mt-3 w-100">
+                                    SHAP Explain
+                                </Button>
                             </Form>
                         </Card.Body>
                     </Card>
                 </Col>
+                <Col md={3}>
+                    <Card className="shadow-sm mb-4">
+                        <Card.Header as="h6" className="bg-secondary text-white">
+                            Top Features
+                        </Card.Header>
+                        <Card.Body className="p-3">
+                            <Table striped bordered hover size="sm">
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Feature Name</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {topFeatures.map((feature) => (
+                                    <tr key={feature.key}>
+                                        <td>{feature.key}</td>
+                                        <td>{feature.name}</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </Table>
+                        </Card.Body>
+                    </Card>
+                </Col>
             </Row>
-            <Row>
+
+            <Row className="mt-4">
                 <Col>
-                    {/* Conditional rendering for SHAP results */}
                     {shapResults ? (
                         <div>
                             {/* Components to display SHAP explanations and feature importances */}
@@ -346,46 +381,18 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                 </Col>
             </Row>
 
-            <Row>
-                <Col md={6}>
-                    {/*<LollipopShapChart data={shapResults} />*/}
-                    {/* <FeatureImportanceLollipopChart data={shapResults} />*/}
+            <Row className="mt-4">
+                <Col md={9}>
+                    {/* <LollipopShapChart data={shapResults} /> */}
+                    {/* <FeatureImportanceLollipopChart data={shapResults} /> */}
                     <FeatureImportanceBarChart data={toDisplayShap}/>
-                </Col>
-                <Col>
-                    <h3>Top Features</h3>
-                    <Table striped bordered hover>
-                        <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Feature Name</th>
-                            {/*<th>Description</th>*/}
-                            {/*/!* Include this column only if you have descriptions *!/*/}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {topFeatures.map((feature) => (
-                            <tr key={feature.key}>
-                                <td>{feature.key}</td>
-                                <td>{feature.name}</td>
-                                {/* Uncomment the line below if you have descriptions */}
-                                {/* <td>{feature.description || 'N/A'}</td> */}
-                            </tr>
-                        ))}
-                        </tbody>
-                    </Table>
                 </Col>
 
                 <Col md={3} className="d-flex align-items-center">
-                    <Button variant="primary" onClick={handleExportToCSV} className="w-100 mt-3">Save Data to
-                        CSV</Button>
+                    <Button variant="primary" onClick={handleExportToCSV} className="w-100 mt-3">
+                        Save Data to CSV
+                    </Button>
                 </Col>
-
-                {/*<Col md={2} className="d-flex align-items-center">*/}
-                {/*    <Button variant="primary" className="w-100 mt-3">Save Data to*/}
-                {/*        CSV</Button>*/}
-                {/*</Col>*/}
-
             </Row>
         </Container>
     );
