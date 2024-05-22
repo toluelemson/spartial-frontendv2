@@ -26,14 +26,14 @@ const TableComponent: React.FC<TableComponentProps> = ({modelIdProp, datasetType
     const modelId = modelIdProp || secondToLastPath;
     const datasetType = datasetTypeProp || lastPath;
 
-    const {data, error} = useFetchModelDataset(modelId, api);
+    const {originalDataset: originalDataset, error} = useFetchModelDataset(modelId, "train");
 
 
     useEffect(() => {
-        if (data && data.resultData && data.resultData.length > 0) {
-            setViewDatasetModel(data.resultData);
+        if (originalDataset && originalDataset.resultData && originalDataset.resultData.length > 0) {
+            setViewDatasetModel(originalDataset.resultData);
         }
-    }, [data, datasetType, modelId, modelIdProp]);
+    }, [originalDataset, datasetType, modelId, modelIdProp]);
 
     const [currentPage, setCurrentPage] = useState(1);
     // Assuming 10 rows per page
