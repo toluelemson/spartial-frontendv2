@@ -236,7 +236,7 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                             </Card.Text>
                             <Form onSubmit={handleShapExplain}>
                                 <Form.Group as={Row} className="mb-3" controlId="backgroundSamples">
-                                    <Form.Label column sm={3}>
+                                    <Form.Label column sm={3} className="text-sm">
                                         Background samples:
                                     </Form.Label>
                                     <Col sm={9}>
@@ -244,12 +244,13 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                             type="number"
                                             value={backgroundSamples}
                                             onChange={(e) => setBackgroundSamples(Number(e.target.value))}
+                                            className="form-control-sm"
                                         />
                                     </Col>
                                 </Form.Group>
 
                                 <Form.Group as={Row} className="mb-3" controlId="explainedSamples">
-                                    <Form.Label column sm={3}>
+                                    <Form.Label column sm={3} className="text-sm">
                                         Explained samples:
                                     </Form.Label>
                                     <Col sm={9}>
@@ -257,12 +258,13 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                             type="number"
                                             value={explainedSamples}
                                             onChange={(e) => setExplainedSamples(Number(e.target.value))}
+                                            size="sm"
                                         />
                                     </Col>
                                 </Form.Group>
 
                                 <Form.Group className="mb-4">
-                                    <Form.Label htmlFor="maxValue">
+                                    <Form.Label htmlFor="maxValue" className="text-sm">
                                         Features to display:
                                         <span className="ms-2 badge bg-secondary">{newState.maxDisplay}</span>
                                     </Form.Label>
@@ -276,6 +278,7 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                         className="form-range custom-range-slider"
                                     />
                                 </Form.Group>
+
                                 <Card className="p-3 mb-4">
                                     <Form.Group className="mb-2">
                                         <div className="d-flex align-items-center">
@@ -283,7 +286,8 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                                 type="checkbox"
                                                 id="positiveCheck"
                                                 name="positiveChecked"
-                                                className="me-2"
+                                                // className="me-2"
+                                                className="form-check-sm"
                                                 label="Positive"
                                                 checked={newState.positiveChecked}
                                                 onChange={handleCheckboxChange}
@@ -298,17 +302,21 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                             label="Negative"
                                             checked={newState.negativeChecked}
                                             onChange={handleCheckboxChange}
+                                            className="form-check-sm"
+
                                         />
                                     </Form.Group>
                                 </Card>
 
                                 <Form.Group className="mb-4">
-                                    <Form.Label htmlFor="featuresToMask">Feature(s) to Mask</Form.Label>
+                                    <Form.Label htmlFor="featuresToMask" className="text-sm">
+                                        Feature(s) to Mask
+                                    </Form.Label>
                                     <InputGroup>
                                         <Form.Select
                                             multiple={true}
                                             name="featuresToMask"
-                                            className="form-select"
+                                            className="form-select form-select-sm"
                                             onChange={handleMultiSelectChange}
                                         >
                                             <option value="%tcp_protocol">%tcp_protocol</option>
@@ -334,7 +342,7 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                     </div>
                                 </Form.Group>
 
-                                <Button variant="primary" type="submit" className="mt-3 w-100">
+                                <Button variant="primary" type="submit" className="mt-3 w-100 btn-sm">
                                     SHAP Explain
                                 </Button>
                             </Form>
@@ -385,11 +393,11 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                 <Col md={9}>
                     {/* <LollipopShapChart data={shapResults} /> */}
                     {/* <FeatureImportanceLollipopChart data={shapResults} /> */}
-                    <FeatureImportanceBarChart data={toDisplayShap}/>
+                    <FeatureImportanceBarChart data={toDisplayShap} />
                 </Col>
 
                 <Col md={3} className="d-flex align-items-center">
-                    <Button variant="primary" onClick={handleExportToCSV} className="w-100 mt-3">
+                    <Button variant="primary" onClick={handleExportToCSV} className="w-100 mt-3 btn-sm">
                         Save Data to CSV
                     </Button>
                 </Col>
