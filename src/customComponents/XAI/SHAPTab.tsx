@@ -169,9 +169,8 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
 
         try {
             const {maxDisplay} = newState
-            const method: string = 'SHAP'
-            const SHAPConfig: any = {modelId: "ac-xgboost", backgroundSamples, explainedSamples, maxDisplay}
-            const res: any = await monitorStatus(method, SHAPConfig).catch((e: any) => console.log(e))
+            const SHAPConfig: any = {modelId: newState.modelId, backgroundSamples, explainedSamples, maxDisplay}
+            await monitorStatus('SHAP', SHAPConfig).catch((e: any) => console.log(e))
 
 
             const shapValues = await fetchSHAPValues("ac-xgboost", 0);
