@@ -28,7 +28,7 @@ export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
     const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
     const [maskedFeatures, setMaskedFeatures] = useState<any>([]);
     const [loading, setLoading] = useState(false);
-    const {originalDataset: originalDataset, error} = useFetchModelDataset(newState.modelId, "train");
+    const {dataset: originalDataset, error} = useFetchModelDataset(false, newState.modelId, "train");
 
     const handleInputChange = (
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>

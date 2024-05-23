@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import Papa from 'papaparse';
-import { requestViewModelDatasets } from "../../api";
+import {requestViewModelDatasets, requestViewPoisonedDatasets} from "../../api";
 
 interface DataModel {
     resultData: string[];
 }
 
-const useFetchModelDataset = (modelId: string, datasetType: string) => {
-    const [originalDataset, setOriginalDataset] = useState<DataModel>({ resultData: [] });
+const useFetchModelDataset = (isPoisoned: boolean, modelId: string, datasetType: string) => {
+    const [originalDataset, setOriginalDataset] = useState<DataModel>({resultData: []});
+    const [poisonedDataset, setPoisonedDataset] = useState<DataModel>({resultData: []});
     const [error, setError] = useState<Error | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -17,24 +18,34 @@ const useFetchModelDataset = (modelId: string, datasetType: string) => {
 
             setLoading(true);
             try {
-                const csvDataString = await requestViewModelDatasets(modelId, datasetType);
-                if (!csvDataString) return;
+                const [csvNormalDataString, csvPoisonedDataString] = await Promise.all([
+                    requestViewModelDatasets(modelId, datasetType),
+                    requestViewPoisonedDatasets(modelId, datasetType)
+                ]);
 
-                Papa.parse(csvDataString, {
-                    complete: (result) => {
-                        if (result.data.length === 0) {
-                            setOriginalDataset({ resultData: [] });
-                            return;
-                        }
+                const parseCSV = (csvDataString: string, setDataset: React.Dispatch<React.SetStateAction<DataModel>>) => {
+                    Papa.parse<string>(csvDataString, {
+                        complete: (result) => {
+                            if (result.data.length === 0) {
+                                setDataset({resultData: []});
+                            } else if (Array.isArray(result.data)) {
+                                setDataset({resultData: result.data as string[]});
+                            } else {
+                                throw new Error('Error parsing data');
+                            }
+                        },
+                        header: true,
+                    });
+                };
 
-                        if (Array.isArray(result.data)) {
-                            setOriginalDataset({ resultData: result.data as string[] });
-                        } else {
-                            throw new Error('Error parsing data');
-                        }
-                    },
-                    header: true,
-                });
+                if (csvNormalDataString) {
+                    parseCSV(csvNormalDataString, setOriginalDataset);
+                }
+
+                if (csvPoisonedDataString) {
+                    parseCSV(csvPoisonedDataString, setPoisonedDataset);
+                }
+
             } catch (err) {
                 setError(err instanceof Error ? err : new Error('An error occurred while fetching data'));
             } finally {
@@ -45,7 +56,9 @@ const useFetchModelDataset = (modelId: string, datasetType: string) => {
         fetchData();
     }, [modelId, datasetType]);
 
-    return { originalDataset, error, loading }; 
+    const dataset = isPoisoned ? poisonedDataset : originalDataset;
+
+    return {dataset, error, loading};
 };
 
 export default useFetchModelDataset;

@@ -1,5 +1,8 @@
 export type DatasetType = { datasetId: string | null; isAttack: boolean }[]
 
+
+export type TODO = any
+
 export interface TParamType {
     [key: string]: string;
 }
