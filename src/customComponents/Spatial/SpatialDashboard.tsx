@@ -19,6 +19,7 @@ import {requestAllModels} from "../../api";
 import DatasetList from "../datasets/DatasetList";
 import {ILIMEParametersState} from "../../types/LimeTypes";
 import SHAPTab from '../XAI/SHAPTab';
+import AdversatialTab from '../AdversarialML/AdversarialML';
 
 
 const SpatialDashboard: React.FC = () => {
@@ -169,14 +170,17 @@ const SpatialDashboard: React.FC = () => {
                                     </div>
                                 </Tab>
                                 <Tab eventKey="subtab2" title="SHAP">
-                                  <SHAPTab state={state} updateState={setState}/>
+                                    <SHAPTab state={state} updateState={setState}/>
                                 </Tab>
-                                <Tab eventKey="subtab3" title="RESILIENCE">
+                                <Tab eventKey="subtab3" title="ATTACKS">
+                                    <AdversatialTab state={state}/>
+                                    {/*<div className="px-3">Content for Sub Tab 2</div>*/}
+                                </Tab>
+                                <Tab eventKey="subtab4" title="RESILIENCE">
+
                                     <div className="px-3">Content for Sub Tab 2</div>
                                 </Tab>
-                                <Tab eventKey="subtab4" title="ATTACKS">
-                                    <div className="px-3">Content for Sub Tab 2</div>
-                                </Tab>
+
                             </Tabs>
                         </div>
                     </Tab>

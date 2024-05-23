@@ -159,6 +159,10 @@ const BlobDownload = (response: Blob | null, modelId: any, datasetType: any) => 
 export const requestViewModelDatasets = async (modelId: string, datasetType: string) => {
     return await makeApiRequest<any>(`${LOCAL_URL}/api/models/${modelId}/datasets/${datasetType}/view`, 'get', null);
 }
+export const requestViewPoisonedDatasets = async (modelId: string, selectedAttack: string): Promise<any> => {
+    return await makeApiRequest(`${LOCAL_URL}/api/attacks/poisoning/${selectedAttack}/${modelId}/view`, 'get', null)
+}
+
 export const requestLimeValues = async (modelId: string, labelId: number) => {
     const labelsList = getLabelsListXAI(modelId);
     console.log(`Get LIME values of the model ${modelId} for the label ${labelsList[labelId]} from server`);
@@ -416,6 +420,7 @@ export const evasion_impact_metric = async (ground_truth: number[], predictions:
         throw error;
     }
 }
+
 interface ContributionDict {
     KernelSHAP: number[][];
     LIME: number[][];
@@ -598,3 +603,14 @@ export const fetchSHAPValues = async (modelId: string, labelIndex: number) => {
     const shapValues = await makeApiRequest(url, 'get', {labelsList});
     return shapValues;
 }
+
+
+// export const requestViewPoisonedDatasets = async (modelId, selectedAttack) => {
+//     const url = `${SERVER_URL}/api/attacks/poisoning/${selectedAttack}/${modelId}/view`;
+//     const response = await fetch(url);
+//     const data = await response.text();
+//     if (data.error) {
+//         throw data.error;
+//     }
+//     return data;
+// };
