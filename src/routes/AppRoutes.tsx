@@ -32,6 +32,7 @@ import XAIHomepage from "../customComponents/Services/XAIS/XAIHomepage";
 import EnhancedX from "../customComponents/Services/EnhancedX/EnhancedX";
 import Spatial from "../customComponents/Spatial/SpatialDashboard";
 import CompacityMetric from "../customComponents/Services/Metrics/CompacityMetric";
+import ModelSpecific from "../customComponents/Services/medical/ModelSpecific";
 
 interface RouteConfig {
   path: string;
@@ -72,6 +73,7 @@ const routeConfig: RouteConfig[] = [
   { path: "/XAI/XAIHomepage", Component: XAIHomepage },
   { path: "*", Component: NoMatchComponent, isProtected: false },
   { path: "/Metrics/CompacityMetric", Component: CompacityMetric },
+  { path: "/ModelSpecific", Component: ModelSpecific },
 ];
 const AppRoutes: React.FC = () => (
   <Routes>

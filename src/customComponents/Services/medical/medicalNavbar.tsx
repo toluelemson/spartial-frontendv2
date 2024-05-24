@@ -55,7 +55,16 @@ const MedicalNavbar: React.FC = () => {
                 Lead Importance
               </NavDropdown.Item>
             </NavDropdown>
-            <Nav.Link href="#">Model Administration & Application</Nav.Link>
+
+            <NavDropdown
+              className="bg-dark"
+              title="Model Administration & Application"
+              id="model-dropdown"
+            >
+              <NavDropdown.Item href="/ModelSpecific">
+                View a Specific Model
+              </NavDropdown.Item>
+            </NavDropdown>
           </Nav>
         </BootstrapNavbar.Collapse>
       </BootstrapNavbar>{" "}
