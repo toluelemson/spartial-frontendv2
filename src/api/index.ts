@@ -489,6 +489,7 @@ export const compacityMetricAPI = async (data: {
     }
 };
 
+
 export const compacityMetricAPIPlot = async (data: {
     contributions: number[][];
     selection: number[];

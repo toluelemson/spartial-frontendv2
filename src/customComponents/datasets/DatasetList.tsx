@@ -26,7 +26,7 @@ const TableComponent: React.FC<TableComponentProps> = ({modelIdProp, datasetType
     const modelId = modelIdProp || secondToLastPath;
     const datasetType = datasetTypeProp || lastPath;
 
-    const {dataset: originalDataset, error} = useFetchModelDataset(true, modelId, "train");
+    const {originalDataset, error} = useFetchModelDataset(true, modelId, "train");
 
 
     useEffect(() => {

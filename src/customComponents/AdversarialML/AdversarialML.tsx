@@ -28,10 +28,11 @@ const AdversarialTab: React.FC<any> = ({state}) => {
     const [originalDatasetLabels, setOriginalDatasetLabels] = useState<string[]>([]);
     const [poisonedDatasetLabels, setPoisonedDatasetLabels] = useState<string[]>([]);
     const [combinedDatasetLabels, setCombinedDatasetLabels] = useState<DatasetLabelColumn[]>([]);
-    const {dataset: poisonedDataset} = useFetchModelDataset(false, formData.modelId, formData.attackType);
-    const {dataset: originalDataset} = useFetchModelDataset(true, formData.modelId, "train");
+    const {poisonedDataset} = useFetchModelDataset(true, formData.modelId, "rsl");
+    const {originalDataset} = useFetchModelDataset(false, formData.modelId, "train");
 
-    console.log(originalDataset, "originalDataSet")
+    console.log(originalDataset, "originalDataSet");
+    console.log(poisonedDataset, "poisonedDataSet");
 
 
     interface DatasetLabelColumn {
@@ -47,23 +48,18 @@ const AdversarialTab: React.FC<any> = ({state}) => {
 
             const labelsFromOriginalDataset = originalDataset ? await extractLabelsFromDataset({
                 modelId: formData.modelId,
-                datasets: originalDataset,
+                datasets: originalDataset.resultData,
             }) : [];
-
+            
+            setOriginalDatasetLabels(labelsFromOriginalDataset);
             const labelsFromPoisonedDataset = poisonedDataset ? await extractLabelsFromDataset({
                 modelId: formData.modelId,
                 datasets: poisonedDataset,
             }) : [];
-
-            // Set the labels state
-            setOriginalDatasetLabels(labelsFromOriginalDataset);
             setPoisonedDatasetLabels(labelsFromPoisonedDataset);
-
-            // Count labels in the datasets
             const originalDataCounts = countLabels(originalDataset?.resultData || []);
             const poisonedDataCounts = countLabels(poisonedDataset?.resultData || []);
 
-            // Create the combined labels array
             const originalLabels = labelsFromOriginalDataset.map(label => ({
                 datasetType: 'original',
                 classLabels: label,
@@ -99,6 +95,7 @@ const AdversarialTab: React.FC<any> = ({state}) => {
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | ChangeEvent<TODO>) => {
         const {name, value} = event.target;
         console.log(name, value);
+        console.log(originalDatasetLabels)
 
         setFormErrors({
             ...formErrors,

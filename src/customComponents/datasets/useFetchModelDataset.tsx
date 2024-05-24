@@ -22,7 +22,6 @@ const useFetchModelDataset = (isPoisoned: boolean, modelId: string, datasetType:
                     requestViewModelDatasets(modelId, datasetType),
                     requestViewPoisonedDatasets(modelId, datasetType)
                 ]);
-
                 const parseCSV = (csvDataString: string, setDataset: React.Dispatch<React.SetStateAction<DataModel>>) => {
                     Papa.parse<string>(csvDataString, {
                         complete: (result) => {
@@ -56,9 +55,9 @@ const useFetchModelDataset = (isPoisoned: boolean, modelId: string, datasetType:
         fetchData();
     }, [modelId, datasetType]);
 
-    const dataset = isPoisoned ? poisonedDataset : originalDataset;
-
-    return {dataset, error, loading};
+    // const dataset = isPoisoned ? poisonedDataset : originalDataset;
+    
+    return {poisonedDataset, originalDataset, error, loading};
 };
 
 export default useFetchModelDataset;
