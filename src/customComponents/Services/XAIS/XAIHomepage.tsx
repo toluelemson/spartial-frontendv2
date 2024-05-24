@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useRoleContext } from "../../RoleProvider/RoleContext";
 import XAINavbar from "./XAINavbar";
 import { xaiAPI } from "../../../api";
 import BarChart from "./BarChart";
@@ -195,6 +196,12 @@ const XAIHomepage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ResultType[] | null>(null);
+
+  const { setCurrentService } = useRoleContext();
+
+  useEffect(() => {
+    setCurrentService("XAI");
+  }, [setCurrentService]);
 
   // Specify the type for formData
   const [formData, setFormData] = useState<FormData>({

@@ -255,7 +255,14 @@ export const detectMIEmergencies = async (dat: string, hea: string) => {
         throw error;
     }
 }
+// export const descriptionECGSignal = async (user_role: string, with_segments: string) => {
+//     return await makeApiRequest<any>(`/user_support/descriptions/ecg?user_role=${user_role}&with_segments=${with_segments}`);
+// }
 
+export const descriptionECGSignal = async (user_role: string, with_segments: string) => {
+    const url = `/user_support/descriptions/ecg?user_role=${user_role}&with_segments=${with_segments}`;
+    return await makeApiRequest<any>(url);
+}
 
 export const visualizeECG = async (dat: string, hea: string, cut_classification_window: string) => {
     try {
@@ -370,6 +377,12 @@ export const leadImportance = async (dat: string, hea: string, xai_method: strin
         throw error;
     }
 }
+
+export const getSpecificModel = async (model_id: string) => {
+    return await makeApiRequest<any>(`/model/${model_id}`);
+}
+
+
 
 // Metrics component
 
