@@ -1,0 +1,48 @@
+
+$softColor: #606c76; // A soft, dark grey
+$softBG: #f2f2f2; // A very light grey
+
+.nav-pills li a:hover {
+  background-color: rgb(61, 61, 243);
+}
+
+
+.menu {
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+
+    li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+
+      a {
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: $softColor;
+
+        img {
+          margin-right: 10px;
+        }
+
+        &:hover {
+          background-color: $softBG;
+          border-radius: 5px;
+        }
+      }
+    }
+  }
+}
+
+.menuContainer {
+  width: 20%;
+  padding: 50px 20px;
+  border-right: 2px solid $softBG;
+  align-items: center;
+  background-color: aliceblue;
+  height: 100vh;
+  align-items: center;
+}

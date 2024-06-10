@@ -1,0 +1,22 @@
+# Use the base image
+FROM ubuntu:20.04 AS build-stage
+
+# Set the non-interactive frontend for apt-get
+ARG DEBIAN_FRONTEND=noninteractive
+
+# Update and install necessary packages
+RUN apt-get update -y && \
+    apt-get install -y git wget cmake gcc g++ cpp curl software-properties-common
+
+# Install Node.js
+RUN curl -sL https://deb.nodesource.com/setup_19.x | bash && \
+    apt-get install -y nodejs
+
+# Create the app directory
+WORKDIR /app
+
+# Copy your application source
+COPY . .
+
+# Install Node.js dependencies and build the application
+RUN npm install --force && npm run build

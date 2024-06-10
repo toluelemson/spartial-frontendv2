@@ -1,19 +1,41 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
+import { BrowserRouter, useNavigate } from 'react-router-dom';
+import { OktaAuth, toRelativeUrl } from "@okta/okta-auth-js";
+import { Security } from "@okta/okta-react";
+import { oktaConfig } from "./config/oktaConfig";
 import App from './App';
-import reportWebVitals from './reportWebVitals';
+import { Provider } from "./context/context";
+
+const oktaAuth = new OktaAuth(oktaConfig);
+
+const AuthWrapper = () => {
+    const navigate = useNavigate();
+    const customAuthHandler = () => {
+        navigate('/protected');
+    };
+
+    const restoreOriginalUri = async (_oktaAuth: any, originalUri: any) => {
+        navigate(toRelativeUrl(originalUri || '/', window.location.origin));
+    };
+
+    return (
+        <Security oktaAuth={oktaAuth} restoreOriginalUri={restoreOriginalUri} onAuthRequired={customAuthHandler}>
+            <Provider>
+                <App />
+            </Provider>
+        </Security>
+    );
+};
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+    document.getElementById('root') as HTMLElement
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+root.render(
+    <React.StrictMode>
+        <BrowserRouter>
+            <AuthWrapper />
+        </BrowserRouter>
+    </React.StrictMode>
+);
