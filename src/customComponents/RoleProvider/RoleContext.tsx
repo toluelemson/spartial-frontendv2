@@ -23,6 +23,7 @@ export const RoleProvider: React.FC<{ children: ReactNode }> = ({
   const rolesForServices: { [key: string]: Role[] } = {
     XAI: ["endUser", "business", "developer", "auditor"],
     Medical: ["endUser", "medicalExpert", "developer"],
+    Network: ["auditor", "developer"],
   };
 
   const currentRoles = rolesForServices[currentService] || [];

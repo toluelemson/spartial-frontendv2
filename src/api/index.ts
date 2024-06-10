@@ -32,6 +32,35 @@ export interface Ac {
     datasets: string[]
 }
 
+interface MedicalModel {
+    modelId: string;
+    lastBuildAt: string;
+    buildConfig: {
+        uploadFileName: string;
+      description: string;
+      category: string;
+      dataStructure: string;
+      dataFormat: string;
+      preprocessing: string;
+    };
+  }
+  
+  const transformMedicalModel = (model: any): MedicalModel => {
+    return {
+      modelId: `ma-${model._id}`,
+      lastBuildAt: model.created_at,   
+      buildConfig: {
+        uploadFileName: model.upload_file_name,
+        description: model.description,
+        category: model.category,
+        dataStructure: model.data_structure,
+        dataFormat: model.data_format,
+        preprocessing: model.preprocessing,
+      },
+    };
+  };
+
+
 async function makeApiRequest<T>(
     url: string,
     method: 'get' | 'post' | 'put' = 'get',
@@ -201,6 +230,39 @@ export const differentialPrivacy = async (formData: FormState) => {
     return await makeApiRequest<any>(`/api/v3/differential_privacy/execute`, 'post', formData);
 }
 
+//medical 
+
+export const MIEmergencyModels = async (modelFile: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('model_file', modelFile);
+  
+      const response = await makeApiRequest<any>(
+        '/model/',
+        'post',
+        formData,
+        'json'
+      );
+  
+      return response;
+    } catch (error) {
+      // Handle errors as needed
+      console.error('Error in MIEmergencyModels:', error);
+      throw error;
+    }
+  };
+
+// export const requestMedicalModel = async () => {
+//     return await makeApiRequest<any>(`/model/`);
+// }
+export const requestMedicalModels = async (): Promise<MedicalModel[]> => {
+    const response = await makeApiRequest<any[]>(`/model/`);
+    if (!response) {
+      throw new Error('Failed to fetch medical models');
+    }
+    return response.map(transformMedicalModel);
+  };
+  
 
 export const demoMIEmergency = async (limit: number) => {
     return await makeApiRequest<any>(`/emergency_detection/mi_detection/emergency_data?limit=${limit}`);
@@ -263,6 +325,23 @@ export const descriptionECGSignal = async (user_role: string, with_segments: str
     const url = `/user_support/descriptions/ecg?user_role=${user_role}&with_segments=${with_segments}`;
     return await makeApiRequest<any>(url);
 }
+
+export const descriptionTickImportance = async (xai_visualization_approach: string, user_role: string) => {
+    const url = `/user_support/descriptions/xai_visualization_approaches/tickImportance?user_role=${user_role}`;
+    return await makeApiRequest<any>(url);
+}
+
+export const descriptionTimeImportance = async (xai_visualization_approach: string, user_role: string) => {
+    const url = `/user_support/descriptions/xai_visualization_approaches/timeSegmentImportance?user_role=${user_role}`;
+    return await makeApiRequest<any>(url);
+}
+
+export const descriptionLeadImportance = async (xai_visualization_approach: string, user_role: string) => {
+    const url = `/user_support/descriptions/xai_visualization_approaches/channelImportance?user_role=${user_role}`;
+    return await makeApiRequest<any>(url);
+}
+
+
 
 export const visualizeECG = async (dat: string, hea: string, cut_classification_window: string) => {
     try {
