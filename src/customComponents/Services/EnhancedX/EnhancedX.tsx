@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import FileUpload from "../Fairness/FileUploadForm";
 import { enhancedInterpretability } from "../../../api";
+import { Col } from "react-bootstrap";
 
 const EnhancedX: React.FC = () => {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -55,8 +56,8 @@ const EnhancedX: React.FC = () => {
         onFileSubmit={handleFileSubmit}
       />
       {isLoading && <p>Loading...</p>}
-
-      <div className="mt-3 d-flex flex-wrap">
+      <Col md={12}>
+        {/* <div className="mt-3 d-flex flex-wrap"> */}
         {imageUrls.map((imageUrl, index) => (
           <div key={index} className="m-2">
             <img
@@ -66,7 +67,8 @@ const EnhancedX: React.FC = () => {
             />
           </div>
         ))}
-      </div>
+        {/* </div> */}
+      </Col>
     </div>
   );
 };

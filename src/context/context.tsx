@@ -104,6 +104,7 @@ export const Provider: React.FC<ProviderProps> = ({ children }) => {
         setAllModel([...allModelResponse, ...medicalModelResponse]);
         setMMTStatusState(MMTStatusResponse as MMTStatusInterface);
         setXAIStatusState(XAIStatusState);
+        console.log("medicalModelResponse", medicalModelResponse);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
