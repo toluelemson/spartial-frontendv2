@@ -191,7 +191,7 @@ const AdversarialTab: React.FC<any> = ({state}) => {
     return (
         <Container fluid="lg">
             <Row className="g-4">
-                <Col lg={8}>
+                <Col lg={8} md={12}>
                     <Card className="shadow-sm">
                         <Card.Header as="h5" className="text-primary">
                             Adversarial Attacks Configuration
@@ -214,8 +214,9 @@ const AdversarialTab: React.FC<any> = ({state}) => {
                                         step={5}
                                         className="custom-range"
                                     />
-                                    {formErrors.poisoningRate &&
-                                        <div className="error">{formErrors.poisoningRate}</div>}
+                                    {formErrors.poisoningRate && (
+                                        <div className="error">{formErrors.poisoningRate}</div>
+                                    )}
                                 </Form.Group>
                                 <Form.Group as={Row} className="mb-4" controlId="attackType">
                                     <>
@@ -239,35 +240,17 @@ const AdversarialTab: React.FC<any> = ({state}) => {
                                 </Form.Group>
                                 {formData.attackType === "tlf" && (
                                     <Row className="g-3">
-                                        {/*<Col sm={6}>*/}
-                                        {/*    <Form.Group controlId="sourceClassInput">*/}
-                                        {/*        <Form.Label>*/}
-                                        {/*            Source Class*/}
-                                        {/*            <TooltipComponent*/}
-                                        {/*                message="Enter the class number from which samples will be generated or manipulated. This setting is crucial for generating adversarial samples or testing the model's robustness against data corruption.">*/}
-                                        {/*                <i className="bi bi-info-circle ms-2"*/}
-                                        {/*                   style={{ cursor: 'pointer' }}></i>*/}
-                                        {/*            </TooltipComponent>*/}
-                                        {/*        </Form.Label>*/}
-                                        {/*        <Form.Control*/}
-                                        {/*            type="number"*/}
-                                        {/*            value={formData.sourceClass}*/}
-                                        {/*            onChange={handleInputChange}*/}
-                                        {/*            name="sourceClass"*/}
-                                        {/*            min="1"*/}
-                                        {/*            max={originalDatasetLabels.length}*/}
-                                        {/*            className="shadow-sm"*/}
-                                        {/*        />*/}
-                                        {/*    </Form.Group>*/}
-                                        {/*</Col>*/}
                                         <Col sm={6}>
                                             <Form.Group controlId="targetClassNumber">
                                                 <Form.Label>
                                                     Target Class Number
                                                     <TooltipComponent
-                                                        message="Enter the class number from which samples will be generated or manipulated. This setting is crucial for generating adversarial samples or testing the model's robustness against data corruption.">
-                                                        <i className="bi bi-info-circle ms-2"
-                                                           style={{cursor: 'pointer'}}></i>
+                                                        message="Enter the class number from which samples will be generated or manipulated. This setting is crucial for generating adversarial samples or testing the model's robustness against data corruption."
+                                                    >
+                                                        <i
+                                                            className="bi bi-info-circle ms-2"
+                                                            style={{cursor: "pointer"}}
+                                                        ></i>
                                                     </TooltipComponent>
                                                 </Form.Label>
                                                 <Form.Control
@@ -283,39 +266,64 @@ const AdversarialTab: React.FC<any> = ({state}) => {
                                         </Col>
                                     </Row>
                                 )}
-                                <Button variant="primary" type="submit" className="mt-3"
-                                        disabled={formData.poisoningRate === 0 || attackStatus.isLoading}>
-                                    {attackStatus.isLoading ? 'Performing Attack...' : 'Perform Attack'}
-                                    {attackStatus.isLoading &&
-                                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true"
-                                                 className="ms-2"/>}
+                                <Button
+                                    variant="primary"
+                                    type="submit"
+                                    className="mt-3"
+                                    disabled={
+                                        formData.poisoningRate === 0 || attackStatus.isLoading
+                                    }
+                                >
+                                    {attackStatus.isLoading
+                                        ? "Performing Attack..."
+                                        : "Perform Attack"}
+                                    {attackStatus.isLoading && (
+                                        <Spinner
+                                            as="span"
+                                            animation="border"
+                                            size="sm"
+                                            role="status"
+                                            aria-hidden="true"
+                                            className="ms-2"
+                                        />
+                                    )}
                                 </Button>
-                                {attackStatus.error &&
+                                {attackStatus.error && (
                                     <div className="error mt-2 text-danger">
                                         {attackStatus.error}
                                     </div>
-                                }
+                                )}
                             </Form>
                         </Card.Body>
                     </Card>
                     <Row className="mt-3">
                         <Col lg={12}>
-                            <RandomSampleChart dataSets={normalDataset} label={'Original Dataset'}
-                                               attackStatus={attackStatus}/>
-                            <RandomSampleChart dataSets={poisonedDataset} label={'Poisoned Dataset'}
-                                               attackStatus={attackStatus}/>
+                            <RandomSampleChart
+                                dataSets={normalDataset}
+                                label={"Original Dataset"}
+                                attackStatus={attackStatus}
+                            />
+                            <RandomSampleChart
+                                dataSets={poisonedDataset}
+                                label={"Poisoned Dataset"}
+                                attackStatus={attackStatus}
+                            />
                         </Col>
                     </Row>
                 </Col>
-                <Col lg={4}>
+                <Col lg={4} md={12}>
                     <Card className="shadow-sm">
                         <Card.Header as="h5" className="text-primary">
-                            {formData.attackType === "tlf" ? "TLF Attack Details" : "RSL Attack Details"}
+                            {formData.attackType === "tlf"
+                                ? "TLF Attack Details"
+                                : "RSL Attack Details"}
                         </Card.Header>
                         <Card.Body>
                             <Card.Text>
-                                {formData.attackType === "tlf" ? "Target Label Flipping" : "Random Sampling Labels"} strategy
-                                insights.
+                                {formData.attackType === "tlf"
+                                    ? "Target Label Flipping"
+                                    : "Random Sampling Labels"}{" "}
+                                strategy insights.
                             </Card.Text>
                             <AttackBarChart dataSets={combinedDatasetLabels}/>
                         </Card.Body>
