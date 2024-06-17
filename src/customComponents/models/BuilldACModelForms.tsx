@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from "react";
-import { Button, Container, Form, InputGroup, Row } from "react-bootstrap";
+import { Button, Col, Container, Form, InputGroup, Row } from "react-bootstrap";
 import {FEATURE_OPTIONS, AI_MODEL_TYPES} from "../../constants";
 import {useSpatialContext} from "../../context/context";
 import { requestBuildACModel } from "../../api";
@@ -118,47 +118,49 @@ const BuildACModelForm: React.FC = () => {
     };
 
     return (
-        <Container>
-            <Row className="contentContainer">
-                <Form onSubmit={handleBuildACModelSubmit}>
-                    <h2>Build Models</h2>
-                    <p>Build a new AI model</p>
-                    {inputGroups.map((group, index) => (
-                        <InputGroup key={index} className="mb-3">
-                            <InputGroup.Text>{group.label}</InputGroup.Text>
-                            {group.type === 'select' ? (
-                                <Form.Select
-                                    name={group.name}
-                                    value={group.value}
-                                    onChange={handleInputChange}
-                                    required
-                                >
-                                    <option value="">{group.placeholder}</option>
-                                    {group && group.options && Array.isArray(group.options) ? group.options.map((g) => (
-                                        <option key={g} value={g}>{g}</option>
-                                    )): (
-                                        <option value="">No options available</option>
-                                    )}
-
-                                </Form.Select>
-                            ) : (
-                                <Form.Control
-                                    type={group.type}
-                                    name={group.name}
-                                    value={group.value}
-                                    onChange={handleInputChange}
-                                    min={group.type === 'number' ? "0" : undefined}
-                                    max={group.type === 'number' ? "1" : undefined}
-                                    step={group.type === 'number' ? "0.1" : undefined}
-                                />
-                            )}
-                        </InputGroup>
-                    ))}
-                    <Button variant="primary mt-3" type="submit" disabled={!isFormValid}>
-                        Build Model
-                    </Button>
-                </Form>
-
+        <Container fluid>
+            <Row className="contentContainer justify-content-center">
+                <Col md={10} lg={8}>
+                    <Form onSubmit={handleBuildACModelSubmit}>
+                        <h2>Build Models</h2>
+                        <p>Build a new AI model</p>
+                        {inputGroups.map((group, index) => (
+                            <InputGroup key={index} className="mb-3">
+                                <InputGroup.Text>{group.label}</InputGroup.Text>
+                                {group.type === 'select' ? (
+                                    <Form.Select
+                                        name={group.name}
+                                        value={group.value}
+                                        onChange={handleInputChange}
+                                        required
+                                    >
+                                        <option value="">{group.placeholder}</option>
+                                        {group && group.options && Array.isArray(group.options) ? (
+                                            group.options.map((g) => (
+                                                <option key={g} value={g}>{g}</option>
+                                            ))
+                                        ) : (
+                                            <option value="">No options available</option>
+                                        )}
+                                    </Form.Select>
+                                ) : (
+                                    <Form.Control
+                                        type={group.type}
+                                        name={group.name}
+                                        value={group.value}
+                                        onChange={handleInputChange}
+                                        min={group.type === 'number' ? "0" : undefined}
+                                        max={group.type === 'number' ? "1" : undefined}
+                                        step={group.type === 'number' ? "0.1" : undefined}
+                                    />
+                                )}
+                            </InputGroup>
+                        ))}
+                        <Button variant="primary mt-3" type="submit" disabled={!isFormValid}>
+                            Build Model
+                        </Button>
+                    </Form>
+                </Col>
             </Row>
         </Container>
     );

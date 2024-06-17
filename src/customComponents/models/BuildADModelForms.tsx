@@ -7,6 +7,7 @@ import {
     InputGroup,
     Accordion,
     Card,
+    Col,
 } from 'react-bootstrap';
 import { useSpatialContext } from '../../context/context';
 import { requestBuildADModel } from "../../api";
@@ -132,81 +133,85 @@ const BuildADModelForm: React.FC = () => {
     ], [formData]);
 
     return (
-        <Container>
-            <Row className="contentContainer">
-                <Form onSubmit={handleBuildADModelSubmit}>
-                    <h2>Build Models</h2>
-                    <p>Build a new AI model for anomaly detection</p>
-                    {inputGroups.map((group, index) => (
-                        <InputGroup key={index} className="mb-3">
-                            <InputGroup.Text>{group.label}</InputGroup.Text>
+        <Container fluid>
+            <Row className="contentContainer justify-content-center">
+                <Col md={10} lg={8}>
+                    <Form onSubmit={handleBuildADModelSubmit}>
+                        <h2>Build Models</h2>
+                        <p>Build a new AI model for anomaly detection</p>
+                        {inputGroups.map((group, index) => (
+                            <InputGroup key={index} className="mb-3">
+                                <InputGroup.Text>{group.label}</InputGroup.Text>
+                                <Form.Select
+                                    name={group.name}
+                                    value={group.value}
+                                    onChange={handleInputChange}
+                                    required
+                                >
+                                    <option value=""></option>
+                                    {options && options.reports && Array.isArray(options.reports) ? (
+                                        options.reports.map((option: string) => (
+                                            <option key={option} value={option}>
+                                                {option}
+                                            </option>
+                                        ))
+                                    ) : (
+                                        <option value="">No options available</option>
+                                    )}
+                                </Form.Select>
+                                <Button variant="outline-secondary">Upload pcaps only</Button>
+                            </InputGroup>
+                        ))}
+                        <InputGroup className="mb-3">
+                            <InputGroup.Text>Feature List:</InputGroup.Text>
                             <Form.Select
-                                name={group.name}
-                                value={group.value}
+                                name="featureList"
+                                value={formData.featureList}
                                 onChange={handleInputChange}
-                                required
                             >
-                                <option value=""></option>
-                                {options && options.reports && Array.isArray(options.reports) ? (
-                                    options.reports.map((option: string) => (
-                                        <option key={option} value={option}>
-                                            {option}
-                                        </option>
-                                    ))
-                                ) : (
-                                    <option value="">No options available</option>
-                                )}
+                                <option>Raw Features</option>
                             </Form.Select>
-                            <Button variant="outline-secondary">
-                                Upload pcaps only
-                            </Button>
                         </InputGroup>
-                    ))}
-                    <InputGroup className="mb-3">
-                        <InputGroup.Text>Feature List:</InputGroup.Text>
-                        <Form.Select
-                            name="featureList"
-                            value={formData.featureList}
-                            onChange={handleInputChange}
+                        <InputGroup className="mb-3">
+                            <InputGroup.Text>Training Ratio:</InputGroup.Text>
+                            <Form.Control
+                                type="number"
+                                step="0.1"
+                                min="0"
+                                max="1"
+                                name="trainingRatio"
+                                value={formData.trainingRatio.toString()}
+                                onChange={(event) => handleInputChange(event)}
+                            />
+                        </InputGroup>
+                        <Accordion defaultActiveKey="0">
+                            <Card>
+                                <Accordion.Collapse eventKey="0">
+                                    <Card.Body>
+                                        {trainingParameters.map((param, index) => (
+                                            <Form.Group key={index} className="mb-3">
+                                                <Form.Label>{param.label}</Form.Label>
+                                                <Form.Control
+                                                    type="number"
+                                                    name={param.name}
+                                                    value={param.value}
+                                                    onChange={(event) => handleInputChange(event)}
+                                                />
+                                            </Form.Group>
+                                        ))}
+                                    </Card.Body>
+                                </Accordion.Collapse>
+                            </Card>
+                        </Accordion>
+                        <Button
+                            variant="primary mt-3"
+                            type="submit"
+                            disabled={!isFormValid}
                         >
-                            <option>Raw Features</option>
-                        </Form.Select>
-                    </InputGroup>
-                    <InputGroup className="mb-3">
-                        <InputGroup.Text>Training Ratio:</InputGroup.Text>
-                        <Form.Control
-                            type="number"
-                            step="0.1"
-                            min="0"
-                            max="1"
-                            name="trainingRatio"
-                            value={formData.trainingRatio.toString()}
-                            onChange={(event)=> handleInputChange(event)}
-                        />
-                    </InputGroup>
-                    <Accordion defaultActiveKey="0">
-                        <Card>
-                            <Accordion.Collapse eventKey="0">
-                                <Card.Body>
-                                    {trainingParameters.map((param, index) => (
-                                        <Form.Group key={index} className="mb-3">
-                                            <Form.Label>{param.label}</Form.Label>
-                                            <Form.Control
-                                                type="number"
-                                                name={param.name}
-                                                value={param.value}
-                                                onChange={(event) => handleInputChange(event)}
-                                            />
-                                        </Form.Group>
-                                    ))}
-                                </Card.Body>
-                            </Accordion.Collapse>
-                        </Card>
-                    </Accordion>
-                    <Button variant="primary mt-3" type="submit" disabled={!isFormValid}>
-                        Build Model
-                    </Button>
-                </Form>
+                            Build Model
+                        </Button>
+                    </Form>
+                </Col>
             </Row>
         </Container>
     );
