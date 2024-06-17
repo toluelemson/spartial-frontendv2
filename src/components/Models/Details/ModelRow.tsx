@@ -8,13 +8,16 @@ import {
     Tooltip,
     Legend,
 } from "chart.js";
-import ConfusionMatrix from "./ConfusionMatrix";
-import {extractLabelsFromDataset} from "../util/utility";
-import CSVComparator from "./modelComparison/CSVComparator";
-import FairnessComparator from "../Services/Fairness/FairnessComparer";
-import useFetchModelDataset from "../datasets/useFetchModelDataset";
-import {TableSection} from "./TableSection";
-import ModelPerformanceCompare from "./ModelPerformanceCompare";
+import ConfusionMatrix from "../ConfusionMatrix";
+import {extractLabelsFromDataset} from "../../util/utility";
+
+import FairnessComparator from "../../Services/Fairness/FairnessComparer";
+
+import ModelPerformanceCompare from "../ModelPerformanceCompare";
+import { TableSection } from "../Tables/TableSection";
+
+import CSVComparator from "../Comparison/CSVComparator";
+import useFetchModelDataset from "../../Datasets/useFetchDataset";
 
 
 interface ConfigParameter {
@@ -77,7 +80,7 @@ const ModelRow: React.FC<any> = ({state}) => {
         cmConfigLeft,
         cmConfigRight,
     } = state;
-    const {originalDataset} = useFetchModelDataset(false, selectedModelLeft, "train");
+    const {originalDataset} = useFetchModelDataset(selectedModelLeft, "train");
 
     const [classificationLabel, setClassificationLabel] = useState<any>([]);
 

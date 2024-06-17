@@ -3,7 +3,7 @@ import {Container, Row, Col, Form, Button, InputGroup, Table, Card, Spinner} fro
 import {LIMETabProps} from '../../types/LimeTypes';
 import {fetchSHAPValues, requestRunShap} from "../../api";
 import FeatureImportanceBarChart from "../Plots/FeatureImportanceBarChart";
-import useFetchModelDataset from "../datasets/useFetchDataset";
+import useFetchModelDataset from "../Datasets/useFetchDataset";
 import {monitorStatus} from '../util/XAIUtility';
 
 const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {

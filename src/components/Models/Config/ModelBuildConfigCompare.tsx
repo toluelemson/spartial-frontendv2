@@ -1,5 +1,5 @@
-import { DataParameterRow } from "./ModelRow";
-import { TableSection } from "./TableSection";
+import { DataParameterRow } from "../Details/ModelRow";
+import { TableSection } from "../Tables/TableSection";
 
 interface ConfigParameter {
     parameter: string;

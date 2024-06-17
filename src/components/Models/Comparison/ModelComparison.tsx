@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import ModelRow from '../ModelRow';
+import ModelRow from '../Details/ModelRow';
 import {requestAllModels, requestBuildConfigModel, requestPredictionsModel} from "../../../api";
 import {
     getConfigConfusionMatrix,
@@ -8,8 +8,8 @@ import {
     transformConfigStrToTableData,
 } from "../../util/utility";
 import {CRITERIA_LIST} from "../../../constants";
-import ModelSelection from "../modelComparison/ModelSelection";
-import SelectionCriteria from "../modelComparison/SelectionCriteria";
+import ModelSelection from "../Comparison/ModelSelection";
+import SelectionCriteria from "../Comparison/SelectionCriteria";
 import {ModelListType} from "../../../types/types";
 import PredictionsLoader from "../../util/PredictiionLoader/PredictionLoader";
 

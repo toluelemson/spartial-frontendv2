@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ILIMEParametersState } from '../../types/LimeTypes';
-import { processProbsData } from "./XAIUtility";
+import { useProbsData } from './XAIUtility';
 
 interface DataUpdaterProps {
     state: ILIMEParametersState;
@@ -11,12 +11,14 @@ interface DataUpdaterProps {
 
 const LimeDataUpdater: React.FC<DataUpdaterProps> = ({ state, updateState, triggerUpdate, selectedModelId }) => {
     const { modelId, sampleId } = state;
+    const { dataTableProbs, pieData, error} = useProbsData(modelId, sampleId);
 
+    console.log(dataTableProbs, pieData, error);
     const fetchAndUpdateData = async () => {
         if (!modelId) return;
 
         try {
-            const { dataTableProbs, pieData } = await processProbsData(modelId, sampleId);
+            // const { dataTableProbs, pieData } = await processProbsData(modelId, sampleId);
             updateState(prevState => ({ ...prevState, pieData, dataTableProbs }));
         } catch (error) {
             console.error("Error fetching and updating data:", error);
@@ -33,3 +35,7 @@ const LimeDataUpdater: React.FC<DataUpdaterProps> = ({ state, updateState, trigg
 };
 
 export default LimeDataUpdater;
+function useProbData(arg0: boolean, modelId: any, attackType: any): { poisonedDataset: any; refetch: any; } {
+    throw new Error('Function not implemented.');
+}
+

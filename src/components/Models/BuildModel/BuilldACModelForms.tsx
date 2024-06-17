@@ -1,9 +1,9 @@
 import React, {useEffect, useMemo, useState} from "react";
 import { Button, Col, Container, Form, InputGroup, Row } from "react-bootstrap";
-import {FEATURE_OPTIONS, AI_MODEL_TYPES} from "../../constants";
-import {useSpatialContext} from "../../context/context";
-import { requestBuildACModel } from "../../api";
-import useCheckBuildStatus from "../util/useCheckBuildStatus";
+import {FEATURE_OPTIONS, AI_MODEL_TYPES} from "../../../constants";
+import {useSpatialContext} from "../../../context/context";
+import { requestBuildACModel } from "../../../api";
+import useCheckBuildStatus from "../../util/useCheckBuildStatus";
 
 interface FormState {
     serviceType: string;

@@ -3,7 +3,7 @@ import {Container, Form, Row, Col, Button, InputGroup, Card, Spinner} from 'reac
 import PieChartComponent from '../Charts/PieChartComponent';
 import ProbabilityTable from "../Charts/ProbabilityTable";
 import LimeDataUpdater from '../util/LimeDataUpdater';
-import useFetchModelDataset from "../datasets/useFetchModelDataset";
+import useFetchModelDataset from "../Datasets/useFetchModelDataset";
 import {monitorStatus} from "../util/XAIUtility";
 import {requestLimeValues} from "../../api";
 import LollipopChart from "../Plots/LolipopChart";

@@ -7,7 +7,7 @@ import {
     MMTStatusInterface,
     TODO
 } from "../types/types";
-import {getLabelsListXAI} from "../customComponents/util/utility";
+import {getLabelsListXAI} from "../components/util/utility";
 
 interface Option {
     reports: string

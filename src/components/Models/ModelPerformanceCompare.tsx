@@ -1,5 +1,5 @@
-import PerformanceRow from "./PerformanceRow";
-import {TableSection} from "./TableSection";
+import PerformanceRow from "./Details/PerformanceRow";
+import {TableSection} from "./Tables/TableSection";
 
 
 interface PerformanceMetrics {

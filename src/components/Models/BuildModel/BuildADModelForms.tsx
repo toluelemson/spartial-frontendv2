@@ -9,10 +9,10 @@ import {
     Card,
     Col,
 } from 'react-bootstrap';
-import { useSpatialContext } from '../../context/context';
-import { requestBuildADModel } from "../../api";
-import { BuildStatusType, TParamType } from "../../types/types";
-import useCheckBuildStatus from "../util/useCheckBuildStatus";
+import { useSpatialContext } from '../../../context/context';
+import { requestBuildADModel } from "../../../api";
+import { BuildStatusType, TParamType } from "../../../types/types";
+import useCheckBuildStatus from "../../util/useCheckBuildStatus";
 
 interface FormState {
     maliciousDataset: string | null;

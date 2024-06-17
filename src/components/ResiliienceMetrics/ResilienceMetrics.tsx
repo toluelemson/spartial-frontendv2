@@ -7,8 +7,9 @@ import {
 } from "../../api";
 import {ATTACK_DATASETS_MAPPING} from "../../constants";
 import {calculateImpactMetric, getConfigConfusionMatrix, updateConfusionMatrix} from "../util/utility";
-import ModelRow from "../models/ModelRow";
+
 import {loadPredictionsData} from '../util/PredictiionLoader/PredictionLoaderUtil';
+import ModelRow from '../Models/Details/ModelRow';
 
 interface ResilienceMetricsProps {
     modelId: string;

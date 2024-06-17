@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {TableSection} from "./TableSection";
+import {TableSection} from "./Tables/TableSection";
 
 interface ConfusionMatrixProps {
   cmConfigRight : {
