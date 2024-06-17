@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, {useEffect} from 'react';
 
 import {
     getTablePerformanceStats,
@@ -12,7 +12,7 @@ import {requestBuildConfigModel, requestPredictionsModel} from "../../../api";
 interface PredictionsLoaderProps {
     modelId: string | null;
     isLeft: boolean;
-    updateComparisonState: (updates: any) => void; // You may want to define a more specific type for updates
+    updateComparisonState: (updates: any) => void;
     cutoffProb: number;
 }
 
@@ -40,13 +40,14 @@ const loadPredictionsValues = async (modelId: string) => {
     return parsePredictions(predictionsValues);
 };
 
-const PredictionsLoader: React.FC<PredictionsLoaderProps> = ({ modelId, isLeft, updateComparisonState, cutoffProb }) => {
+const PredictionsLoader: React.FC<PredictionsLoaderProps> = ({modelId, isLeft, updateComparisonState, cutoffProb}) => {
     useEffect(() => {
         const loadPredictions = async () => {
             if (!modelId) return;
 
             try {
-                const dataBuildConfig = await loadBuildConfig(modelId);
+                const buildConfigResult = await loadBuildConfig(modelId);
+                const dataBuildConfig = Array.isArray(buildConfigResult) ? buildConfigResult : [];
                 const predictions = await loadPredictionsValues(modelId);
                 const {
                     confusionMatrix,
@@ -55,7 +56,7 @@ const PredictionsLoader: React.FC<PredictionsLoaderProps> = ({ modelId, isLeft, 
                 } = await updateConfusionMatrix(modelId, predictions, cutoffProb);
 
                 const dataStats = await getTablePerformanceStats(modelId, stats, confusionMatrix);
-                const configCM = confusionMatrix && await getConfigConfusionMatrix(modelId, confusionMatrix);
+                const configCM = confusionMatrix ? await getConfigConfusionMatrix(modelId, confusionMatrix) : {};
 
                 updateComparisonState({
                     predictions,
