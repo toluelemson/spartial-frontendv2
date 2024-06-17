@@ -1,7 +1,5 @@
 import {AC_OUTPUT_LABELS, AD_OUTPUT_LABELS, AD_OUTPUT_LABELS_XAI, HEADER_ACCURACY_STATS} from "../../constants";
-import {requestViewModelDatasets} from "../../api";
-import Papa from "papaparse";
-import { TODO } from "../../types/types";
+import fetchDataset from "./fetchDataset";
 
 interface PerformanceStats {
     key: string;
@@ -127,6 +125,30 @@ export const calculateMetrics = (TP: number, FP: number, FN: number) => {
     return [precision, recall, f1Score, support];
 }
 
+export const calculateImpactMetric = (app: string, confusionMatrix: string | any[], attacksConfusionMatrix: string | any[]) => {
+    let impact = 0;
+    if (confusionMatrix && attacksConfusionMatrix) {
+        let errors = 0;
+        let errorsAttack = 0;
+
+        if (app === 'ad') {
+            errors = confusionMatrix[0][1] + confusionMatrix[1][0];
+            errorsAttack = attacksConfusionMatrix[0][1] + attacksConfusionMatrix[1][0];
+        } else if (app === 'ac' && confusionMatrix.length > 2 && attacksConfusionMatrix.length > 2) { // Check length before accessing
+            errors = confusionMatrix[0][1] + confusionMatrix[0][2] +
+                confusionMatrix[1][0] + confusionMatrix[1][2] +
+                confusionMatrix[2][0] + confusionMatrix[2][1];
+
+            errorsAttack = attacksConfusionMatrix[0][1] + attacksConfusionMatrix[0][2] +
+                attacksConfusionMatrix[1][0] + attacksConfusionMatrix[1][2] +
+                attacksConfusionMatrix[2][0] + attacksConfusionMatrix[2][1];
+        }
+
+        impact = errors !== 0 ? (errorsAttack - errors) / errors : 0;
+    }
+    return impact;
+}
+
 export const computeAccuracy = (confusionMatrix: any[]) => {
 
     console.log(confusionMatrix)
@@ -136,34 +158,59 @@ export const computeAccuracy = (confusionMatrix: any[]) => {
     return (correctPredictions / totalPredictions).toFixed(6);
 }
 
-export const extractLabelsFromDataset = async ({modelId, datasets}: TODO): Promise<string[]> => {
+export async function fetchClassificationLabels(modelId: string): Promise<string[]> {
+
+    const {originalDataset} = await fetchDataset(false, modelId)
+
+    console.log(originalDataset)
+
+    if (!modelId) {
+        // Rejecting the promise immediately if modelId is not provided
+        return Promise.reject(new Error("Model ID is required to fetch classification labels"));
+    }
+
     try {
-        console.log(datasets)
-        // const csvDataString = await requestViewModelDatasets(modelId, "train");
-        // console.log(modelId);
-        return new Promise((resolve, reject) => {
 
-            console.log(datasets)
-
-            const targetColumnName = findTargetColumn(datasets);
-            console.log(targetColumnName);
-            if (!targetColumnName) {
-                console.log("target column name is missing");
-                return;
-            }
-
-            const labelsSet = new Set(datasets.map((row: {
-                [x: string]: any;
-            }) => row[targetColumnName]).filter(Boolean));
-            const labels = Array.from(labelsSet)
-                .map(label => `class ${parseInt(label as string, 10)}`)
-                .sort();
-
-            resolve(labels);
+        const labels = await extractLabelsFromDataset({
+            modelId: modelId,
+            datasets: originalDataset.resultData,
         });
+        console.log(labels, "labels");
+        return labels;
+    } catch (error) {
+        console.error("Failed to fetch classification labels:", error);
+        // Rethrowing the error to be handled by the caller
+        throw error;
+    }
+}
+
+export const extractLabelsFromDataset = async ({modelId, datasets}: {
+    modelId: string,
+    datasets: any[]
+}): Promise<string[]> => {
+    console.log(modelId, datasets)
+    try {
+        if (!datasets || datasets.length === 0) {
+            console.log("Datasets are empty or undefined.");
+            return [];
+        }
+
+        const targetColumnName = findTargetColumn(datasets);
+        console.log(targetColumnName);
+        if (!targetColumnName) {
+            console.log("target column name is missing");
+            return [];
+        }
+
+        const labelsSet = new Set(datasets.map((row: { [x: string]: any }) => row[targetColumnName]).filter(Boolean));
+        const labels = Array.from(labelsSet)
+            .map(label => `class ${parseInt(label as string, 10)}`)
+            .sort();
+
+        return labels;
     } catch (error) {
         console.error('Error fetching data:', error);
-        return [];
+        throw error;
     }
 };
 
@@ -176,16 +223,6 @@ function findTargetColumn(dataset: any[]) {
     }
     return null;
 }
-
-//
-//
-async function fetchClassificationLabels(modelId: string): Promise<string[]> {
-    if (!modelId) {
-        throw new Error("Model ID is required to fetch classification labels");
-    }
-    return await extractLabelsFromDataset(modelId);
-}
-
 
 function processStats(stats: any[] | null, numClasses: number, accuracy: any): PerformanceStats[] {
     let dataStats: PerformanceStats[] = [];
