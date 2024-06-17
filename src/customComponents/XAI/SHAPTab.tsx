@@ -219,69 +219,155 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
 
 
     return (
-        <Container fluid="lg"> <Row className="g-4"> <Col lg={8}> <Card className="shadow-sm mb-4"> <Card.Header as="h5"
-                                                                                                                 className="text-primary"> Explainable
-            AI with SHapley Additive exPlanations
-            (SHAP) </Card.Header> {/*<h2 className="my-4 text-center">Explainable AI with SHapley Additive exPlanations (SHAP)</h2>*/}
-            <Card.Body className="p-4"> <Card.Text> Configure SHAP parameters and run the analysis to explain the
-                model's predictions. </Card.Text> <Form onSubmit={handleShapExplain}> <Form.Group as={Row}
-                                                                                                  controlId="backgroundSamples">
-                <Form.Label column sm={2}>Background samples:</Form.Label> <Col sm={10}> <Form.Control type="number"
-                                                                                                       value={backgroundSamples}
-                                                                                                       onChange={(e) => setBackgroundSamples(Number(e.target.value))}/>
-            </Col> </Form.Group> <Form.Group as={Row} controlId="explainedSamples"> <Form.Label column sm={2}>Explained
-                samples:</Form.Label> <Col sm={10}> <Form.Control type="number" value={explainedSamples}
-                                                                  onChange={(e) => setExplainedSamples(Number(e.target.value))}/>
-            </Col> </Form.Group> <Form.Group className="mb-3"> <Form.Label htmlFor="maxValue"> Features to
-                display: <span className="ms-2 badge bg-secondary">{newState.maxDisplay}</span> </Form.Label>
-                <Form.Range name="maxDisplay" value={newState.maxDisplay} onChange={handleInputChange} min="2" max="30"
-                            step="1" className="form-range custom-range-slider"/> </Form.Group>
-                <div className="p-3 mb-3 border rounded"><Form.Group className="mb-2">
-                    <div className="d-flex align-items-center"><Form.Check type="checkbox" id="positiveCheck"
-                                                                           name="positiveChecked" className="me-2"
-                                                                           label="Positive"
-                                                                           checked={newState.positiveChecked}
-                                                                           onChange={handleCheckboxChange}/></div>
-                </Form.Group> <Form.Group> <Form.Check type="checkbox" id="negativeCheck" name="negativeChecked"
-                                                       label="Negative" checked={newState.negativeChecked}
-                                                       onChange={handleCheckboxChange}/> </Form.Group></div>
-                <Form.Group className="mb-3"> <Form.Label htmlFor="featuresToMask">Feature(s) to Mask</Form.Label>
-                    <InputGroup> <Form.Select multiple={true} name="featuresToMask" className="form-select"
-                                              onChange={handleMultiSelectChange}>
-                        <option value="%tcp_protocol">%tcp_protocol</option>
-                        {newState.maskedFeatures.length > 0 && Object.keys(newState.maskedFeatures[0]).sort().map((key, index) => (
-                            <option value={key} key={index}>{key}</option>))} </Form.Select> </InputGroup>
-                    <div className="mt-3"><strong>Selected Features:</strong>
-                        <div> {selectedFeatures.map((feature, index) => (
-                            <span key={index} className="badge bg-secondary me-2">{feature}</span>))} </div>
-                    </div>
-                </Form.Group> {/*<Button variant="primary" type="submit" className="mt-3 w-100">SHAP Explain</Button>*/}
-                <Button variant="primary" type="submit" className="mt-3 w-100" disabled={isLoading}> {isLoading ? (<>
-                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true"
-                             className="me-2"/> Loading... </>) : ("Run Analysis")} </Button> </Form> </Card.Body>
-        </Card> {shapResults ? (<div><FeatureImportanceBarChart data={toDisplayShap}/></div>) : (
-            <p>No SHAP analysis results to display. Please submit parameters above.</p>)} </Col> <Col lg={4}> <Card
-            className="shadow-sm"> <Card.Header as="h5" className="text-primary"> Top Features </Card.Header>
-            <Card.Body><Table striped bordered hover>
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Feature Name</th>
-                </tr>
-                </thead>
-                <tbody> {topFeatures.map((feature) => (<tr key={feature.key}>
-                    <td>{feature.key}</td>
-                    <td>{feature.name}</td>
-                    {/*<td>{feature.description || 'N/A'}</td>*/}
-                </tr>))} </tbody>
-            </Table> </Card.Body>
-
-        </Card> </Col>
-            <Col md={3} className="d-flex align-items-center">
-                <Button variant="primary" onClick={handleExportToCSV} className="w-100 mt-3">Save Data to
-                    CSV</Button>
-            </Col>
-        </Row> </Container>);
+        <Container fluid="lg">
+            <Row className="g-4">
+                <Col lg={8}>
+                    <Card className="shadow-sm mb-4">
+                        <Card.Header as="h5" className="text-primary">
+                            Explainable AI with SHapley Additive exPlanations (SHAP)
+                        </Card.Header>
+                        <Card.Body className="p-4">
+                            <Card.Text>
+                                Configure SHAP parameters and run the analysis to explain the model's predictions.
+                            </Card.Text>
+                            <Form onSubmit={handleShapExplain}>
+                                <Form.Group as={Row} controlId="backgroundSamples">
+                                    <Form.Label column sm={2}>Background samples:</Form.Label>
+                                    <Col sm={10}>
+                                        <Form.Control
+                                            type="number"
+                                            value={backgroundSamples}
+                                            onChange={(e) => setBackgroundSamples(Number(e.target.value))}
+                                        />
+                                    </Col>
+                                </Form.Group>
+                                <Form.Group as={Row} controlId="explainedSamples">
+                                    <Form.Label column sm={2}>Explained samples:</Form.Label>
+                                    <Col sm={10}>
+                                        <Form.Control
+                                            type="number"
+                                            value={explainedSamples}
+                                            onChange={(e) => setExplainedSamples(Number(e.target.value))}
+                                        />
+                                    </Col>
+                                </Form.Group>
+                                <Form.Group className="mb-3">
+                                    <Form.Label htmlFor="maxValue">
+                                        Features to display: <span
+                                        className="ms-2 badge bg-secondary">{newState.maxDisplay}</span>
+                                    </Form.Label>
+                                    <Form.Range
+                                        name="maxDisplay"
+                                        value={newState.maxDisplay}
+                                        onChange={handleInputChange}
+                                        min="2"
+                                        max="30"
+                                        step="1"
+                                        className="form-range custom-range-slider"
+                                    />
+                                </Form.Group>
+                                <div className="p-3 mb-3 border rounded">
+                                    <Form.Group className="mb-2">
+                                        <div className="d-flex align-items-center">
+                                            <Form.Check
+                                                type="checkbox"
+                                                id="positiveCheck"
+                                                name="positiveChecked"
+                                                className="me-2"
+                                                label="Positive"
+                                                checked={newState.positiveChecked}
+                                                onChange={handleCheckboxChange}
+                                            />
+                                        </div>
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Form.Check
+                                            type="checkbox"
+                                            id="negativeCheck"
+                                            name="negativeChecked"
+                                            label="Negative"
+                                            checked={newState.negativeChecked}
+                                            onChange={handleCheckboxChange}
+                                        />
+                                    </Form.Group>
+                                </div>
+                                <Form.Group className="mb-3">
+                                    <Form.Label htmlFor="featuresToMask">Feature(s) to Mask</Form.Label>
+                                    <InputGroup>
+                                        <Form.Select
+                                            multiple={true}
+                                            name="featuresToMask"
+                                            className="form-select"
+                                            onChange={handleMultiSelectChange}
+                                        >
+                                            <option value="%tcp_protocol">%tcp_protocol</option>
+                                            {newState.maskedFeatures.length > 0 &&
+                                                Object.keys(newState.maskedFeatures[0]).sort().map((key, index) => (
+                                                    <option value={key} key={index}>{key}</option>
+                                                ))}
+                                        </Form.Select>
+                                    </InputGroup>
+                                    <div className="mt-3">
+                                        <strong>Selected Features:</strong>
+                                        <div>
+                                            {selectedFeatures.map((feature, index) => (
+                                                <span key={index} className="badge bg-secondary me-2">{feature}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </Form.Group>
+                                <Button variant="primary" type="submit" className="mt-3 w-100" disabled={isLoading}>
+                                    {isLoading ? (
+                                        <>
+                                            <Spinner as="span" animation="border" size="sm" role="status"
+                                                     aria-hidden="true" className="me-2"/>
+                                            Loading...
+                                        </>
+                                    ) : (
+                                        "Run Analysis"
+                                    )}
+                                </Button>
+                            </Form>
+                        </Card.Body>
+                    </Card>
+                    {shapResults ? (
+                        <div>
+                            <FeatureImportanceBarChart data={toDisplayShap}/>
+                        </div>
+                    ) : (
+                        <p>No SHAP analysis results to display. Please submit parameters above.</p>
+                    )}
+                </Col>
+                <Col lg={4}>
+                    <Card className="shadow-sm">
+                        <Card.Header as="h5" className="text-primary">Top Features</Card.Header>
+                        <Card.Body>
+                            <Table striped bordered hover>
+                                <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Feature Name</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {topFeatures.map((feature) => (
+                                    <tr key={feature.key}>
+                                        <td>{feature.key}</td>
+                                        <td>{feature.name}</td>
+                                    </tr>
+                                ))}
+                                </tbody>
+                            </Table>
+                        </Card.Body>
+                    </Card>
+                </Col>
+                <Col md={3} className="d-flex align-items-center">
+                    <Button variant="primary" onClick={handleExportToCSV} className="w-100 mt-3">
+                        Save Data to CSV
+                    </Button>
+                </Col>
+            </Row>
+        </Container>)
 
 
 };
