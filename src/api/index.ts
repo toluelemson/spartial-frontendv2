@@ -222,63 +222,11 @@ export const requestPerformAttack = async (formData: TODO) => {
     console.log(`Perform attack ${attackType} against the model ${modelId} on server`);
 
 }
-// export const requestPerformAttack = async (modelId, selectedAttack, poisoningRate, targetClass) => {
-//     let url = null;
-//     let response = null;
-//     const poisoningAttacksConfig = {
-//         "modelId": modelId,
-//         "poisoningRate": poisoningRate,
-//     };
-//     if (selectedAttack === "rsl") {
-//         url = `${SERVER_URL}/api/attacks/poisoning/random-swapping-labels`;
-//         const randomSwappingLabelsConfig = {
-//             "poisoningAttacksConfig": poisoningAttacksConfig,
-//         };
-//         response = await fetch(url, {
-//             method: "POST",
-//             headers: {
-//                 "Content-Type": "application/json",
-//             },
-//             body: JSON.stringify({ randomSwappingLabelsConfig }),
-//         });
-//         console.log(randomSwappingLabelsConfig);
-//     } else if (selectedAttack === "tlf") {
-//         url = `${SERVER_URL}/api/attacks/poisoning/target-label-flipping`;
-//         const targetLabelFlippingConfig = {
-//             "poisoningAttacksConfig": poisoningAttacksConfig,
-//             "targetClass": targetClass,
-//         };
-//         response = await fetch(url, {
-//             method: "POST",
-//             headers: {
-//                 "Content-Type": "application/json",
-//             },
-//             body: JSON.stringify({ targetLabelFlippingConfig }),
-//         });
-//         console.log(targetLabelFlippingConfig);
-//     } else if (selectedAttack === "ctgan") {
-//         url = `${SERVER_URL}/api/attacks/poisoning/ctgan`;
-//         const ctganConfig = {
-//             "poisoningAttacksConfig": poisoningAttacksConfig,
-//         };
-//         response = await fetch(url, {
-//             method: "POST",
-//             headers: {
-//                 "Content-Type": "application/json",
-//             },
-//             body: JSON.stringify({ ctganConfig }),
-//         });
-//         console.log(ctganConfig);
-//     } else {
-//         console.error("Wrong attack!")
-//     }
-//     const data = await response.json();
-//     console.log(`Perform attack ${selectedAttack} against the model ${modelId} on server`);
-//     return data;
-// };
 
 export const requestPredictionsModel = async (modelId: string) => {
+    console.log(modelId)
     const response = await makeApiRequest<any>(`${LOCAL_URL}/api/models/${modelId}/predictions`);
+    console.log(response)
     return response.predictions
 }
 
@@ -715,13 +663,35 @@ export const fetchSHAPValues = async (modelId: string, labelIndex: number) => {
     return shapValues;
 }
 
+export const requestRetrainModelAC = async (modelId: string, trainingDataset: string, testingDataset: string) => {
 
-// export const requestViewPoisonedDatasets = async (modelId, selectedAttack) => {
-//     const url = `${SERVER_URL}/api/attacks/poisoning/${selectedAttack}/${modelId}/view`;
-//     const response = await fetch(url);
-//     const data = await response.text();
-//     if (data.error) {
-//         throw data.error;
-//     }
-//     return data;
-// };
+    const url = `${LOCAL_URL}/api/ac/retrain`;
+    const retrainACConfig = {
+        "modelId": modelId,
+        "datasetsConfig": {
+            "trainingDataset": trainingDataset,
+            "testingDataset": testingDataset,
+        }
+    }
+
+    console.log(retrainACConfig)
+    return await makeApiRequest(url, 'post', {retrainACConfig});
+
+}
+
+export const requestRetrainStatusAC = async () => {
+    const response = await makeApiRequest(`${LOCAL_URL}/api/ac/retrain`);
+    return response
+}
+
+export const requestRetrainModel = async (modelId: string, trainingDataset: string, testingDataset: string, params: any) => {
+    const url = `${LOCAL_URL}/api/retrain/${modelId}`;
+    const retrainADConfig = {
+        "trainingDataset": trainingDataset,
+        "testingDataset": testingDataset,
+        "training_parameters": params,
+    };
+
+    return await makeApiRequest(url, 'post', {retrainADConfig});
+
+}
