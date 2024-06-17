@@ -23,3 +23,9 @@ export const CRITERIA_LIST = [
     "Result",
     "Fairness"
 ];
+
+export const ATTACK_DATASETS_MAPPING = {
+    'rsl_poisoned_dataset.csv': 'Random swapping labels',
+    'tlf_poisoned_dataset.csv': 'Target labels flipping',
+    'ctgan_poisoned_dataset.csv': 'GAN-driven data poisoing'
+};
