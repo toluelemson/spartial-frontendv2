@@ -21,8 +21,8 @@ interface FormState {
     clippingValue: number;
     delta: number;
     epsilon: number;
-    modelParameters1: number;
-    modelParameters2: number;
+    modelParameters: number[][][];
+    // modelParameters2: number;
     noiseType: number;
     sigma: number;
     totalFLRounds: number;
