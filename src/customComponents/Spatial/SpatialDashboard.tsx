@@ -20,6 +20,7 @@ import DatasetList from "../datasets/DatasetList";
 import {ILIMEParametersState} from "../../types/LimeTypes";
 import SHAPTab from '../XAI/SHAPTab';
 import AdversatialTab from '../AdversarialML/AdversarialML';
+import ResilienceMetrics from '../ResiliienceMetrics/ResilienceMetrics';
 
 
 const SpatialDashboard: React.FC = () => {
@@ -163,7 +164,6 @@ const SpatialDashboard: React.FC = () => {
                 {comparisonState.selectedModelLeft?.startsWith('ac-') && (
                     <Tab eventKey="tab7" title="Configure Network Traffic">
                         <div className="d-flex">
-                            {/* Nested Tabs with Bootstrap 5 classes */}
                             <Tabs defaultActiveKey="subtab1" className="flex-column">
                                 <Tab eventKey="subtab1" title="LIME">
                                     <div className="side-content px-3"><LIMETab state={state} updateState={setState}/>
@@ -174,10 +174,9 @@ const SpatialDashboard: React.FC = () => {
                                 </Tab>
                                 <Tab eventKey="subtab3" title="ATTACKS">
                                     <AdversatialTab state={state}/>
-                                    {/*<div className="px-3">Content for Sub Tab 2</div>*/}
                                 </Tab>
                                 <Tab eventKey="subtab4" title="RESILIENCE">
-                                    <div className="px-3">Content for Sub Tab 2</div>
+                                    <ResilienceMetrics modelId={routeModelId}/>
                                 </Tab>
 
                             </Tabs>
