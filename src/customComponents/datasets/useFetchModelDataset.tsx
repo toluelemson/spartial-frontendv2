@@ -1,60 +1,63 @@
-import { useEffect, useState, useCallback } from 'react';
+import {useState, useEffect, useCallback} from 'react';
 import Papa from 'papaparse';
-import { requestViewModelDatasets, requestViewPoisonedDatasets } from "../../api";
+import {requestViewModelDatasets, requestViewPoisonedDatasets} from '../../api';
 
 interface DataModel {
     resultData: string[];
 }
 
-const useFetchModelDataset = (isPoisoned: boolean, modelId: string, datasetType: string) => {
-    const [originalDataset, setOriginalDataset] = useState<DataModel>({ resultData: [] });
-    const [poisonedDataset, setPoisonedDataset] = useState<DataModel>({ resultData: [] });
+const useFdetchModelDataset = (isPoisoned: boolean, modelId: string, attackType: string) => {
+    const [originalDataset, setOriginalDataset] = useState<DataModel>({resultData: []});
+    const [poisonedDataset, setPoisonedDataset] = useState<DataModel>({resultData: []});
     const [error, setError] = useState<Error | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
-    const fetchData = useCallback(async () => {
+
+    useEffect(() => {
+        fetchNormalData()
+            // fetchPoisonedData()
+    }, [loading, modelId, attackType, isPoisoned]);
+    
+    const fetchNormalData = useCallback(async () => {
         if (!modelId) return;
 
         setLoading(true);
         try {
-            const [csvNormalDataString, csvPoisonedDataString] = await Promise.all([
-                requestViewModelDatasets(modelId, "train"),
-                requestViewPoisonedDatasets(modelId, "rsl")
-            ]);
+            const csvNormalDataString = await requestViewModelDatasets(modelId, "train");
 
-            const parseCSV = (csvDataString: string, setDataset: React.Dispatch<React.SetStateAction<DataModel>>) => {
-                Papa.parse<string>(csvDataString, {
-                    complete: (result) => {
-                        if (result.data.length === 0) {
-                            setDataset({ resultData: [] });
-                        } else if (Array.isArray(result.data)) {
-                            setDataset({ resultData: result.data as string[] });
-                        } else {
-                            throw new Error('Error parsing data');
-                        }
-                    },
-                    header: true,
-                });
-            };
-
-            if (isPoisoned) {
-                parseCSV(csvPoisonedDataString, setPoisonedDataset);
-            } else {
-                parseCSV(csvNormalDataString, setOriginalDataset);
-            }
-
+            Papa.parse<string>(csvNormalDataString, {
+                complete: (result) => {
+                    if (result.data.length === 0) {
+                        setOriginalDataset({resultData: []});
+                    } else if (Array.isArray(result.data)) {
+                        setOriginalDataset({resultData: result.data as string[]});
+                    } else {
+                        throw new Error('Error parsing data');
+                    }
+                },
+                header: true,
+            });
         } catch (err) {
             setError(err instanceof Error ? err : new Error('An error occurred while fetching data'));
         } finally {
             setLoading(false);
         }
-    }, [modelId, isPoisoned]);
+    }, [modelId]);
+    
 
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        if (isPoisoned) {
+            // fetchPoisonedData();
+        } else {
+            fetchNormalData();
+        }
+    }, [fetchNormalData,  isPoisoned]);
 
-    return { poisonedDataset, originalDataset, error, loading, refetch: fetchData };
+    return {
+        poisonedDataset,
+        originalDataset,
+        error,
+        loading,
+    };
 };
-
-export default useFetchModelDataset;
+export default useFdetchModelDataset;
