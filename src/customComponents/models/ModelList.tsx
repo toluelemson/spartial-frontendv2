@@ -108,7 +108,7 @@ const AllModels: FC = () => {
     };
 
     return (
-        <Container>
+        <Container fluid>
             <h1>All models</h1>
             <Form>
                 <Form.Group controlId="filterPrefix">
@@ -124,7 +124,7 @@ const AllModels: FC = () => {
                     </Form.Select>
                 </Form.Group>
             </Form>
-            <Table striped bordered hover responsive className="align-middle">
+            <Table striped bordered hover responsive className="align-middle mt-3">
                 <thead>
                 <tr>
                     <th style={{width: '5%'}}>Select</th>
@@ -181,7 +181,6 @@ const AllModels: FC = () => {
                         </td>
                         <td>{ConvertTimeStamp(model.lastBuildAt)}</td>
                         <td>
-
                             <ActionButton
                                 onClick={() => handleButtonNavigate(`/datasets/${model.modelId}/train`)}
                                 tooltip={`View Config ${model.modelId}`}
@@ -196,7 +195,8 @@ const AllModels: FC = () => {
                                 id={`view-config-tooltip-${model.modelId}`}
                                 placement="top"
                                 icon={<BsDownload/>}
-                                buttonText="Download"/>
+                                buttonText="Download"
+                            />
                         </td>
                         <td>
                             <ActionButton
@@ -219,9 +219,8 @@ const AllModels: FC = () => {
                         <td>
                             <DropdownButton id="dropdown-item-button" title="Select an action">
                                 <Dropdown.Item as="button"
-                                               onClick={() => handleNavigation(`/spatial/dashboard/${model.modelId}`)}>Send to
-                                    Spatial </Dropdown.Item>
-                                {/*<Dropdown.Item as="button" onClick={() => handleNavigation(`/xai/lime/${model.modelId}`)}>Lime </Dropdown.Item>*/}
+                                               onClick={() => handleNavigation(`/spatial/dashboard/${model.modelId}`)}>Send
+                                    to Spatial </Dropdown.Item>
                             </DropdownButton>
                         </td>
                     </tr>
@@ -231,7 +230,6 @@ const AllModels: FC = () => {
 
             <div className="my-3">
                 <Button variant="danger">Delete All Models</Button>
-                {/*<Button variant="primary m-2" onClick={sendToSpatial}>Send to Spatial</Button>*/}
             </div>
             <Pagination>
                 <Pagination.Prev/>
