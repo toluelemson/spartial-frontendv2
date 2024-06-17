@@ -10,10 +10,10 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
 
     const [newState, setNewState] = useState({...state});
 
-    const allowedValues = [1, 5, 10, 15, 20, 25, 30];
-    type ShapValue = {
-        importance_value: number;
-    };
+    // const allowedValues = [1, 5, 10, 15, 20, 25, 30];
+    // type ShapValue = {
+    //     importance_value: number;
+    // };
 
     type ShapItem = {
         feature: string;
@@ -64,7 +64,7 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
         }
         console.log(`Background Samples: ${backgroundSamples}, Explained Samples: ${explainedSamples}`);
 
-    }, [backgroundSamples, originalDataset, explainedSamples, newState.negativeChecked, newState.positiveChecked]);
+    }, [backgroundSamples, originalDataset, explainedSamples, newState.negativeChecked, newState.positiveChecked, isLoading]);
 
 
     const createCSVContent = (title: string, headers: string[], data: Array<Array<string | number | undefined>>): string => {
@@ -122,7 +122,7 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
             }) => [item.feature, item.importance_value]) : []
         );
 
-        console.log(shapResults)
+        console.log(toDisplayShap)
 
 
         // // Data Table Probabilities
@@ -166,7 +166,6 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
 
         setIsLoading(true);
 
-
         try {
             const {maxDisplay} = newState
             const SHAPConfig: any = {modelId: newState.modelId, backgroundSamples, explainedSamples, maxDisplay}
@@ -174,14 +173,12 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
 
 
             const shapValues = await fetchSHAPValues("ac-xgboost", 0);
-            console.log(shapValues)
             setShapResults(shapValues);
         } catch (error) {
             setError('Failed to fetch SHAP values. Please try again.');
         } finally {
             setIsLoading(false);
         }
-
     };
 
     const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -275,8 +272,16 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                 <tbody> {topFeatures.map((feature) => (<tr key={feature.key}>
                     <td>{feature.key}</td>
                     <td>{feature.name}</td>
-                    {/* <td>{feature.description || 'N/A'}</td> */} </tr>))} </tbody>
-            </Table> </Card.Body> </Card> </Col> </Row> </Container>);
+                    {/*<td>{feature.description || 'N/A'}</td>*/}
+                </tr>))} </tbody>
+            </Table> </Card.Body>
+
+        </Card> </Col>
+            <Col md={3} className="d-flex align-items-center">
+                <Button variant="primary" onClick={handleExportToCSV} className="w-100 mt-3">Save Data to
+                    CSV</Button>
+            </Col>
+        </Row> </Container>);
 
 
 };
