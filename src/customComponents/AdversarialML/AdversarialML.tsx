@@ -1,12 +1,12 @@
-import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
-import { Button, Container, Form, Row, Col, Card, Badge, Spinner } from "react-bootstrap";
-import { countLabels, extractLabelsFromDataset } from "../util/utility";
-import useFetchModelDataset from "../datasets/useFetchModelDataset";
-import { requestAttackStatus, requestPerformAttack } from '../../api';
+import React, {ChangeEvent, useEffect, useRef, useState} from 'react';
+import {Button, Container, Form, Row, Col, Card, Badge, Spinner} from "react-bootstrap";
+import {countLabels, extractLabelsFromDataset} from "../util/utility";
+import {requestAttackStatus, requestPerformAttack} from '../../api';
 import RandomSampleChart from '../datasets/RslChart';
 import AttackBarChart from '../datasets/AttackBarChart';
 import TooltipComponent from '../util/TooltipComponent/TooltipComponentProps';
-import { TODO } from '../../types/types';
+import {TODO} from '../../types/types';
+import fetchDataset from '../util/fetchDataset';
 
 interface FormData {
     modelId: string;
@@ -23,7 +23,7 @@ interface DatasetLabelColumn {
     value: number;
 }
 
-const AdversarialTab: React.FC<any> = ({ state }) => {
+const AdversarialTab: React.FC<any> = ({state}) => {
     const [formData, setFormData] = useState<FormData>({
         modelId: state.modelId,
         poisoningRate: 0,
@@ -36,24 +36,44 @@ const AdversarialTab: React.FC<any> = ({ state }) => {
         poisoningRate: '',
     });
 
-    const [attackStatus, setAttackStatus] = useState({ isLoading: false, isRunning: false, error: '' });
+    const [attackStatus, setAttackStatus] = useState({isLoading: false, isRunning: false, error: ''});
     const [originalDatasetLabels, setOriginalDatasetLabels] = useState<string[]>([]);
-    const [poisonedDatasetLabels, setPoisonedDatasetLabels] = useState<string[]>([]);
     const [combinedDatasetLabels, setCombinedDatasetLabels] = useState<DatasetLabelColumn[]>([]);
+    const [poisonedDataset, setPoisonedDataset] = useState<any>(null);
+    const [normalDataset, setNormalDataset] = useState<any>(null);
 
-    const { poisonedDataset, refetch: refetchPoisonedDataset } = useFetchModelDataset(true, formData.modelId, formData.attackType);
-    const { originalDataset, refetch: refetchOriginalDataset } = useFetchModelDataset(false, formData.modelId, "train");
+    // const { originalDataset } = useFetchDataset(formData.modelId, "train");
+
+    const fetchPoisonedDataset = async () => {
+        const {poisonedDataset} = await fetchDataset(true, formData.modelId, formData.attackType);
+        const {originalDataset} = await fetchDataset(false, formData.modelId, "");
+        setPoisonedDataset(poisonedDataset);
+        setNormalDataset(originalDataset);
+
+    };
 
     const fetchAttackStatus = async () => {
-        setAttackStatus(prev => ({ ...prev, isLoading: true, isRunning: true }));
+        setAttackStatus(prev => ({...prev, isLoading: true, isRunning: true}));
+
+        let retryCount = 0;
+        const maxRetries = 20; // Define the maximum number of retries (e.g., 20 times, which is 1 minute if interval is 3000 ms)
+
         const intervalId = setInterval(async () => {
+            retryCount += 1;
+
             try {
                 const statusRes = await requestAttackStatus();
                 if (!statusRes.isRunning) {
                     clearInterval(intervalId);
-                    await refetchOriginalDataset();
-                    await refetchPoisonedDataset();
-                    setAttackStatus(prev => ({ ...prev, isLoading: false, isRunning: false }));
+                    setAttackStatus(prev => ({...prev, isLoading: false, isRunning: false, error: ''}));
+                } else if (retryCount >= maxRetries) {
+                    clearInterval(intervalId);
+                    setAttackStatus(prev => ({
+                        ...prev,
+                        isLoading: false,
+                        isRunning: false,
+                        error: 'Performing Attack timed out'
+                    }));
                 }
             } catch (statusError) {
                 console.error('Failed to check attack status:', statusError);
@@ -67,46 +87,54 @@ const AdversarialTab: React.FC<any> = ({ state }) => {
             }
         }, 3000);
     };
-
     const loadLabels = async () => {
         if (!formData.modelId) return;
 
-        const labelsFromOriginalDataset = originalDataset ? await extractLabelsFromDataset({
+        const labelsFromOriginalDataset = normalDataset ? await extractLabelsFromDataset({
             modelId: formData.modelId,
-            datasets: originalDataset.resultData,
+            datasets: normalDataset?.resultData,
         }) : [];
+
         setOriginalDatasetLabels(labelsFromOriginalDataset);
 
-        const labelsFromPoisonedDataset = poisonedDataset ? await extractLabelsFromDataset({
-            modelId: formData.modelId,
-            datasets: poisonedDataset.resultData,
-        }) : [];
-        setPoisonedDatasetLabels(labelsFromPoisonedDataset);
+        await fetchPoisonedDataset();
 
-        const originalDataCounts = countLabels(originalDataset?.resultData || []);
-        const poisonedDataCounts = countLabels(poisonedDataset?.resultData || []);
+        if (poisonedDataset) {
+            const labelsFromPoisonedDataset = await extractLabelsFromDataset({
+                modelId: formData.modelId,
+                datasets: poisonedDataset?.resultData,
+            });
 
-        const originalLabels = labelsFromOriginalDataset.map(label => ({
-            datasetType: 'original',
-            classLabels: label,
-            count: originalDataCounts.get(label) || 0,
-            value: 100,
-        }));
+            console.log(labelsFromPoisonedDataset);
 
-        const poisonedLabels = labelsFromPoisonedDataset.map(label => ({
-            datasetType: 'poisoned',
-            classLabels: label,
-            count: poisonedDataCounts.get(label) || 0,
-            value: 100,
-        }));
+            const originalDataCounts = countLabels(normalDataset?.resultData || []);
+            const poisonedDataCounts = countLabels(poisonedDataset?.resultData || []);
 
-        const combinedLabels = [...originalLabels, ...poisonedLabels];
-        setCombinedDatasetLabels(combinedLabels);
+            const originalLabels = labelsFromOriginalDataset.map(label => ({
+                datasetType: 'original',
+                classLabels: label,
+                count: originalDataCounts.get(label) || 0,
+                value: 100,
+            }));
+
+            const poisonedLabels = labelsFromPoisonedDataset.map(label => ({
+                datasetType: 'poisoned',
+                classLabels: label,
+                count: poisonedDataCounts.get(label) || 0,
+                value: 100,
+            }));
+
+            const combinedLabels = [...originalLabels, ...poisonedLabels];
+            setCombinedDatasetLabels(combinedLabels);
+        }
     };
 
     useEffect(() => {
-        loadLabels();
-    }, [formData.modelId, originalDataset, poisonedDataset, attackStatus.isLoading, attackStatus.isRunning]);
+        const fetchData = async () => {
+            await loadLabels();
+        }
+        fetchData();
+    }, [formData.modelId, attackStatus.isLoading, attackStatus.isRunning, formData.attackType]);
 
     const prevAttacksStatusIsRunningRef = useRef<boolean | undefined>(undefined);
 
@@ -115,10 +143,10 @@ const AdversarialTab: React.FC<any> = ({ state }) => {
             console.log('State isRunning has been changed from true to false');
         }
         prevAttacksStatusIsRunningRef.current = attackStatus.isLoading;
-    }, [attackStatus.isLoading, poisonedDataset]);
+    }, [attackStatus.isLoading, attackStatus.isRunning]);
 
-    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | ChangeEvent<TODO>) => {
-        const { name, value } = event.target;
+    const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement> | ChangeEvent<TODO>) => {
+        const {name, value} = event.target;
         let error = '';
         let newValue: any = value;
 
@@ -145,7 +173,6 @@ const AdversarialTab: React.FC<any> = ({ state }) => {
 
     const handlePerformAttack = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        setAttackStatus(prev => ({ ...prev, isLoading: true, isRunning: true }));
 
         try {
             await requestPerformAttack(formData);
@@ -187,7 +214,8 @@ const AdversarialTab: React.FC<any> = ({ state }) => {
                                         step={5}
                                         className="custom-range"
                                     />
-                                    {formErrors.poisoningRate && <div className="error">{formErrors.poisoningRate}</div>}
+                                    {formErrors.poisoningRate &&
+                                        <div className="error">{formErrors.poisoningRate}</div>}
                                 </Form.Group>
                                 <Form.Group as={Row} className="mb-4" controlId="attackType">
                                     <>
@@ -211,33 +239,35 @@ const AdversarialTab: React.FC<any> = ({ state }) => {
                                 </Form.Group>
                                 {formData.attackType === "tlf" && (
                                     <Row className="g-3">
-                                        <Col sm={6}>
-                                            <Form.Group controlId="sourceClassInput">
-                                                <Form.Label>
-                                                    Source Class
-                                                    <TooltipComponent
-                                                        message="Enter the class number from which samples will be generated or manipulated. This setting is crucial for generating adversarial samples or testing the model's robustness against data corruption.">
-                                                        <i className="bi bi-info-circle ms-2" style={{ cursor: 'pointer' }}></i>
-                                                    </TooltipComponent>
-                                                </Form.Label>
-                                                <Form.Control
-                                                    type="number"
-                                                    value={formData.sourceClass}
-                                                    onChange={handleInputChange}
-                                                    name="sourceClass"
-                                                    min="1"
-                                                    max={originalDatasetLabels.length}
-                                                    className="shadow-sm"
-                                                />
-                                            </Form.Group>
-                                        </Col>
+                                        {/*<Col sm={6}>*/}
+                                        {/*    <Form.Group controlId="sourceClassInput">*/}
+                                        {/*        <Form.Label>*/}
+                                        {/*            Source Class*/}
+                                        {/*            <TooltipComponent*/}
+                                        {/*                message="Enter the class number from which samples will be generated or manipulated. This setting is crucial for generating adversarial samples or testing the model's robustness against data corruption.">*/}
+                                        {/*                <i className="bi bi-info-circle ms-2"*/}
+                                        {/*                   style={{ cursor: 'pointer' }}></i>*/}
+                                        {/*            </TooltipComponent>*/}
+                                        {/*        </Form.Label>*/}
+                                        {/*        <Form.Control*/}
+                                        {/*            type="number"*/}
+                                        {/*            value={formData.sourceClass}*/}
+                                        {/*            onChange={handleInputChange}*/}
+                                        {/*            name="sourceClass"*/}
+                                        {/*            min="1"*/}
+                                        {/*            max={originalDatasetLabels.length}*/}
+                                        {/*            className="shadow-sm"*/}
+                                        {/*        />*/}
+                                        {/*    </Form.Group>*/}
+                                        {/*</Col>*/}
                                         <Col sm={6}>
                                             <Form.Group controlId="targetClassNumber">
                                                 <Form.Label>
                                                     Target Class Number
                                                     <TooltipComponent
                                                         message="Enter the class number from which samples will be generated or manipulated. This setting is crucial for generating adversarial samples or testing the model's robustness against data corruption.">
-                                                        <i className="bi bi-info-circle ms-2" style={{ cursor: 'pointer' }}></i>
+                                                        <i className="bi bi-info-circle ms-2"
+                                                           style={{cursor: 'pointer'}}></i>
                                                     </TooltipComponent>
                                                 </Form.Label>
                                                 <Form.Control
@@ -258,15 +288,22 @@ const AdversarialTab: React.FC<any> = ({ state }) => {
                                     {attackStatus.isLoading ? 'Performing Attack...' : 'Perform Attack'}
                                     {attackStatus.isLoading &&
                                         <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true"
-                                                 className="ms-2" />}
+                                                 className="ms-2"/>}
                                 </Button>
+                                {attackStatus.error &&
+                                    <div className="error mt-2 text-danger">
+                                        {attackStatus.error}
+                                    </div>
+                                }
                             </Form>
                         </Card.Body>
                     </Card>
                     <Row className="mt-3">
                         <Col lg={12}>
-                            <RandomSampleChart dataSets={originalDataset} label={'Original Dataset'} attackStatus={attackStatus} />
-                            <RandomSampleChart dataSets={poisonedDataset} label={'Poisoned Dataset'} attackStatus={attackStatus} />
+                            <RandomSampleChart dataSets={normalDataset} label={'Original Dataset'}
+                                               attackStatus={attackStatus}/>
+                            <RandomSampleChart dataSets={poisonedDataset} label={'Poisoned Dataset'}
+                                               attackStatus={attackStatus}/>
                         </Col>
                     </Row>
                 </Col>
@@ -280,7 +317,7 @@ const AdversarialTab: React.FC<any> = ({ state }) => {
                                 {formData.attackType === "tlf" ? "Target Label Flipping" : "Random Sampling Labels"} strategy
                                 insights.
                             </Card.Text>
-                            <AttackBarChart dataSets={combinedDatasetLabels} />
+                            <AttackBarChart dataSets={combinedDatasetLabels}/>
                         </Card.Body>
                     </Card>
                 </Col>
