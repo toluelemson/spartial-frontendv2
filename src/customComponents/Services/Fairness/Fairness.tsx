@@ -16,6 +16,10 @@ import { exportToCSV, CSVData } from "../../util/FairnessUtil";
 import BiasInInputTable from "./BiasInInputTable";
 import BiasInPredictionTable from "./BiasInPredictionTable";
 import NutriScore from "./NutriScore";
+import { Link, To } from "react-router-dom";
+import LlamaParaphrase from "../../Services/Llama/LlamaParaphrase";
+
+const fairnessHomepage = "/xai/service/fairness";
 
 interface FairnessSummary {
   [key: string]: string | string[];
@@ -190,8 +194,8 @@ const FairnessTable: React.FC<{ fairnessSummary: FairnessSummary }> = ({
               {showHeaders && (
                 <tr>
                   <th>Metric</th>
-                  <th>Age</th>
                   <th>Gender</th>
+                  <th>Age</th>
                 </tr>
               )}
             </thead>
@@ -221,12 +225,12 @@ const FairnessTable: React.FC<{ fairnessSummary: FairnessSummary }> = ({
                     </td>
                     {/* <td>{description}</td> */}
                     <td>
-                      {Array.isArray(ageValue) ? ageValue.join(", ") : ageValue}
-                    </td>
-                    <td>
                       {Array.isArray(genderValue)
                         ? genderValue.join(", ")
                         : genderValue}
+                    </td>
+                    <td>
+                      {Array.isArray(ageValue) ? ageValue.join(", ") : ageValue}
                     </td>
                   </tr>
                 );
@@ -352,7 +356,11 @@ const Fairness: React.FC = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="mb-4">Fairness</h2>
+      {/* <h2 className="mb-4">Fairness Service</h2> */}
+      <Link to={fairnessHomepage} className="nav-link text-lightblue fs-5">
+        Fairness Service
+      </Link>
+      <br />
       {error && <div className="alert alert-danger">{error}</div>}
       <FileUpload
         onFileUpload={handleFileUpload}
@@ -374,12 +382,22 @@ const Fairness: React.FC = () => {
           <Row>
             <Col md={12}>
               <br />
-              <div className="mb-4 d-flex justify-content-center align-items-center">
-                {overallFairnessDescription && (
-                  <h4>{overallFairnessDescription}</h4>
-                )}
+              <div>
+                {/* d-flex justify-content-center align-items-center */}
+                <div>
+                  {overallFairnessDescription && (
+                    <h4>{overallFairnessDescription}</h4>
+                  )}
+                  <LlamaParaphrase
+                    explanation={overallFairnessDescription}
+                    userRole={userRole}
+                  />
+                </div>
               </div>
+              <br />
+              <br />
             </Col>
+
             <Col md={6}>
               <Card className="mb-4 d-flex justify-content-center align-items-center ">
                 <Card.Body>
@@ -390,6 +408,11 @@ const Fairness: React.FC = () => {
                   <p className="mb-4 d-flex justify-content-center">
                     Disparate Impact value is {genderDisparateImpact}
                   </p>
+                  {/* ${overallFairnessDescription}  */}
+                  <LlamaParaphrase
+                    explanation={`From the provided ptbxl database, Fairness Score for Gender is ${genderScore} and Disparate Impact value is ${genderDisparateImpact}`}
+                    userRole={userRole}
+                  />
                 </Card.Body>
               </Card>
             </Col>
@@ -403,6 +426,11 @@ const Fairness: React.FC = () => {
                   <p className="mb-4 d-flex justify-content-center">
                     Disparate Impact value is {ageDisparateImpact}
                   </p>
+                  {/* ${overallFairnessDescription}  */}
+                  <LlamaParaphrase
+                    explanation={`From the provided ptbxl database, Fairness Score for Age is ${ageScore} and Disparate Impact value is ${ageDisparateImpact}`}
+                    userRole={userRole}
+                  />
                 </Card.Body>
               </Card>
             </Col>

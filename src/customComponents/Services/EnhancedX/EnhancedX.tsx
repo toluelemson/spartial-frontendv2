@@ -2,6 +2,9 @@ import React, { useState } from "react";
 import FileUpload from "../Fairness/FileUploadForm";
 import { enhancedInterpretability } from "../../../api";
 import { Card, Col } from "react-bootstrap";
+import { Link, To } from "react-router-dom";
+
+const fairnessHomepage = "/xai/service/enhancedX";
 
 const EnhancedX: React.FC = () => {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -49,7 +52,11 @@ const EnhancedX: React.FC = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="mb-4">Enhanced Interpretability</h2>
+      {/* <h2 className="mb-4">Enhanced Interpretability Service</h2> */}
+      <Link to={fairnessHomepage} className="nav-link text-lightblue fs-5">
+        Enhanced Interpretability Service
+      </Link>
+      <br />
       {error && <div className="alert alert-danger">{error}</div>}
       <FileUpload
         onFileUpload={handleFileUpload}

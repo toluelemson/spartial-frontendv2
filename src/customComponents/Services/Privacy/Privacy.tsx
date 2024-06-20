@@ -1,6 +1,9 @@
 import React, { useState, FormEvent } from "react";
 import { differentialPrivacy } from "../../../api";
 import { Card, Row, Col } from "react-bootstrap";
+import { Link, To } from "react-router-dom";
+
+const fairnessHomepage = "/xai/service/privacy";
 
 interface PrivacyMicroservicesFormProps {}
 
@@ -94,7 +97,15 @@ const PrivacyMicroservicesForm: React.FC<
 
   return (
     <div className="container mt-5">
-      <h2 className="mb-4">Privacy Microservices Interface</h2>
+      {/* <h2 className="mb-4">Differential Privacy Service</h2> */}
+      <Link to={fairnessHomepage} className="nav-link text-lightblue fs-5">
+        Differential Privacy Service
+      </Link>
+      <p>
+        Execute differential privacy adding noise and clipping to a collection
+        of local client updates before executing the aggregation procedure.{" "}
+      </p>
+      <br />
       <form onSubmit={handleSubmit}>
         <Row className="mb-3">
           <Col>

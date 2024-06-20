@@ -19,6 +19,7 @@ import {
 } from "../../customComponents/RoleProvider/RoleContext";
 import InsertECG from "../Services/medical/MedDashboard/InsertECG";
 import ECGAnalysis from "../Services/medical/MedDashboard/ECGAnalysis";
+import ModelExplanation from "../Services/medical/MedDashboard/ModelExplanation";
 
 const SpatialDashboard: React.FC = () => {
   // const { setCurrentService } = useRoleContext();
@@ -275,8 +276,13 @@ const SpatialDashboard: React.FC = () => {
                     />
                   </div>
                 </Tab>
-                <Tab eventKey="subtab6" title="Predict">
-                  <div className="px-3">Content for Predict</div>
+                <Tab eventKey="subtab6" title="Model Explanation">
+                  {/* <div className="px-3">Content for subtab6</div> */}
+                  <ModelExplanation
+                    modelId={state.modelId || ""}
+                    // setActiveTab={setActiveTab}
+                    setAnalyzeData={setAnalyzeData}
+                  />
                 </Tab>
               </Tabs>
             </div>
@@ -340,12 +346,16 @@ const SpatialDashboard: React.FC = () => {
             </div>
           </div>
         </Tab>
-        <Tab eventKey="tab5" title="Train Dataset">
-          <DatasetList modelIdProp={state.modelId} datasetTypeProp="train" />
-        </Tab>
-        <Tab eventKey="tab6" title="Test Dataset">
-          <DatasetList modelIdProp={state.modelId} datasetTypeProp="test" />
-        </Tab>
+        {comparisonState.selectedModelLeft?.startsWith("ac-") && (
+          <Tab eventKey="tab5" title="Train Dataset">
+            <DatasetList modelIdProp={state.modelId} datasetTypeProp="train" />
+          </Tab>
+        )}
+        {comparisonState.selectedModelLeft?.startsWith("ac-") && (
+          <Tab eventKey="tab6" title="Test Dataset">
+            <DatasetList modelIdProp={state.modelId} datasetTypeProp="test" />
+          </Tab>
+        )}
       </Tabs>
     </Container>
   );

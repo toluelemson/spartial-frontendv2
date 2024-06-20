@@ -18,6 +18,7 @@ interface FormState {
 const BuildACModelForm: React.FC = () => {
   const { acDataset } = useSpatialContext();
   const [{ buildStatusStatex, updateBuildStatus }] = useCheckBuildStatus();
+  const [loading, setLoading] = useState(false);
 
   const initialFormData: FormState = useMemo(
     () => ({
@@ -73,6 +74,7 @@ const BuildACModelForm: React.FC = () => {
     event: React.FormEvent<HTMLFormElement>
   ) => {
     event.preventDefault();
+    setLoading(true);
     if (!isFormValid) {
       alert("Please fill out all required fields.");
       return;
@@ -96,8 +98,10 @@ const BuildACModelForm: React.FC = () => {
           featureList,
           trainingRatio
         );
+        setLoading(false);
       } else if (serviceType === "Medical") {
         response = await MIEmergencyModels(modelFile!);
+        setLoading(false);
       }
 
       if (response && !buildStatusStatex?.isRunning) {
@@ -218,7 +222,7 @@ const BuildACModelForm: React.FC = () => {
             </InputGroup>
           ))}
           <Button variant="primary mt-3" type="submit" disabled={!isFormValid}>
-            Build Model
+            {loading ? "Loading..." : "Build Model "}
           </Button>
         </Form>
       </Row>

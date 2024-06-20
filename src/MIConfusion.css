@@ -1,65 +1,110 @@
 .confusion-matrix {
   display: grid;
-  grid-template-columns: 1fr 2fr fr;
-  /* grid-template-rows: auto 1fr 1fr; */
+  grid-template-columns: auto 1fr 1fr;
+  grid-template-rows: auto auto 1fr 1fr;
   gap: 10px;
   text-align: center;
+  align-items: center;
+  justify-content: center;
 }
 
 .confusion-matrix .header {
-  grid-column: 3 / span 2;
+  grid-column: 2 / span 2;
   font-weight: bold;
-  font-size: 1.5rem;
-  background-color: #9acd32; /* Match the green color */
+  font-size: 1.2rem;
+  background-color: #9acd32;
   color: #fff;
   padding: 10px;
   border-radius: 5px;
 }
 
 .confusion-matrix .side-label {
-  grid-row: 2 / span 3;
+  grid-row: 2 / span 2;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
-  background-color: #add8e6; /* Match the light blue color */
+  background-color: #add8e6;
   color: #000;
   font-weight: bold;
+  font-size: 1.2rem;
   display: flex;
-  font-size: 1.5rem;
   align-items: center;
   justify-content: center;
   border-radius: 5px;
-  padding: 10px;
-
+  padding: 12px;
 }
 
 .confusion-matrix .cell {
-  /* display: flex; */
+  display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  /* border: 1px solid #ddd; */
+  border: 1px solid #ddd;
   padding: 10px;
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
-
-
 .confusion-matrix .tp {
-  background-color: #9acd32; /* Match the green color */
+  background-color: #9acd32;
 }
 
 .confusion-matrix .fn,
 .confusion-matrix .fp {
-  background-color: #add8e6; /* Match the light blue color */
+  background-color: #add8e6;
 }
 
 .confusion-matrix .tn {
-  background-color: #9acd32; /* Match the green color */
+  background-color: #9acd32;
 }
+
+@media (max-width: 768px) {
+  .confusion-matrix {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto auto;
+  }
+
+  .confusion-matrix .header {
+    grid-column: 1 / span 2;
+    font-size: 1rem;
+  }
+
+  .confusion-matrix .side-label {
+    grid-column: 1 / span 2;
+    grid-row: 3;
+    transform: none;
+    writing-mode: horizontal-tb;
+    font-size: 0.8rem;
+  }
+
+  .confusion-matrix .cell {
+    font-size: 0.8rem;
+    padding: 5px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .confusion-matrix {
+    grid-template-columns: auto 1fr 1fr;
+    grid-template-rows: auto auto 1fr 1fr;
+  }
+
+  .confusion-matrix .header {
+    font-size: 1.2rem;
+  }
+
+  .confusion-matrix .side-label {
+    font-size: 1rem;
+  }
+
+  .confusion-matrix .cell {
+    font-size: 1rem;
+    padding: 10px;
+  }
+}
+
 
 .red-text {
   color: red;
-  font-weight: bold;
+  /* font-weight: bold; */
 }
 
 /* NutriScore.css */

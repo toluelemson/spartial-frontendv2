@@ -256,7 +256,7 @@ export const MIEmergencyModels = async (modelFile: File) => {
 //     return await makeApiRequest<any>(`/model/`);
 // }
 export const requestMedicalModels = async (): Promise<MedicalModel[]> => {
-    const response = await makeApiRequest<any[]>(`/model/`);
+    const response = await makeApiRequest<any[]>(`/model/?limit=10000`);
     if (!response) {
       throw new Error('Failed to fetch medical models');
     }
@@ -593,6 +593,27 @@ export const visualizeECG = async (dat: string, hea: string, cut_classification_
 }
 
 
+export const MIModelExplanation = async (dat: string, hea: string, model_id: string,xai_method:string, ignore_cached_relevances: string) => {
+    try {
+        const url = `/model/${model_id}/explain/${xai_method}?ignore_cached_relevances=${ignore_cached_relevances}`;
+
+        const requestBody = {
+            dat: dat,
+            hea: hea,
+        };
+
+
+        const response = await makeApiRequest<any>(url, 'post', requestBody, 'json');
+
+        return response;
+
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in MIModelExplanation:', error);
+        throw error;
+    }
+}
+
 export const identifySegments = async (dat: string, hea: string) => {
     try {
         const requestBody = {
@@ -684,6 +705,29 @@ export const leadImportance = async (dat: string, hea: string, xai_method: strin
 
 export const getSpecificModel = async (model_id: string) => {
     return await makeApiRequest<any>(`/model/${model_id}`);
+}
+
+//Llama Service
+
+export const Llama_Service = async (user: string, content: string) => {
+    try {
+        const url = `/llama/change-text`;
+
+        const requestBody = {
+            user: user,
+            content: content,
+        };
+
+
+        const response = await makeApiRequest<any>(url, 'post', requestBody, 'json');
+
+        return response;
+
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in Llama_Service:', error);
+        throw error;
+    }
 }
 
 

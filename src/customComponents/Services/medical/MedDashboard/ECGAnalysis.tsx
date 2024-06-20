@@ -33,6 +33,7 @@ import {
 } from "../../../../api";
 import "../../../../MIConfusion.css";
 import { useRoleContext, Role } from "../../../RoleProvider/RoleContext";
+import LlamaParaphrase from "../../Llama/LlamaParaphrase";
 
 interface InsertECGProps {
   modelId: string;
@@ -117,13 +118,18 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
     return prefixMatch ? id.replace(prefixMatch[0], "") : id;
   };
 
+  const removeHTMLTags = (str: string): string => {
+    return str.replace(/<\/?[^>]+(>|$)/g, "");
+  };
   const fetchExplanations = async () => {
     try {
       const rolePromises = roles.map((role) =>
         descriptionECGSignal(role, formData.cut_classification_window)
           .then((response) => {
             if (response) {
-              return { [`${role}_description`]: response.description };
+              return {
+                [`${role}_description`]: removeHTMLTags(response.description),
+              };
             } else {
               console.error(`Invalid response format for ${role} description`);
               return { [`${role}_description`]: "No description available" };
@@ -139,7 +145,11 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
         descriptionTickImportance(formData.cut_classification_window, role)
           .then((response) => {
             if (response) {
-              return { [`${role}_tickImportance`]: response.description };
+              return {
+                [`${role}_tickImportance`]: removeHTMLTags(
+                  response.description
+                ),
+              };
             } else {
               console.error(
                 `Invalid response format for ${role} tick importance`
@@ -157,7 +167,11 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
         descriptionTimeImportance(formData.cut_classification_window, role)
           .then((response) => {
             if (response) {
-              return { [`${role}_timeImportance`]: response.description };
+              return {
+                [`${role}_timeImportance`]: removeHTMLTags(
+                  response.description
+                ),
+              };
             } else {
               console.error(
                 `Invalid response format for ${role} time importance`
@@ -175,7 +189,11 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
         descriptionLeadImportance(formData.cut_classification_window, role)
           .then((response) => {
             if (response) {
-              return { [`${role}_leadImportance`]: response.description };
+              return {
+                [`${role}_leadImportance`]: removeHTMLTags(
+                  response.description
+                ),
+              };
             } else {
               console.error(
                 `Invalid response format for ${role} lead importance`
@@ -194,7 +212,9 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
           .then((response) => {
             if (response) {
               return {
-                [`${role}_ECGClassification`]: response.description,
+                [`${role}_ECGClassification`]: removeHTMLTags(
+                  response.description
+                ),
               };
             } else {
               console.error(
@@ -236,7 +256,7 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+    console.log("ECGAnalysis loading started");
     try {
       const strippedModelId = stripPrefix(modelId);
       const submissionData = { ...formData, modelId: strippedModelId };
@@ -388,6 +408,7 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
       console.error("Error in handleSubmit:", error);
     } finally {
       setLoading(false);
+      console.log("ECGAnalysis loading ended");
     }
   };
 
@@ -492,17 +513,25 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                   {loading && <SpinnerComponent />}
                   {result3}
                   {result3 ? (
-                    <div
-                      className={`d-flex justify-content-center align-items-center  p-3 mb-3 text-white fw-bold rounded ${
-                        predictedClass === "MI" ? "bg-danger" : "bg-success"
-                      }`}
-                    >
-                      {predictedClass}
-                    </div>
+                    <>
+                      <div
+                        className={`d-flex justify-content-center align-items-center  p-3 mb-3 text-white fw-bold rounded ${
+                          predictedClass === "MI" ? "bg-danger" : "bg-success"
+                        }`}
+                      >
+                        {predictedClass}
+                      </div>
+                      <p>{explanations[`${userRole}_ECGClassification`]}</p>
+                      <LlamaParaphrase
+                        explanation={
+                          explanations[`${userRole}_ECGClassification`] || ""
+                        }
+                        userRole={userRole}
+                      />
+                    </>
                   ) : (
-                    <p>No Prediction details available.</p>
+                    <p>Prediction details not available.</p>
                   )}
-                  <p>{explanations[`${userRole}_ECGClassification`]}</p>
                 </Card.Body>
               </Card>
             </Col>
@@ -525,15 +554,26 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                               className="img-fluid"
                             />
                             {explanations[`${userRole}_tickImportance`] ? (
-                              <p>
-                                {explanations[`${userRole}_tickImportance`]}
-                              </p>
+                              <>
+                                {" "}
+                                <p>
+                                  {explanations[`${userRole}_tickImportance`]}
+                                </p>
+                                <LlamaParaphrase
+                                  explanation={
+                                    explanations[
+                                      `${userRole}_tickImportance`
+                                    ] || ""
+                                  }
+                                  userRole={userRole}
+                                />{" "}
+                              </>
                             ) : (
                               <p>No Tick Importance explanation available.</p>
                             )}
                           </>
                         ) : (
-                          <p className="red-text">
+                          <p className="">
                             Tick Importance image not available.
                           </p>
                         )}
@@ -553,15 +593,25 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                               className="img-fluid"
                             />
                             {explanations[`${userRole}_timeImportance`] ? (
-                              <p>
-                                {explanations[`${userRole}_timeImportance`]}
-                              </p>
+                              <>
+                                <p>
+                                  {explanations[`${userRole}_timeImportance`]}
+                                </p>
+                                <LlamaParaphrase
+                                  explanation={
+                                    explanations[
+                                      `${userRole}_timeImportance`
+                                    ] || ""
+                                  }
+                                  userRole={userRole}
+                                />
+                              </>
                             ) : (
                               <p>No Time Importance explanation available.</p>
                             )}
                           </>
                         ) : (
-                          <p className="red-text">
+                          <p className="">
                             Time Importance image not available.
                           </p>
                         )}
@@ -581,15 +631,25 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                               className="img-fluid"
                             />
                             {explanations[`${userRole}_leadImportance`] ? (
-                              <p>
-                                {explanations[`${userRole}_leadImportance`]}
-                              </p>
+                              <>
+                                <p>
+                                  {explanations[`${userRole}_leadImportance`]}
+                                </p>
+                                <LlamaParaphrase
+                                  explanation={
+                                    explanations[
+                                      `${userRole}_leadImportance`
+                                    ] || ""
+                                  }
+                                  userRole={userRole}
+                                />
+                              </>
                             ) : (
                               <p>No Lead Importance explanation available.</p>
                             )}
                           </>
                         ) : (
-                          <p className="red-text">
+                          <p className="">
                             Lead Importance image not available.
                           </p>
                         )}
@@ -615,15 +675,25 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                               className="img-fluid"
                             />
                             {explanations[`${userRole}_tickImportance`] ? (
-                              <p>
-                                {explanations[`${userRole}_tickImportance`]}
-                              </p>
+                              <>
+                                <p>
+                                  {explanations[`${userRole}_tickImportance`]}
+                                </p>
+                                <LlamaParaphrase
+                                  explanation={
+                                    explanations[
+                                      `${userRole}_tickImportance`
+                                    ] || ""
+                                  }
+                                  userRole={userRole}
+                                />{" "}
+                              </>
                             ) : (
                               <p>No Tick Importance explanation available.</p>
                             )}
                           </>
                         ) : (
-                          <p className="red-text">
+                          <p className="">
                             Tick Importance image not available.
                           </p>
                         )}
@@ -643,15 +713,26 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                               className="img-fluid"
                             />
                             {explanations[`${userRole}_timeImportance`] ? (
-                              <p>
-                                {explanations[`${userRole}_timeImportance`]}
-                              </p>
+                              <>
+                                {" "}
+                                <p>
+                                  {explanations[`${userRole}_timeImportance`]}
+                                </p>
+                                <LlamaParaphrase
+                                  explanation={
+                                    explanations[
+                                      `${userRole}_timeImportance`
+                                    ] || ""
+                                  }
+                                  userRole={userRole}
+                                />
+                              </>
                             ) : (
                               <p>No Time Importance explanation available.</p>
                             )}
                           </>
                         ) : (
-                          <p className="red-text">
+                          <p className="">
                             Time Importance image not available.
                           </p>
                         )}
@@ -671,15 +752,26 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                               className="img-fluid"
                             />
                             {explanations[`${userRole}_leadImportance`] ? (
-                              <p>
-                                {explanations[`${userRole}_leadImportance`]}
-                              </p>
+                              <>
+                                {" "}
+                                <p>
+                                  {explanations[`${userRole}_leadImportance`]}
+                                </p>
+                                <LlamaParaphrase
+                                  explanation={
+                                    explanations[
+                                      `${userRole}_leadImportance`
+                                    ] || ""
+                                  }
+                                  userRole={userRole}
+                                />
+                              </>
                             ) : (
                               <p>No Lead Importance explanation available.</p>
                             )}
                           </>
                         ) : (
-                          <p className="red-text">
+                          <p className="">
                             Lead Importance image not available.
                           </p>
                         )}
@@ -705,15 +797,25 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                               className="img-fluid"
                             />
                             {explanations[`${userRole}_tickImportance`] ? (
-                              <p>
-                                {explanations[`${userRole}_tickImportance`]}
-                              </p>
+                              <>
+                                <p>
+                                  {explanations[`${userRole}_tickImportance`]}
+                                </p>
+                                <LlamaParaphrase
+                                  explanation={
+                                    explanations[
+                                      `${userRole}_tickImportance`
+                                    ] || ""
+                                  }
+                                  userRole={userRole}
+                                />
+                              </>
                             ) : (
                               <p>No Tick Importance explanation available.</p>
                             )}
                           </>
                         ) : (
-                          <p className="red-text">
+                          <p className="">
                             Tick Importance image not available.
                           </p>
                         )}
@@ -733,15 +835,25 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                               className="img-fluid"
                             />
                             {explanations[`${userRole}_timeImportance`] ? (
-                              <p>
-                                {explanations[`${userRole}_timeImportance`]}
-                              </p>
+                              <>
+                                <p>
+                                  {explanations[`${userRole}_timeImportance`]}
+                                </p>
+                                <LlamaParaphrase
+                                  explanation={
+                                    explanations[
+                                      `${userRole}_timeImportance`
+                                    ] || ""
+                                  }
+                                  userRole={userRole}
+                                />
+                              </>
                             ) : (
                               <p>No Time Importance explanation available.</p>
                             )}
                           </>
                         ) : (
-                          <p className="red-text">
+                          <p className="">
                             Time Importance image not available.
                           </p>
                         )}
@@ -761,16 +873,26 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                               className="img-fluid"
                             />
                             {explanations[`${userRole}_leadImportance`] ? (
-                              <p>
-                                {explanations[`${userRole}_leadImportance`]}
-                              </p>
+                              <>
+                                <p>
+                                  {explanations[`${userRole}_leadImportance`]}
+                                </p>
+                                <LlamaParaphrase
+                                  explanation={
+                                    explanations[
+                                      `${userRole}_leadImportance`
+                                    ] || ""
+                                  }
+                                  userRole={userRole}
+                                />
+                              </>
                             ) : (
                               <p>No Lead Importance explanation available.</p>
                             )}
                           </>
                         ) : (
-                          <p className="red-text">
-                            Lead importance image not available
+                          <p className="">
+                            Lead importance image not available.
                           </p>
                           // due to timeout
                           // issue.
@@ -789,32 +911,75 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                   <Card.Body>
                     <h3>ECG Segments:</h3>
                     {loading && <SpinnerComponent />}
-                    {result2 && (
-                      <div className="border p-3">
-                        <img
-                          src={result2}
-                          width="500"
-                          height="250"
-                          alt="Result Image"
-                          className="img-fluid"
-                        />
-                      </div>
+                    {/* {result2 && (
+                      <>
+                        <div className="border p-3">
+                          <img
+                            src={result2}
+                            width="500"
+                            height="250"
+                            alt="Result Image"
+                            className="img-fluid"
+                          />
+                        </div>
+                      </>
+                    )} */}
+                    {!loading && (
+                      <>
+                        {result2 ? (
+                          <div className="border p-3">
+                            <img
+                              src={result2}
+                              width="500"
+                              height="250"
+                              alt="Result Image"
+                              className="img-fluid"
+                            />
+                          </div>
+                        ) : (
+                          <p className="">ECG segment image not available.</p>
+                        )}
+                      </>
                     )}
                   </Card.Body>
                 </Card>{" "}
+                <br />
+                <br />
               </Col>
               <Col md={6}>
                 <Card className="mb-4">
                   <Card.Body>
                     <h3>Explanation:</h3>
-                    {explanations[`${userRole}_description`] && (
+                    {loading && <SpinnerComponent />}
+                    {/* {explanations[`${userRole}_description`] && (
                       <div className="border p-3">
-                        {loading && <SpinnerComponent />}
                         <p>{explanations[`${userRole}_description`]}</p>
+                        <LlamaParaphrase
+                          explanation={
+                            explanations[`${userRole}_description`] || ""
+                          }
+                          userRole={userRole}
+                        />
                       </div>
-                    )}{" "}
+                    )} */}
+                    {explanations[`${userRole}_description`] ? (
+                      <>
+                        {" "}
+                        <p>{explanations[`${userRole}_description`]}</p>
+                        <LlamaParaphrase
+                          explanation={
+                            explanations[`${userRole}_description`] || ""
+                          }
+                          userRole={userRole}
+                        />{" "}
+                      </>
+                    ) : (
+                      <p>Explanation not available.</p>
+                    )}
                   </Card.Body>
                 </Card>{" "}
+                <br />
+                <br />
               </Col>
             </Row>
           )}
@@ -825,7 +990,8 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                   <Card.Body>
                     <h3>ECG Classification:</h3>
                     {loading && <SpinnerComponent />}
-                    {result1 && (
+                    {result1 ? (
+                      // {result1 && (
                       <div className="border p-3">
                         <img
                           src={result1}
@@ -833,20 +999,42 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                           className="img-fluid"
                         />
                       </div>
+                    ) : (
+                      // )}
+                      <p className="">
+                        ECG classification image not available.
+                      </p>
                     )}
                   </Card.Body>
                 </Card>{" "}
+                {userRole == "medicalExpert" && (
+                  <>
+                    <br />
+                    <br />
+                  </>
+                )}
               </Col>
               <Col md={6}>
                 <Card className="mb-4">
                   <Card.Body>
                     <h3>Explanation:</h3>
-                    {explanations[`${userRole}_ECGClassification`] && (
+                    {loading && <SpinnerComponent />}
+                    {/* {explanations[`${userRole}_ECGClassification`] && ( */}
+                    {explanations[`${userRole}_ECGClassification`] ? (
                       <div className="border p-3">
-                        {loading && <SpinnerComponent />}
                         <p>{explanations[`${userRole}_ECGClassification`]}</p>
+                        <LlamaParaphrase
+                          explanation={
+                            explanations[`${userRole}_ECGClassification`] || ""
+                          }
+                          userRole={userRole}
+                        />
                       </div>
-                    )}{" "}
+                    ) : (
+                      // )}
+                      <p className="">Explanation not available.</p>
+                    )}
+                    {/* )} */}
                   </Card.Body>
                 </Card>{" "}
               </Col>
@@ -860,30 +1048,43 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                   <Card.Body>
                     <h3>Confusion Matrix:</h3>
                     {loading && <SpinnerComponent />}
-                    {evaluationData && (
-                      <div className="confusion-matrix">
-                        <div className="side-label">Predicted Class</div>
-                        <div className="header">True Class</div>
-                        <div className="cell"></div>
+                    {/* <br /> <br /> */}
+                    {/* {evaluationData && ( */}
+                    {evaluationData ? (
+                      <>
+                        <br /> <br />
+                        <div className="confusion-matrix">
+                          <div className="header">True Class</div>
+                          <div className="side-label">Predicted Class</div>
+                          {/* <div className="cell"></div>
                         <div className="cell">Positive</div>
                         <div className="cell">Negative</div>
-                        <div className="cell">Positive</div>
-                        <div className="cell tp">tp: {evaluationData.tp}</div>
-                        <div className="cell fp">fp: {evaluationData.fp}</div>
-                        <div className="cell">Negative</div>
-                        <div className="cell fn">fn: {evaluationData.fn}</div>
-                        <div className="cell tn">tn: {evaluationData.tn}</div>
-                      </div>
+                        <div className="cell">Positive</div> */}
+                          <div className="cell tp">tp: {evaluationData.tp}</div>
+                          <div className="cell fp">fp: {evaluationData.fp}</div>
+
+                          {/* <div className="cell">Negative</div> */}
+                          <div className="cell fn">fn: {evaluationData.fn}</div>
+                          <div className="cell tn">tn: {evaluationData.tn}</div>
+                        </div>
+                      </>
+                    ) : (
+                      // )}
+                      <p className="">
+                        Confusion matrix details not available.
+                      </p>
                     )}
                   </Card.Body>
                 </Card>{" "}
+                <br />
+                <br />
               </Col>
               <Col md={6}>
                 <Card className="mb-4">
                   <Card.Body>
                     <h3>Model Performance:</h3>
                     {loading && <SpinnerComponent />}
-                    {evaluationData && (
+                    {evaluationData ? (
                       <table className="table table-striped">
                         <thead>
                           <tr>
@@ -908,9 +1109,13 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                             ))}
                         </tbody>
                       </table>
+                    ) : (
+                      // )}
+                      <p className="">Performance details not available.</p>
                     )}
                   </Card.Body>
                 </Card>{" "}
+                <br /> <br />
               </Col>
             </Row>
           )}
