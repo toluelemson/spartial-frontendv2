@@ -16,9 +16,8 @@ interface LimeItem {
     feature: string | string[];
 }
 
-type LimeResults = LimeItem[];
 
-export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
+export const LIMETab: React.FC<LIMETabProps> = ({state}) => {
     const [newState, setNewState] = useState({...state});
     const allowedValues = [1, 5, 10, 15, 20, 25, 30];
     const [triggerDataUpdate, setTriggerDataUpdate] = useState(false);
@@ -119,19 +118,29 @@ export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
         const limeValuesCSV = createCSVContent(
             'LIME Values:',
             ['Feature', 'Value'],
-            toDisplayLime ? toDisplayLime.map((item: { feature: any; value: { toString: () => any; }; }) => [item.feature, item.value.toString()]) : []
+            toDisplayLime ? toDisplayLime.map((item: {
+                feature: any;
+                value: { toString: () => any; };
+            }) => [item.feature, item.value.toString()]) : []
         );
 
         const dataTableProbsCSV = createCSVContent(
             'Data Table Probabilities:',
             ['Key', 'Label', 'Probability'],
-            newState.dataTableProbs.map((prob: { key: any; label: any; probability: { toString: () => any; }; }) => [prob.key, prob.label, prob.probability.toString()])
+            newState.dataTableProbs.map((prob: {
+                key: any;
+                label: any;
+                probability: { toString: () => any; };
+            }) => [prob.key, prob.label, prob.probability.toString()])
         );
 
         const pieDataCSV = createCSVContent(
             'Pie Chart Data:',
             ['Type', 'Value'],
-            newState.pieData.map((data: { type: any; value: { toString: () => any; }; }) => [data.type, data.value.toString()])
+            newState.pieData.map((data: {
+                type: any;
+                value: { toString: () => any; };
+            }) => [data.type, data.value.toString()])
         );
 
         const combinedCSV = arrayToCSV([
@@ -149,13 +158,17 @@ export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
         downloadCSV(combinedCSV, `${newState.modelId}_analysis.csv`);
     };
 
-    const filteredValuesLime = Array.isArray(newState.limeValues) && newState.limeValues.filter((d: { value: number; }) => {
+    const filteredValuesLime = Array.isArray(newState.limeValues) && newState.limeValues.filter((d: {
+        value: number;
+    }) => {
         if (d.value > 0 && newState.positiveChecked) return true;
         if (d.value < 0 && newState.negativeChecked) return true;
         return false;
     });
 
-    const filteredMaskedValuesLime = Array.isArray(filteredValuesLime) && filteredValuesLime.filter((obj: { feature: string | any[]; }) => !maskedFeatures.some((feature: string) => obj.feature.includes(feature)));
+    const filteredMaskedValuesLime = Array.isArray(filteredValuesLime) && filteredValuesLime.filter((obj: {
+        feature: string | any[];
+    }) => !maskedFeatures.some((feature: string) => obj.feature.includes(feature)));
 
     const toDisplayLime = filteredMaskedValuesLime && filteredMaskedValuesLime.slice(0, newState.maxDisplay);
 
@@ -174,7 +187,8 @@ export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
                 <Row className="g-4">
                     <Col md={8}>
                         <Card className="mb-4">
-                            <LimeDataUpdater state={newState} updateState={setNewState} triggerUpdate={triggerDataUpdate}/>
+                            <LimeDataUpdater state={newState} updateState={setNewState}
+                                             triggerUpdate={triggerDataUpdate}/>
                             <Card.Header as="h5" className="text-primary">LIME Configuration</Card.Header>
                             <Card.Body>
                                 <Form.Group className="mb-3">
@@ -182,15 +196,18 @@ export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                     <TooltipComponent message="Unique identifier for the sample.">
                                         <i className="bi bi-info-circle ms-2" style={{cursor: 'pointer'}}></i>
                                     </TooltipComponent>
-                                    <Form.Control type="number" name="sampleId" placeholder="Enter Sample ID" value={newState.sampleId} onChange={handleInputChange}/>
+                                    <Form.Control type="number" name="sampleId" placeholder="Enter Sample ID"
+                                                  value={newState.sampleId} onChange={handleInputChange}/>
                                 </Form.Group>
                                 <Form.Group className="mb-3">
                                     <Form.Label htmlFor="featuresToMask">Feature(s) to Hide</Form.Label>
-                                    <TooltipComponent message="Select the details you want to examine to see their impact on the AI's decision.">
+                                    <TooltipComponent
+                                        message="Select the details you want to examine to see their impact on the AI's decision.">
                                         <i className="bi bi-info-circle ms-2" style={{cursor: 'pointer'}}></i>
                                     </TooltipComponent>
                                     <InputGroup>
-                                        <Form.Select multiple name="featuresToMask" className="form-select" onChange={handleMultiSelectChange} aria-label="Features to Mask">
+                                        <Form.Select multiple name="featuresToMask" className="form-select"
+                                                     onChange={handleMultiSelectChange} aria-label="Features to Mask">
                                             <option value="%tcp_protocol">%tcp_protocol</option>
                                             {newState.maskedFeatures.length > 0 && Object.keys(newState.maskedFeatures[0]).sort().map((key, index) => (
                                                 <option value={key} key={key}>{key}</option>
@@ -214,24 +231,31 @@ export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
                             <Card.Header as="h5" className="text-primary">Display Options</Card.Header>
                             <Card.Body>
                                 <Form.Group className="mb-3">
-                                    <Form.Label htmlFor="maxValue">How many details to show? <span className="ms-2 badge bg-secondary">{newState.maxDisplay}</span></Form.Label>
-                                    <Form.Range name="maxDisplay" value={newState.maxDisplay} onChange={handleInputChange} min="5" max="30" step="1"/>
+                                    <Form.Label htmlFor="maxValue">How many details to show? <span
+                                        className="ms-2 badge bg-secondary">{newState.maxDisplay}</span></Form.Label>
+                                    <Form.Range name="maxDisplay" value={newState.maxDisplay}
+                                                onChange={handleInputChange} min="5" max="30" step="1"/>
                                 </Form.Group>
                                 <div className="p-3 mb-3 border rounded">
                                     <Form.Group className="mb-2">
                                         <div className="d-flex align-items-center">
-                                            <Form.Check type="checkbox" id="positiveCheck" name="positiveChecked" className="me-2" checked={newState.positiveChecked} onChange={handleInputChange}/>
+                                            <Form.Check type="checkbox" id="positiveCheck" name="positiveChecked"
+                                                        className="me-2" checked={newState.positiveChecked}
+                                                        onChange={handleInputChange}/>
                                             <Form.Label htmlFor="positiveCheck" className="mb-0">Positive</Form.Label>
                                         </div>
                                     </Form.Group>
                                     <Form.Group>
-                                        <Form.Check type="checkbox" id="negativeCheck" name="negativeChecked" label="Negative" checked={newState.negativeChecked} onChange={handleInputChange}/>
+                                        <Form.Check type="checkbox" id="negativeCheck" name="negativeChecked"
+                                                    label="Negative" checked={newState.negativeChecked}
+                                                    onChange={handleInputChange}/>
                                     </Form.Group>
                                 </div>
                                 <Button variant="primary" type="submit" className="mt-3 w-100" disabled={isLoading}>
                                     {isLoading ? (
                                         <>
-                                            <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2"/>
+                                            <Spinner as="span" animation="border" size="sm" role="status"
+                                                     aria-hidden="true" className="me-2"/>
                                             Loading...
                                         </>
                                     ) : (
@@ -259,7 +283,8 @@ export const LIMETab: React.FC<LIMETabProps> = ({state, updateState}) => {
                         </Card>
                     </Col>
                 </Row>
-                <Button variant="primary" onClick={handleExportToCSV} className="w-100 mt-3">Download Explanations</Button>
+                <Button variant="primary" onClick={handleExportToCSV} className="w-100 mt-3">Download
+                    Explanations</Button>
             </Form>
         </Container>
 

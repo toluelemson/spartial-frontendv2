@@ -20,7 +20,7 @@ export const CRITERIA_LIST = [
     "Build Configuration",
     "Model Performance",
     "Confusion Matrix",
-    "Result",
+    "XAI Result",
     "Fairness"
 ];
 

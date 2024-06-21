@@ -5,7 +5,7 @@ import {
     requestDatasetAC,
     requestMMTStatus,
 } from "../api";
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, {createContext, useContext, useState, ReactNode, useEffect} from 'react';
 import {
     AcDataSetInterface,
     BuildStatusType,
@@ -22,12 +22,12 @@ interface SpatialContextType {
     XAIStatusState: XAIStatusType | null;
     MMTStatusState: MMTStatusInterface | null;
     setMMTStatusState: React.Dispatch<React.SetStateAction<MMTStatusInterface | null>>;
-    buildStatusState: BuildStatusType  | null;
+    buildStatusState: BuildStatusType | null;
     acDataset: AcDataSetInterface | null;
     setAcDataset: React.Dispatch<React.SetStateAction<AcDataSetInterface | null>>;
     setBuildStatusState: React.Dispatch<React.SetStateAction<BuildStatusType | null>>;
     setAllModel: React.Dispatch<React.SetStateAction<ModelListType | null>>
-    allModel : ModelListType | null
+    allModel: ModelListType | null
 }
 const SpatialContext = createContext<SpatialContextType | undefined>(undefined);
 
@@ -41,7 +41,7 @@ const initialAcDataset: AcDataSetInterface | null = null
 
 const initialModelList: ModelListType | null = null
 
-export const Provider: React.FC<ProviderProps> = ({ children }) => {
+export const Provider: React.FC<ProviderProps> = ({children}) => {
     const [reportState, setReportState] = useState<OptionInterface[] | null>([] || null);
     const [MMTStatusState, setMMTStatusState] = useState<MMTStatusInterface | null>(null);
     const [buildStatusState, setBuildStatusState] = useState<BuildStatusType | null>(initialBuildStatus);
@@ -50,7 +50,7 @@ export const Provider: React.FC<ProviderProps> = ({ children }) => {
     const [allModel, setAllModel] = useState<ModelListType | null>(initialModelList);
     const [viewDatasets, setViewDatasets] = useState()
 
-    const { authState } = useOktaAuth();
+    const {authState} = useOktaAuth();
 
     useEffect(() => {
         const loadData = async () => {

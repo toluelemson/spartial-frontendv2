@@ -3,8 +3,8 @@ import React, {useEffect} from 'react';
 import {
     getTablePerformanceStats,
     getConfigConfusionMatrix,
-    transformConfigStrToTableData,
-    updateConfusionMatrix
+    updateConfusionMatrix,
+    loadBuildConfig
 } from "../utility";
 import {requestBuildConfigModel, requestPredictionsModel} from "../../../api";
 
@@ -15,11 +15,6 @@ interface PredictionsLoaderProps {
     updateComparisonState: (updates: any) => void;
     cutoffProb: number;
 }
-
-const loadBuildConfig = async (modelId: string) => {
-    const buildConfig = await requestBuildConfigModel(modelId);
-    return transformConfigStrToTableData(buildConfig);
-};
 
 const parsePredictions = (predictionsValues: string): Array<{ prediction: number, trueLabel: number }> => {
     return predictionsValues.split('\n').map((line) => {
@@ -47,6 +42,7 @@ const PredictionsLoader: React.FC<PredictionsLoaderProps> = ({modelId, isLeft, u
 
             try {
                 const buildConfigResult = await loadBuildConfig(modelId);
+                console.log(buildConfigResult);
                 const dataBuildConfig = Array.isArray(buildConfigResult) ? buildConfigResult : [];
                 const predictions = await loadPredictionsValues(modelId);
                 const {
@@ -57,7 +53,6 @@ const PredictionsLoader: React.FC<PredictionsLoaderProps> = ({modelId, isLeft, u
 
                 const dataStats = await getTablePerformanceStats(modelId, stats, confusionMatrix);
                 const configCM = confusionMatrix ? await getConfigConfusionMatrix(modelId, confusionMatrix) : {};
-
                 updateComparisonState({
                     predictions,
                     stats,

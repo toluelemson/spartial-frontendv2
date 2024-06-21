@@ -1,17 +1,17 @@
 import React from 'react';
-import { Pie } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import {Pie} from 'react-chartjs-2';
+import {Chart as ChartJS, ArcElement, Tooltip, Legend} from 'chart.js';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 interface PieChartComponentProps {
     "data"?: any[]
-   "Model Details:"?: string | null;
-        "__parsed_extra"?: (string | number | null)[];
+    "Model Details:"?: string | null;
+    "__parsed_extra"?: (string | number | null)[];
 
 }
 
-const PieChartComponent: React.FC<PieChartComponentProps> = ({ data }) => {
+const PieChartComponent: React.FC<PieChartComponentProps> = ({data}) => {
     // Extracting pie chart data
     const pieData = data && data.filter(item => item["Model Details:"] !== "Pie Chart Data:" && item["Model Details:"] !== "Type");
     const labels = pieData && pieData.map(item => item["Model Details:"]);
@@ -38,15 +38,15 @@ const PieChartComponent: React.FC<PieChartComponentProps> = ({ data }) => {
         ]
     };
 
-     const chartContainerStyle = {
+    const chartContainerStyle = {
         width: '400px',
         height: '400px',
         margin: 'auto'
     };
 
-    return  <div style={chartContainerStyle}>
-            <Pie data={chartData} />
-        </div>
+    return <div style={chartContainerStyle}>
+        <Pie data={chartData}/>
+    </div>
 };
 
 export default PieChartComponent;

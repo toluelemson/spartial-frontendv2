@@ -22,20 +22,20 @@ const ModelSelection: React.FC<ModelSelectionProps> = ({
         <><h4>{label}</h4>
             <select
                 className="form-select"
-                                  aria-label={`Select ${label}`}
-                                  onChange={(e) => {
-                                      console.log(e.target.value)
-                                      handleModelSelection(e.target.value, isLeft)
-                                  }}
-                                  disabled={isFieldDisabled}
-                                  value={selectedModel || ''}>
-            <option value="">Select a Model</option>
-            {models && models.map((model) => (
-                <option key={model.modelId} value={model.modelId.toString()}>
-                    {model.modelId}
-                </option>
-            ))}
-        </select></>
+                aria-label={`Select ${label}`}
+                onChange={(e) => {
+                    console.log(e.target.value)
+                    handleModelSelection(e.target.value, isLeft)
+                }}
+                disabled={isFieldDisabled}
+                value={selectedModel || ''}>
+                <option value="">Select a Model</option>
+                {models && models.map((model) => (
+                    <option key={model.modelId} value={model.modelId.toString()}>
+                        {model.modelId}
+                    </option>
+                ))}
+            </select></>
     );
 };
 

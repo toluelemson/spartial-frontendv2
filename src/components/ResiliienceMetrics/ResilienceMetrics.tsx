@@ -7,9 +7,8 @@ import {
 } from "../../api";
 import {ATTACK_DATASETS_MAPPING} from "../../constants";
 import {calculateImpactMetric, getConfigConfusionMatrix, updateConfusionMatrix} from "../util/utility";
-
+import ModelRow from "../Models/Details/ModelRow";
 import {loadPredictionsData} from '../util/PredictiionLoader/PredictionLoaderUtil';
-import ModelRow from '../Models/Details/ModelRow';
 
 interface ResilienceMetricsProps {
     modelId: string;
@@ -134,8 +133,7 @@ const ResilienceMetrics: React.FC<ResilienceMetricsProps> = ({modelId}) => {
             setAttackState(prevState => ({...prevState, ...newState}));
             const testingDataset = "Test_samples.csv";
             const trainingDataset = attackState.selectedAttack;
-            console.log(trainingDataset);
-            await requestRetrainModelAC(attackState.selectedModelLeft, trainingDataset, testingDataset);
+            await requestRetrainModelAC(attackState.selectedModelLeft, trainingDataset, testingDataset, "LightGBM");
             await pollRetrainStatus();
         } catch (error) {
             console.error("Failed to compute metrics or retrain model:", error);
@@ -176,33 +174,6 @@ const ResilienceMetrics: React.FC<ResilienceMetricsProps> = ({modelId}) => {
             isLoading: isRunning ? prev.isLoading : false,
         }));
     };
-
-    //
-    // const loadAttackPredictions = async (retrainId: string | null) => {
-    //     if (!retrainId) {
-    //         return;
-    //     }
-    //     const { cutoffProb } = attackState;
-    //     try {
-    //         const predictionsValues = await requestPredictionsModel(retrainId);
-    //         const predictions = predictionsValues.split('\n').map((d: string) => ({
-    //             prediction: parseFloat(d.split(',')[0]),
-    //             trueLabel: parseInt(d.split(',')[1]),
-    //         }));
-    //         setAttackState(prevState => ({ ...prevState, attackPredictions: predictions }));
-    //         const attCM = await updateConfusionMatrix(retrainId, predictions, cutoffProb);
-    //         console.log(attCM);
-    //         setAttackState(prevState => ({
-    //             ...prevState,
-    //             stats: attCM.stats,
-    //             attacksConfusionMatrix: attCM.confusionMatrix,
-    //             classificationData: attCM.classificationData
-    //         }));
-    //     } catch (error) {
-    //         console.error("Failed to fetch predictions:", error);
-    //     }
-    // }
-
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
 

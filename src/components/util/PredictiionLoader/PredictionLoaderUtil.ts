@@ -4,7 +4,7 @@ import {
     transformConfigStrToTableData,
     updateConfusionMatrix
 } from "../utility";
-import { requestBuildConfigModel, requestPredictionsModel } from "../../../api";
+import {requestBuildConfigModel, requestPredictionsModel} from "../../../api";
 
 interface Prediction {
     prediction: number;
@@ -26,10 +26,10 @@ interface UpdateComparisonStateProps {
     cmConfigRight?: any;
 }
 
-// const loadBuildConfig = async (modelId: string) => {
-//     const buildConfig = await requestBuildConfigModel(modelId);
-//     return transformConfigStrToTableData(buildConfig);
-// };
+const loadBuildConfig = async (modelId: string) => {
+    const buildConfig = await requestBuildConfigModel(modelId);
+    return transformConfigStrToTableData(buildConfig);
+};
 
 const parsePredictions = (predictionsValues: string): Prediction[] => {
     return predictionsValues.split('\n').map((line) => {
@@ -58,13 +58,17 @@ export const loadPredictionsData = async (
     if (!modelId) return null;
 
     try {
-        // const buildConfigResult = await loadBuildConfig(modelId);
-        // const dataBuildConfig = Array.isArray(buildConfigResult) ? buildConfigResult : [];
+        const buildConfigResult = await loadBuildConfig(modelId);
+        const dataBuildConfig = Array.isArray(buildConfigResult) ? buildConfigResult : [];
 
         const predictions = await loadPredictionsValues(modelId);
         console.log('loadPredictionsData:', modelId, predictions);
 
-        const { confusionMatrix, stats, classificationData } = await updateConfusionMatrix(modelId, predictions, cutoffProb);
+        const {
+            confusionMatrix,
+            stats,
+            classificationData
+        } = await updateConfusionMatrix(modelId, predictions, cutoffProb);
 
         console.log('Stats:', stats);
 
@@ -80,12 +84,12 @@ export const loadPredictionsData = async (
             classificationData,
             ...(isLeft ? {
                 selectedModelLeft: modelId,
-                // dataBuildConfigLeft: dataBuildConfig,
+                dataBuildConfigLeft: dataBuildConfig,
                 dataStatsLeft: dataStats,
                 cmConfigLeft: configCM,
             } : {
                 selectedModelRight: modelId,
-                // dataBuildConfigRight: dataBuildConfig,
+                dataBuildConfigRight: dataBuildConfig,
                 dataStatsRight: dataStats,
                 cmConfigRight: configCM,
             })

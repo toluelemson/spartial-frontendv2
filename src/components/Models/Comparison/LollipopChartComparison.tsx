@@ -1,6 +1,15 @@
 import React from 'react';
-import { Scatter } from 'react-chartjs-2';
-import { Chart as ChartJS, ChartData, ChartOptions, LinearScale, PointElement, LineElement, Tooltip, Legend } from 'chart.js';
+import {Scatter} from 'react-chartjs-2';
+import {
+    Chart as ChartJS,
+    ChartData,
+    ChartOptions,
+    LinearScale,
+    PointElement,
+    LineElement,
+    Tooltip,
+    Legend
+} from 'chart.js';
 
 ChartJS.register(LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -13,7 +22,7 @@ interface LollipopChartProps {
     data: ModelDetail[];
 }
 
-const LollipopChart: React.FC<LollipopChartProps> = ({ data }) => {
+const LollipopChart: React.FC<LollipopChartProps> = ({data}) => {
     const filteredData = data.filter(item => item["Model Details:"] != null && item.__parsed_extra != null);
 
     const chartData: ChartData<'scatter'> = {
@@ -23,7 +32,7 @@ const LollipopChart: React.FC<LollipopChartProps> = ({ data }) => {
                 data: filteredData.map((item, index) => {
                     // Check if __parsed_extra is not undefined and its first element is a number
                     const xValue = Array.isArray(item.__parsed_extra) && typeof item.__parsed_extra[0] === 'number' ? item.__parsed_extra[0] : 0;
-                    return { x: xValue, y: index };
+                    return {x: xValue, y: index};
                 }),
                 backgroundColor: 'rgba(255, 99, 132, 1)',
                 borderColor: 'rgba(255, 99, 132, 1)',
@@ -53,7 +62,7 @@ const LollipopChart: React.FC<LollipopChartProps> = ({ data }) => {
         }
     };
 
-    return <Scatter data={chartData} options={options} />;
+    return <Scatter data={chartData} options={options}/>;
 };
 
 export default LollipopChart;
