@@ -9,7 +9,7 @@ import {
     Modal,
     Form
 } from 'react-bootstrap';
-import {BsDownload, BsEye, BsPencil, BsCamera, BsSave2} from "react-icons/bs";
+import {BsDownload, BsEye, BsPencil, BsCamera, BsSave2, BsTrash} from "react-icons/bs";
 import {CopyIcon} from "@radix-ui/react-icons";
 import {useSpatialContext} from "../../context/context";
 import {ModelData, ModelListType} from "../../types/types";
@@ -31,6 +31,8 @@ const AllModels: FC = () => {
     // const [isEditable, setIsEditable] = useState(false);
     const [editableModelId, setEditableModelId] = useState<string | null>(null);
     const [newModelId, setNewModelId] = useState<string>("");
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [modelToDelete, setModelToDelete] = useState<string | null>(null);
 
     const editableDivRefs = useRef<{ [key: string]: HTMLDivElement }>({});
 
@@ -107,6 +109,24 @@ const AllModels: FC = () => {
         setShowModal(false);
     };
 
+    const openDeleteModal = (modelId: string) => {
+        setModelToDelete(modelId);
+        setShowDeleteModal(true);
+    };
+
+    const closeDeleteModal = () => {
+        setModelToDelete(null);
+        setShowDeleteModal(false);
+    };
+
+    const confirmDeleteModel = async () => {
+        if (modelToDelete) {
+            await deleteModel(modelToDelete);
+            setModelToDelete(null);
+            setShowDeleteModal(false);
+        }
+    };
+
     return (
         <Container fluid>
             <h1>All models</h1>
@@ -176,6 +196,14 @@ const AllModels: FC = () => {
                                                   placement="top">
                                         <CopyIcon/>
                                     </ActionButton>
+                                    {!(["ac-neuralnetwork", "ac-lightgbm", "ac-xgboost"].includes(model.modelId)) && (
+                                        <ActionButton onClick={() => openDeleteModal(model.modelId)}
+                                                      tooltip={`Delete ${model.modelId}`}
+                                                      id={`delete-tooltip-${model.modelId}`}
+                                                      placement="top">
+                                            <BsTrash/>
+                                        </ActionButton>
+                                    )}
                                 </div>
                             </div>
                         </td>
@@ -247,6 +275,23 @@ const AllModels: FC = () => {
                 <Modal.Footer>
                     <Button variant="secondary" onClick={handleCloseModal}>
                         Close
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showDeleteModal} onHide={closeDeleteModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Delete</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Are you sure you want to delete the model?
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={closeDeleteModal}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={confirmDeleteModel}>
+                        Delete
                     </Button>
                 </Modal.Footer>
             </Modal>

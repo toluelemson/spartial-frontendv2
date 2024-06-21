@@ -35,7 +35,7 @@ export interface Ac {
 
 async function makeApiRequest<T>(
     url: string,
-    method: 'get' | 'post' | 'put' = 'get',
+    method: 'get' | 'post' | 'put' | 'delete' = 'get',
     payload?: any,
     responseType: 'json' | 'blob' = 'json'
 ): Promise<T | null> {
@@ -48,6 +48,9 @@ async function makeApiRequest<T>(
             case 'put':
                 response = await axios.put<T>(url, payload, {responseType});
                 break;
+            case 'delete':
+                response = await axios.delete<T>(url, {data: payload, responseType});
+                break;
             default:
                 response = await axios.get<T>(url, {params: payload, responseType});
         }
@@ -57,6 +60,8 @@ async function makeApiRequest<T>(
         return null;
     }
 }
+
+export default makeApiRequest;
 
 export const requestAllReports = async () => {
     return makeApiRequest<Option[]>(`${LOCAL_URL}/api/reports`);
@@ -248,6 +253,7 @@ export const requestPredictedProbsModel = async (modelId: string) => {
 }
 export const requestBuildConfigModel = async (modelId: string) => {
     const response = await makeApiRequest<any>(`${LOCAL_URL}/api/models/${modelId}/build-config`);
+    console.log(response)
     return response.buildConfig
 }
 
@@ -663,11 +669,12 @@ export const fetchSHAPValues = async (modelId: string, labelIndex: number) => {
     return shapValues;
 }
 
-export const requestRetrainModelAC = async (modelId: string, trainingDataset: string, testingDataset: string) => {
+export const requestRetrainModelAC = async (modelId: string, trainingDataset: string, testingDataset: string, modelType: TODO) => {
 
     const url = `${LOCAL_URL}/api/ac/retrain`;
     const retrainACConfig = {
         "modelId": modelId,
+        "modelType": modelType,
         "datasetsConfig": {
             "trainingDataset": trainingDataset,
             "testingDataset": testingDataset,
@@ -695,3 +702,14 @@ export const requestRetrainModel = async (modelId: string, trainingDataset: stri
     return await makeApiRequest(url, 'post', {retrainADConfig});
 
 }
+
+export const deleteModel = async (modelId: string) => {
+    const url = `${LOCAL_URL}/api/models/${modelId}`;
+    const response = await makeApiRequest<{ result: string }>(url, 'delete');
+
+    if (response) {
+        console.log(response.result);
+    } else {
+        console.error('Failed to delete the model');
+    }
+};
