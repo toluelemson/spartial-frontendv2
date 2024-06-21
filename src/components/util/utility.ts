@@ -1,3 +1,4 @@
+import { requestBuildConfigModel } from "../../api";
 import {AC_OUTPUT_LABELS, AD_OUTPUT_LABELS, AD_OUTPUT_LABELS_XAI, HEADER_ACCURACY_STATS} from "../../constants";
 import fetchDataset from "./fetchDataset";
 
@@ -353,3 +354,8 @@ export function countLabels(dataset: any) {
 
     return labelsCount;
 }
+
+export const loadBuildConfig = async (modelId: string) => {
+    const buildConfig = await requestBuildConfigModel(modelId);
+    return transformConfigStrToTableData(buildConfig);
+};

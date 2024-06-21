@@ -12,7 +12,7 @@ import ModelSelection from "../Models/Comparison/ModelSelection";
 import CriteriaSelection from "../Models/Comparison/SelectionCriteria";
 import {CRITERIA_LIST} from "../../constants";
 import ModelRow from "../Models/Details/ModelRow";
-import {ModelListType} from "../../types/types";
+import {ModelListType, TODO} from "../../types/types";
 import PredictionsLoader from "../util/PredictiionLoader/PredictionLoader";
 import {requestAllModels} from "../../api";
 
@@ -21,6 +21,7 @@ import {ILIMEParametersState} from "../../types/LimeTypes";
 import SHAPTab from '../XAI/SHAPTab';
 import AdversatialTab from '../AdversarialML/AdversarialML';
 import ResilienceMetrics from '../ResiliienceMetrics/ResilienceMetrics';
+import {loadPredictionsData} from '../util/PredictiionLoader/PredictionLoaderUtil';
 
 
 const SpatialDashboard: React.FC = () => {
@@ -106,6 +107,10 @@ const SpatialDashboard: React.FC = () => {
         }
     }, [comparisonState.models, routeModelId]);
 
+    useEffect(() => {
+        combineLoad()
+    }, [comparisonState.selectedModelLeft, comparisonState.selectedModelRight, comparisonState.selectedCriteria]);
+
 
     useEffect(() => {
         const fetchAllModels = async () => {
@@ -121,11 +126,7 @@ const SpatialDashboard: React.FC = () => {
             }
         };
         fetchAllModels();
-    }, [state.modelId, routeModelId, comparisonState.selectedCriteria, comparisonState.selectedModelLeft, comparisonState.selectedModelRight, comparisonState.stats, comparisonState.dataStatsLeft, comparisonState.dataStatsRight]);
-
-    const updateComparisonState = (updates: Partial<ComparisonState>) => {
-        setComparisonState(prevState => ({...prevState, ...updates}));
-    };
+    }, [state.modelId, routeModelId, comparisonState.selectedCriteria, comparisonState.selectedModelLeft, comparisonState.selectedModelRight]);
 
     const handleCriteriaSelection = (criteria: { target: { value: any; }; }) => {
         setComparisonState(prevState => ({...prevState, selectedCriteria: criteria.target.value}))
@@ -139,9 +140,30 @@ const SpatialDashboard: React.FC = () => {
                 ...prevState,
                 ...(isLeft ? {selectedModelLeft: modelId} : {selectedModelRight: modelId})
             }));
-        } else {
-            updateComparisonState(isLeft ? {selectedModelLeft: null} : {selectedModelRight: null});
         }
+    };
+
+    const loadPredictions = async (model: string | null, isLeft: boolean) => {
+        if (!model) {
+            console.error(`Error: ${isLeft ? 'left' : 'right'} model is null or undefined.`);
+            return;
+        }
+        try {
+            const result = await loadPredictionsData(model, isLeft, 0.5);
+            console.log(isLeft ? "loadPredLeft" : "loadPredRight", result);
+            if (result) {
+                setComparisonState(prevState => ({...prevState, ...result}));
+            }
+        } catch (error) {
+            console.error(`Error loading ${isLeft ? 'left' : 'right'} predictions:`, error);
+        }
+    };
+
+    const loadPredLeft = () => loadPredictions(comparisonState.selectedModelLeft, true);
+    const loadPredRight = () => loadPredictions(comparisonState.selectedModelRight, false);
+
+    const combineLoad = async () => {
+        await Promise.all([loadPredLeft(), loadPredRight()]);
     };
 
 
@@ -172,12 +194,10 @@ const SpatialDashboard: React.FC = () => {
                                 <Tab eventKey="subtab2" title="SHAP">
                                     <SHAPTab state={state} updateState={setState}/>
                                 </Tab>
-                                <Tab eventKey="subtab3" title="ATTACKS">
-                                    <AdversatialTab state={state}/>
-                                </Tab>
-                                <Tab eventKey="subtab4" title="RESILIENCE">
-                                    <ResilienceMetrics modelId={routeModelId}/>
-                                </Tab>
+                                {!comparisonState.selectedModelLeft?.includes('at') &&
+                                    <Tab eventKey="subtab3" title="ATTACKS">
+                                        <AdversatialTab state={state}/>
+                                    </Tab>}
 
                             </Tabs>
                         </div>
@@ -187,34 +207,12 @@ const SpatialDashboard: React.FC = () => {
                     <Tab eventKey="tab8" title={"Configure Another Service"}>Configure Another Service</Tab>
                 )}
                 <Tab eventKey="tab1" title={"Compare"}>
-                    <ModelSelection models={filteredModels as any}
+                    <ModelSelection models={filteredModels as TODO}
                                     selectedModel={comparisonState.selectedModelRight || ''}
                                     handleModelSelection={handleModelSelection} label={" "}/>
                     <CriteriaSelection selectedCriteria={comparisonState.selectedCriteria}
                                        handleCriteriaSelection={handleCriteriaSelection} criteriaList={CRITERIA_LIST}/>
                     <div className="model-list">
-                        {comparisonState.selectedModelLeft &&
-                            <PredictionsLoader
-                                modelId={comparisonState.selectedModelLeft}
-                                isLeft={true}
-                                updateComparisonState={updateComparisonState}
-                                cutoffProb={comparisonState.cutoffProb}
-                            />
-                        }
-                        {
-                            comparisonState.selectedModelRight &&
-                            <PredictionsLoader
-                                modelId={comparisonState.selectedModelRight}
-                                isLeft={false}
-                                updateComparisonState={updateComparisonState}
-                                cutoffProb={comparisonState.cutoffProb}
-                            />
-                        }
-                        {/*{*/}
-                        {/*    comparisonState.selectedModelLeft &&*/}
-                        {/*    <LimeComparisonLoader state={state} selectedModelId={comparisonState.selectedModelLeft}*/}
-                        {/*                          isLeft={true} updateComparisonState={updateComparisonState}/>*/}
-                        {/*}*/}
                         <div className="model-list">
                             <ModelRow state={comparisonState}/>
                         </div>
