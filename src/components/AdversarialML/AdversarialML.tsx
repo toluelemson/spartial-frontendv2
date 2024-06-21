@@ -1,12 +1,17 @@
-import React, {ChangeEvent, useEffect, useRef, useState} from 'react';
+import React, {ChangeEvent, ChangeEventHandler, useEffect, useRef, useState} from 'react';
+import {useNavigate} from "react-router-dom";
 import {Button, Container, Form, Row, Col, Card, Badge, Spinner} from "react-bootstrap";
-import {countLabels, extractLabelsFromDataset} from "../util/utility";
-import {requestAttackStatus, requestPerformAttack} from '../../api';
+import {countLabels, extractLabelsFromDataset, loadBuildConfig} from "../util/utility";
+import {
+    requestAttackStatus, requestAttacksDatasets,
+    requestPerformAttack, requestRetrainModelAC, requestRetrainStatusAC
+} from '../../api';
 import RandomSampleChart from '../Datasets/RslChart';
 import AttackBarChart from '../Datasets/AttackBarChart';
 import TooltipComponent from '../util/TooltipComponent/TooltipComponentProps';
-import {TODO} from '../../types/types';
+import {RetrainStatus, TODO} from '../../types/types';
 import fetchDataset from '../util/fetchDataset';
+import {ATTACK_DATASETS_MAPPING} from '../../constants';
 
 interface FormData {
     modelId: string;
@@ -24,6 +29,7 @@ interface DatasetLabelColumn {
 }
 
 const AdversarialTab: React.FC<any> = ({state}) => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState<FormData>({
         modelId: state.modelId,
         poisoningRate: 0,
@@ -32,58 +38,92 @@ const AdversarialTab: React.FC<any> = ({state}) => {
         targetClass: 0,
     });
 
-    const [formErrors, setFormErrors] = useState<{ poisoningRate: string }>({
-        poisoningRate: '',
-    });
-
+    const [formErrors, setFormErrors] = useState<{ poisoningRate: string }>({poisoningRate: ''});
     const [attackStatus, setAttackStatus] = useState({isLoading: false, isRunning: false, error: ''});
     const [originalDatasetLabels, setOriginalDatasetLabels] = useState<string[]>([]);
     const [combinedDatasetLabels, setCombinedDatasetLabels] = useState<DatasetLabelColumn[]>([]);
     const [poisonedDataset, setPoisonedDataset] = useState<any>(null);
     const [normalDataset, setNormalDataset] = useState<any>(null);
+    const [retrainId, setRetrainId] = useState<any>(null);
+    const [attackDatasets, setAttackDatasets] = useState<TODO[]>([]);
 
-    // const { originalDataset } = useFetchDataset(formData.modelId, "train");
+    useEffect(() => {
+        if (retrainId && !attackStatus.isRunning && !attackStatus.isLoading) {
+            pollRetrainStatus();
+            navigate(`/models/all`);
+            // navigate(`/spatial/dashboard/${retrainId}`)
+
+        }
+    }, [retrainId, attackStatus.isLoading, attackStatus.isRunning]);
+
+    useEffect(() => {
+        const fetchRequestDatasets = async () => {
+            try {
+                const attackDatasets = await requestAttacksDatasets(formData.modelId);
+                setAttackDatasets(attackDatasets);
+            } catch (error) {
+                console.error("Failed to fetch models:", error);
+            }
+        };
+        fetchRequestDatasets();
+    }, [formData.attackType, formData.modelId]);
+
+    const retrain = async () => {
+        const testingDataset = "Test_samples.csv";
+        const trainingDataset = formData.attackType === 'rsl' ? 'rsl_poisoned_dataset.csv' : 'tlf_poisoned_dataset.csv';
+
+        const buildConfigResult = await loadBuildConfig(formData.modelId);
+        const modelType = buildConfigResult.find(config => config.parameter === "modelType")?.value;
+
+        if (modelType) {
+            await requestRetrainModelAC(formData.modelId, trainingDataset, testingDataset, modelType);
+            pollRetrainStatus();
+        }
+    };
+
+    const pollRetrainStatus = async () => {
+        try {
+            const statusRes = await requestRetrainStatusAC() as RetrainStatus;
+            handleRetrainStatus(statusRes);
+        } catch (error) {
+            console.error("Failed to fetch retrain status:", error);
+        }
+    };
+
+    const handleRetrainStatus = (statusRes: RetrainStatus) => {
+        const retrainId = statusRes.retrainStatus.lastRetrainId;
+        setRetrainId(retrainId);
+    };
 
     const fetchPoisonedDataset = async () => {
         const {poisonedDataset} = await fetchDataset(true, formData.modelId, formData.attackType);
         const {originalDataset} = await fetchDataset(false, formData.modelId, "");
         setPoisonedDataset(poisonedDataset);
         setNormalDataset(originalDataset);
-
     };
 
     const fetchAttackStatus = async () => {
-        setAttackStatus(prev => ({...prev, isLoading: true, isRunning: true}));
+        setAttackStatus({isLoading: true, isRunning: true, error: ''});
 
         let retryCount = 0;
-        const maxRetries = 20; // Define the maximum number of retries (e.g., 20 times, which is 1 minute if interval is 3000 ms)
+        const maxRetries = 20;
 
         const intervalId = setInterval(async () => {
             retryCount += 1;
 
             try {
                 const statusRes = await requestAttackStatus();
-                if (!statusRes.isRunning) {
+                if (!statusRes.isRunning || retryCount >= maxRetries) {
                     clearInterval(intervalId);
-                    setAttackStatus(prev => ({...prev, isLoading: false, isRunning: false, error: ''}));
-                } else if (retryCount >= maxRetries) {
-                    clearInterval(intervalId);
-                    setAttackStatus(prev => ({
-                        ...prev,
+                    setAttackStatus({
                         isLoading: false,
                         isRunning: false,
-                        error: 'Performing Attack timed out'
-                    }));
+                        error: retryCount >= maxRetries ? 'Performing Attack timed out' : ''
+                    });
                 }
             } catch (statusError) {
-                console.error('Failed to check attack status:', statusError);
                 clearInterval(intervalId);
-                setAttackStatus(prev => ({
-                    ...prev,
-                    isLoading: false,
-                    isRunning: false,
-                    error: 'Failed to check attack status'
-                }));
+                setAttackStatus({isLoading: false, isRunning: false, error: 'Failed to check attack status'});
             }
         }, 3000);
     };
@@ -105,35 +145,30 @@ const AdversarialTab: React.FC<any> = ({state}) => {
                 datasets: poisonedDataset?.resultData,
             });
 
-            console.log(labelsFromPoisonedDataset);
-
             const originalDataCounts = countLabels(normalDataset?.resultData || []);
             const poisonedDataCounts = countLabels(poisonedDataset?.resultData || []);
 
-            const originalLabels = labelsFromOriginalDataset.map(label => ({
-                datasetType: 'original',
-                classLabels: label,
-                count: originalDataCounts.get(label) || 0,
-                value: 100,
-            }));
+            const combinedLabels = [
+                ...labelsFromOriginalDataset.map(label => ({
+                    datasetType: 'original',
+                    classLabels: label,
+                    count: originalDataCounts.get(label) || 0,
+                    value: 100,
+                })),
+                ...labelsFromPoisonedDataset.map(label => ({
+                    datasetType: 'poisoned',
+                    classLabels: label,
+                    count: poisonedDataCounts.get(label) || 0,
+                    value: 100,
+                }))
+            ];
 
-            const poisonedLabels = labelsFromPoisonedDataset.map(label => ({
-                datasetType: 'poisoned',
-                classLabels: label,
-                count: poisonedDataCounts.get(label) || 0,
-                value: 100,
-            }));
-
-            const combinedLabels = [...originalLabels, ...poisonedLabels];
             setCombinedDatasetLabels(combinedLabels);
         }
     };
 
     useEffect(() => {
-        const fetchData = async () => {
-            await loadLabels();
-        }
-        fetchData();
+        loadLabels();
     }, [formData.modelId, attackStatus.isLoading, attackStatus.isRunning, formData.attackType]);
 
     const prevAttacksStatusIsRunningRef = useRef<boolean | undefined>(undefined);
@@ -143,9 +178,10 @@ const AdversarialTab: React.FC<any> = ({state}) => {
             console.log('State isRunning has been changed from true to false');
         }
         prevAttacksStatusIsRunningRef.current = attackStatus.isLoading;
-    }, [attackStatus.isLoading, attackStatus.isRunning]);
+    }, [attackStatus.isLoading]);
 
-    const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement> | ChangeEvent<TODO>) => {
+    const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | any>
+    ) => {
         const {name, value} = event.target;
         let error = '';
         let newValue: any = value;
@@ -177,14 +213,10 @@ const AdversarialTab: React.FC<any> = ({state}) => {
         try {
             await requestPerformAttack(formData);
             fetchAttackStatus();
+            retrain();
         } catch (error) {
             console.error('Failed to perform attack:', error);
-            setAttackStatus(prev => ({
-                ...prev,
-                isLoading: false,
-                isRunning: false,
-                error: 'Failed to perform attack'
-            }));
+            setAttackStatus({isLoading: false, isRunning: false, error: 'Failed to perform attack'});
         }
     };
 
@@ -219,24 +251,22 @@ const AdversarialTab: React.FC<any> = ({state}) => {
                                     )}
                                 </Form.Group>
                                 <Form.Group as={Row} className="mb-4" controlId="attackType">
-                                    <>
-                                        <Form.Label column sm={4} className="text-secondary">
-                                            Attack Type
-                                        </Form.Label>
-                                        <Col sm={8}>
-                                            <Form.Select
-                                                name="attackType"
-                                                value={formData.attackType}
-                                                onChange={handleInputChange}
-                                                required
-                                                className="shadow-sm"
-                                            >
-                                                <option value="">Select an attack...</option>
-                                                <option value="tlf">TLF - Target Label Flipping</option>
-                                                <option value="rsl">RSL - Random Sampling Labels</option>
-                                            </Form.Select>
-                                        </Col>
-                                    </>
+                                    <Form.Label column sm={4} className="text-secondary">
+                                        Attack Type
+                                    </Form.Label>
+                                    <Col sm={8}>
+                                        <Form.Select
+                                            name="attackType"
+                                            value={formData.attackType}
+                                            onChange={handleInputChange}
+                                            required
+                                            className="shadow-sm"
+                                        >
+                                            <option value="">Select an attack...</option>
+                                            <option value="tlf">TLF - Target Label Flipping</option>
+                                            <option value="rsl">RSL - Random Swapping Labels</option>
+                                        </Form.Select>
+                                    </Col>
                                 </Form.Group>
                                 {formData.attackType === "tlf" && (
                                     <Row className="g-3">
@@ -247,10 +277,8 @@ const AdversarialTab: React.FC<any> = ({state}) => {
                                                     <TooltipComponent
                                                         message="Enter the class number from which samples will be generated or manipulated. This setting is crucial for generating adversarial samples or testing the model's robustness against data corruption."
                                                     >
-                                                        <i
-                                                            className="bi bi-info-circle ms-2"
-                                                            style={{cursor: "pointer"}}
-                                                        ></i>
+                                                        <i className="bi bi-info-circle ms-2"
+                                                           style={{cursor: "pointer"}}></i>
                                                     </TooltipComponent>
                                                 </Form.Label>
                                                 <Form.Control
@@ -270,9 +298,7 @@ const AdversarialTab: React.FC<any> = ({state}) => {
                                     variant="primary"
                                     type="submit"
                                     className="mt-3"
-                                    disabled={
-                                        formData.poisoningRate === 0 || attackStatus.isLoading
-                                    }
+                                    disabled={formData.poisoningRate === 0 || attackStatus.isLoading}
                                 >
                                     {attackStatus.isLoading
                                         ? "Performing Attack..."
@@ -332,6 +358,6 @@ const AdversarialTab: React.FC<any> = ({state}) => {
             </Row>
         </Container>
     );
-}
+};
 
 export default AdversarialTab;
