@@ -56,6 +56,14 @@ const AllModels: FC = () => {
         return filterPrefix !== 'compare'
             ? models && models.filter(model => model.modelId.toLowerCase().startsWith(filterPrefix))
             : models;
+
+        return filtered && filtered
+            .filter(model => model.lastBuildAt)
+            .sort((a, b) => {
+                const dateA = new Date(a.lastBuildAt).getTime();
+                const dateB = new Date(b.lastBuildAt).getTime();
+                return dateB - dateA;
+            });
     }, [models, filterPrefix]);
 
     const handleCheckboxChange = (modelId: string, isChecked: boolean) => {
