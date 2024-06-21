@@ -1,22 +1,27 @@
 import React, {useEffect, useMemo, useState} from "react";
-import { Button, Col, Container, Form, InputGroup, Row } from "react-bootstrap";
+import {useNavigate} from "react-router-dom";
+import {Button, Col, Container, Form, InputGroup, Row, Spinner} from "react-bootstrap";
 import {FEATURE_OPTIONS, AI_MODEL_TYPES} from "../../../constants";
 import {useSpatialContext} from "../../../context/context";
-import { requestBuildACModel } from "../../../api";
-import useCheckBuildStatus from "../../util/useCheckBuildStatus";
+import {requestBuildACModel} from "../../../api";
+import CheckBuildStatusUtil from "../../util/CheckBuildStatusUtil";
 
 interface FormState {
     serviceType: string;
     modelType: string;
     featureList: string;
     trainingRatio: number;
-    dataSet: string
+    dataSet: string;
 }
 
 const BuildACModelForm: React.FC = () => {
-
-    const { acDataset} = useSpatialContext();
-    const [{buildStatusStatex, updateBuildStatus}] = useCheckBuildStatus();
+    const {acDataset} = useSpatialContext();
+    const navigate = useNavigate();
+    const onSuccess = (buildId: string | number) => {
+        // navigate(`/models/all`);
+        navigate(`/spatial/dashboard/${buildId}`);
+    };
+    const {updateBuildStatus, isRunning} = CheckBuildStatusUtil(onSuccess);
 
     const initialFormData: FormState = useMemo(() => ({
         modelType: '',
@@ -27,31 +32,29 @@ const BuildACModelForm: React.FC = () => {
     }), []);
     const [formData, setFormData] = useState<FormState>(initialFormData);
     const [isFormValid, setIsFormValid] = useState(false);
-    const [isLoading, setIsLoading] = useState(true)
+    const [isLoading, setIsLoading] = useState(true);
+    const [isBuilding, setIsBuilding] = useState(false); // New state for managing the building process
 
 
     useEffect(() => {
         if (acDataset && acDataset.datasets) {
-            // setAcDatasetState(acDataset.datasets);
             setIsLoading(false);
         }
     }, [acDataset, isLoading]);
 
     useEffect(() => {
-
-        const isAnyFieldEmpty = Object.values(formData).some((value) => value === null);
+        const isAnyFieldEmpty = Object.values(formData).some((value) => value === null || value === '');
         setIsFormValid(!isAnyFieldEmpty);
-    }, [formData])
-
+    }, [formData]);
 
     const inputGroups = useMemo(() => [
-         {
+        {
             label: 'Service Type:',
             name: 'serviceType',
             type: 'select',
             value: formData.serviceType,
             placeholder: 'Select Service Type...',
-            options:  ["Network Traffic"]
+            options: ["Network Traffic"]
         },
         {
             label: 'Model Type:',
@@ -85,14 +88,12 @@ const BuildACModelForm: React.FC = () => {
             placeholder: '',
         }
     ], [formData, acDataset]);
-
     const handleInputChange = (
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
-        const { name, value } = event.target;
-        setFormData(prevFormData => ({ ...prevFormData, [name]: value }));
+        const {name, value} = event.target;
+        setFormData(prevFormData => ({...prevFormData, [name]: value}));
     };
-
     const handleBuildACModelSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (!isFormValid) {
@@ -100,13 +101,13 @@ const BuildACModelForm: React.FC = () => {
             return;
         }
 
-        const { modelType, featureList, dataSet, trainingRatio } = formData;
+        const {modelType, featureList, dataSet, trainingRatio} = formData;
 
+        setIsBuilding(true);
         try {
             const response = await requestBuildACModel(modelType, dataSet, featureList, trainingRatio);
-
-            if (response && !buildStatusStatex?.isRunning) {
-                updateBuildStatus()
+            if (response) {
+                updateBuildStatus();
             } else {
                 console.log('Response is null or undefined');
             }
@@ -114,6 +115,8 @@ const BuildACModelForm: React.FC = () => {
         } catch (error) {
             alert("Failed to build the model. Please try again.");
             console.error(error);
+        } finally {
+            setIsBuilding(false);
         }
     };
 
@@ -156,8 +159,16 @@ const BuildACModelForm: React.FC = () => {
                                 )}
                             </InputGroup>
                         ))}
-                        <Button variant="primary mt-3" type="submit" disabled={!isFormValid}>
-                            Build Model
+                        <Button variant="primary mt-3" type="submit" disabled={!isFormValid || isBuilding || isRunning}>
+                            {(isBuilding || isRunning) ? (
+                                <>
+                                    <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true"
+                                             className="me-2"/>
+                                    {(isBuilding ? "Building..." : "Checking Status...")}
+                                </>
+                            ) : (
+                                "Build Model"
+                            )}
                         </Button>
                     </Form>
                 </Col>
