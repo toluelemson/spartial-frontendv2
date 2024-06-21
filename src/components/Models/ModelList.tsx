@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useMemo, FC, useRef} from 'react';
+import React, {useState, useCallback, useMemo, FC, useRef, useEffect} from 'react';
 import {
     Button,
     Table,
@@ -15,20 +15,16 @@ import {useSpatialContext} from "../../context/context";
 import {ModelData, ModelListType} from "../../types/types";
 import {ConvertTimeStamp} from "../util/utility";
 import ActionButton from "../util/ActionButton";
-import {requestDownloadDatasets, requestDownloadModel, requestUpdateModel} from "../../api";
+import {requestDownloadDatasets, requestDownloadModel, deleteModel, requestAllModels} from "../../api";
 import {To, useNavigate} from "react-router-dom";
 
-
 const AllModels: FC = () => {
-
     const navigate = useNavigate();
-
-    const {allModel} = useSpatialContext();
-    const models = useMemo(() => allModel as ModelListType | null, [allModel]);
+    const {allModel, setAllModel} = useSpatialContext(); // Assuming setAllModel is available in context to update the state
+    const [models, setModels] = useState<ModelListType | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [selectedModel, setSelectedModel] = useState<ModelData | null>(null);
     const [selectedModels, setSelectedModels] = useState<string[]>([]);
-    // const [isEditable, setIsEditable] = useState(false);
     const [editableModelId, setEditableModelId] = useState<string | null>(null);
     const [newModelId, setNewModelId] = useState<string>("");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -36,24 +32,29 @@ const AllModels: FC = () => {
 
     const editableDivRefs = useRef<{ [key: string]: HTMLDivElement }>({});
 
-
     const toggleEdit = (modelId: string) => {
         const isCurrentModelEditable = editableModelId === modelId;
         setEditableModelId(isCurrentModelEditable ? null : modelId);
-
 
         setTimeout(() => {
             if (!isCurrentModelEditable && editableDivRefs.current[modelId]) {
                 editableDivRefs.current[modelId].focus();
             }
         }, 0);
-
     };
 
     const [filterPrefix, setFilterPrefix] = useState<string>('compare');
 
+    useEffect(() => {
+        const fetchModels = async () => {
+            const updatedModels = await requestAllModels();
+            setAllModel(updatedModels);
+            setModels(updatedModels);
+        };
+        fetchModels();
+    }, [allModel]);
     const filteredModels = useMemo(() => {
-        return filterPrefix !== 'compare'
+        const filtered = filterPrefix !== 'compare'
             ? models && models.filter(model => model.modelId.toLowerCase().startsWith(filterPrefix))
             : models;
 
@@ -65,7 +66,6 @@ const AllModels: FC = () => {
                 return dateB - dateA;
             });
     }, [models, filterPrefix]);
-
     const handleCheckboxChange = (modelId: string, isChecked: boolean) => {
         setSelectedModels(prev => {
             if (isChecked) {
@@ -96,14 +96,14 @@ const AllModels: FC = () => {
     }, []);
 
     const handleDownload = (modelId: string) => {
-        requestDownloadModel(modelId).catch(e => console.log(e))
-    }
+        requestDownloadModel(modelId).catch(e => console.log(e));
+    };
 
     const handleDownloadDataset = (modelId: string, datasetType: string) => {
-        requestDownloadDatasets(modelId, datasetType).catch(e => console.log(e))
-    }
+        requestDownloadDatasets(modelId, datasetType).catch(e => console.log(e));
+    };
 
-    function handleCopy(modelId: string) {
+    const handleCopy = (modelId: string) => {
         navigator.clipboard.writeText(modelId)
             .then(() => {
                 console.log('Text copied to clipboard');
@@ -111,7 +111,7 @@ const AllModels: FC = () => {
             .catch(err => {
                 console.error('Failed to copy text: ', err);
             });
-    }
+    };
 
     const handleCloseModal = () => {
         setShowModal(false);
@@ -155,7 +155,6 @@ const AllModels: FC = () => {
             <Table striped bordered hover responsive className="align-middle mt-3">
                 <thead>
                 <tr>
-                    <th style={{width: '5%'}}>Select</th>
                     <th>Model Id</th>
                     <th>Built At</th>
                     <th>Training Dataset</th>
@@ -166,12 +165,6 @@ const AllModels: FC = () => {
                 <tbody>
                 {filteredModels?.map(model => (
                     <tr key={model.modelId}>
-                        <td>
-                            <input
-                                type="checkbox"
-                                onChange={(e) => handleCheckboxChange(model.modelId, e.target.checked)}
-                            />
-                        </td>
                         <td>
                             <div className="d-flex flex-column flex-lg-row align-items-center">
                                 <div ref={el => editableDivRefs.current[model.modelId] = el as HTMLDivElement}
@@ -263,10 +256,6 @@ const AllModels: FC = () => {
                 ))}
                 </tbody>
             </Table>
-
-            <div className="my-3">
-                <Button variant="danger">Delete All Models</Button>
-            </div>
             <Pagination>
                 <Pagination.Prev/>
                 <Pagination.Item active>{1}</Pagination.Item>
