@@ -23,6 +23,7 @@ type Config = {
 export type BuildStatusType = {
     isRunning: boolean | null;
     lastBuildAt: number | null;
+    lastBuildId: string | null;
     buildStatus: any,
     config: Config;
 }
@@ -53,4 +54,11 @@ export type XAIStatusType = {
     lastBuildAt: number | null;
     buildStatus: any,
     config: Config;
+}
+
+export interface RetrainStatus {
+    retrainStatus: {
+        lastRetrainId: string;
+        isRunning: boolean;
+    };
 }

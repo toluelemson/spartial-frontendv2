@@ -10,27 +10,11 @@ import {
 } from "chart.js";
 import ConfusionMatrix from "../ConfusionMatrix";
 import {extractLabelsFromDataset} from "../../util/utility";
-
 import FairnessComparator from "../../Services/Fairness/FairnessComparer";
-
 import ModelPerformanceCompare from "../ModelPerformanceCompare";
-import { TableSection } from "../Tables/TableSection";
-
 import CSVComparator from "../Comparison/CSVComparator";
 import useFetchModelDataset from "../../Datasets/useFetchDataset";
-
-
-interface ConfigParameter {
-    parameter: string;
-    value: string;
-}
-
-export const DataParameterRow: React.FC<{ data: ConfigParameter }> = ({data}) => (
-    <tr>
-        <td>{data.parameter}</td>
-        <td>{data.value}</td>
-    </tr>
-);
+import ModelBuildConfigCompare from "./ModelBuildConfigCompare";
 
 
 ChartJS.register(
@@ -42,30 +26,6 @@ ChartJS.register(
     Legend
 );
 
-const ModelBuildConfigCompare: React.FC<{
-    dataBuildConfigLeft: ConfigParameter[],
-    dataBuildConfigRight: ConfigParameter[]
-}> = ({
-          dataBuildConfigLeft,
-          dataBuildConfigRight,
-      }) => (
-    <div className="row">
-        <div className="col">
-            <TableSection title="Configuration" columns={[""]}>
-                {dataBuildConfigLeft.map((d, index) => (
-                    <DataParameterRow key={`left-${index}`} data={d}/>
-                ))}
-            </TableSection>
-        </div>
-        {/*<div className="col">*/}
-        {/*    <TableSection title="Configuration" columns={[""]}>*/}
-        {/*        {dataBuildConfigRight.map((d, index) => (*/}
-        {/*            <DataParameterRow key={`right-${index}`} data={d}/>*/}
-        {/*        ))}*/}
-        {/*    </TableSection>*/}
-        {/*</div>*/}
-    </div>
-);
 
 
 const ModelRow: React.FC<any> = ({state}) => {
@@ -150,7 +110,7 @@ const ModelRow: React.FC<any> = ({state}) => {
                 <ConfusionMatrix cmConfigLeft={cmConfigLeft} cmConfigRight={cmConfigRight}/>
             )}
 
-            {selectedCriteria === "Result" && <CSVComparator/>}
+            {selectedCriteria === "XAI Result" && <CSVComparator/>}
             {selectedCriteria === "Fairness" && <FairnessComparator/>}
         </div>
     );

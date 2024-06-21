@@ -1,4 +1,3 @@
-import { DataParameterRow } from "../Details/ModelRow";
 import { TableSection } from "../Tables/TableSection";
 
 interface ConfigParameter {
@@ -6,6 +5,12 @@ interface ConfigParameter {
     value: string;
 }
 
+export const DataParameterRow: React.FC<{ data: ConfigParameter }> = ({data}) => (
+    <tr>
+        <td>{data.parameter}</td>
+        <td>{data.value}</td>
+    </tr>
+);
 
 const ModelBuildConfigCompare: React.FC<{
     dataBuildConfigLeft: ConfigParameter[],
@@ -31,3 +36,4 @@ const ModelBuildConfigCompare: React.FC<{
         </div>
     </div>
 );
+export default ModelBuildConfigCompare;
