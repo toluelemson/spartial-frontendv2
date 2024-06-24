@@ -113,6 +113,28 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          try {
+            const json = JSON.parse(event.target.result as string);
+            setFormData((prevData) => ({
+              ...prevData,
+              dat: json.dat || "",
+              hea: json.hea || "",
+            }));
+          } catch (error) {
+            console.error("Invalid JSON file:", error);
+          }
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
   const stripPrefix = (id: string) => {
     const prefixMatch = id.match(/^[a-z]+-/);
     return prefixMatch ? id.replace(prefixMatch[0], "") : id;
@@ -121,10 +143,11 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
   const removeHTMLTags = (str: string): string => {
     return str.replace(/<\/?[^>]+(>|$)/g, "");
   };
+
   const fetchExplanations = async () => {
     try {
       const rolePromises = roles.map((role) =>
-        descriptionECGSignal(role, formData.cut_classification_window)
+        descriptionECGSignal(role, "true")
           .then((response) => {
             if (response) {
               return {
@@ -163,6 +186,27 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
               error
             );
             return { [`${role}_tickImportance`]: "Error fetching description" };
+          }),
+        descriptionECGSignal(role, "false")
+          .then((response) => {
+            if (response) {
+              return {
+                [`${role}_CLASSdescription`]: removeHTMLTags(
+                  response.description
+                ),
+              };
+            } else {
+              console.error(`Invalid response format for ${role} description`);
+              return {
+                [`${role}_CLASSdescription`]: "No description available",
+              };
+            }
+          })
+          .catch((error) => {
+            console.error(`Error fetching ${role} description:`, error);
+            return {
+              [`${role}_CLASSdescription`]: "Error fetching description",
+            };
           }),
         descriptionTimeImportance(formData.cut_classification_window, role)
           .then((response) => {
@@ -289,19 +333,22 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
             submissionData.dat,
             submissionData.hea,
             strippedModelId,
-            formData.ignore_cached_relevances
+            "false"
+            // formData.ignore_cached_relevances
           ),
           GradientSHAP_TIME_Visualize(
             submissionData.dat,
             submissionData.hea,
             strippedModelId,
-            formData.ignore_cached_relevances
+            "false"
+            // formData.ignore_cached_relevances
           ),
           DeepSHAP_TIME_Visualize(
             submissionData.dat,
             submissionData.hea,
             strippedModelId,
-            formData.ignore_cached_relevances
+            "false"
+            // formData.ignore_cached_relevances
           ),
         ]),
         Promise.all([
@@ -309,19 +356,22 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
             submissionData.dat,
             submissionData.hea,
             strippedModelId,
-            formData.ignore_cached_relevances
+            "false"
+            // formData.ignore_cached_relevances
           ),
           GradientSHAP_TICK_Visualize(
             submissionData.dat,
             submissionData.hea,
             strippedModelId,
-            formData.ignore_cached_relevances
+            "false"
+            // formData.ignore_cached_relevances
           ),
           DeepSHAP_TICK_Visualize(
             submissionData.dat,
             submissionData.hea,
             strippedModelId,
-            formData.ignore_cached_relevances
+            "false"
+            // formData.ignore_cached_relevances
           ),
         ]),
         Promise.all([
@@ -329,19 +379,22 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
             submissionData.dat,
             submissionData.hea,
             strippedModelId,
-            formData.ignore_cached_relevances
+            "false"
+            // formData.ignore_cached_relevances
           ),
           GradientSHAP_LEAD_Visualize(
             submissionData.dat,
             submissionData.hea,
             strippedModelId,
-            formData.ignore_cached_relevances
+            "false"
+            // formData.ignore_cached_relevances
           ),
           DeepSHAP_LEAD_Visualize(
             submissionData.dat,
             submissionData.hea,
             strippedModelId,
-            formData.ignore_cached_relevances
+            "false"
+            // formData.ignore_cached_relevances
           ),
         ]),
       ]);
@@ -434,7 +487,7 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
 
                   <Form.Group className="mb-3">
                     <Form.Label htmlFor="cut_classification_window">
-                      Cut Classification Window:
+                      Show Cut Classification Window:
                     </Form.Label>
                     <InputGroup>
                       <Form.Select
@@ -444,29 +497,18 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                         onChange={handleInputChange}
                         value={formData.cut_classification_window}
                       >
-                        <option value="--">--</option>
                         <option value="true">True</option>
                         <option value="false">False</option>
                       </Form.Select>
                     </InputGroup>
                   </Form.Group>
                   <Form.Group className="mb-3">
-                    <Form.Label htmlFor="ignore_cached_relevances">
-                      Ignore Cached Relevances:
-                    </Form.Label>
-                    <InputGroup>
-                      <Form.Select
-                        multiple={false}
-                        name="ignore_cached_relevances"
-                        className="form-select"
-                        onChange={handleInputChange}
-                        value={formData.ignore_cached_relevances}
-                      >
-                        <option value="--">--</option>
-                        <option value="true">True</option>
-                        <option value="false">False</option>
-                      </Form.Select>
-                    </InputGroup>
+                    <Form.Label>Upload ECG Signal (JSON File):</Form.Label>
+                    <Form.Control
+                      type="file"
+                      accept=".json"
+                      onChange={handleFileUpload}
+                    />
                   </Form.Group>
                   <Form.Group className="mb-3">
                     <Form.Label>Dat:</Form.Label>
@@ -894,8 +936,6 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                           <p className="">
                             Lead importance image not available.
                           </p>
-                          // due to timeout
-                          // issue.
                         )}
                       </Card.Body>
                     </Card>
@@ -911,19 +951,6 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                   <Card.Body>
                     <h3>ECG Segments:</h3>
                     {loading && <SpinnerComponent />}
-                    {/* {result2 && (
-                      <>
-                        <div className="border p-3">
-                          <img
-                            src={result2}
-                            width="500"
-                            height="250"
-                            alt="Result Image"
-                            className="img-fluid"
-                          />
-                        </div>
-                      </>
-                    )} */}
                     {!loading && (
                       <>
                         {result2 ? (
@@ -951,17 +978,6 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                   <Card.Body>
                     <h3>Explanation:</h3>
                     {loading && <SpinnerComponent />}
-                    {/* {explanations[`${userRole}_description`] && (
-                      <div className="border p-3">
-                        <p>{explanations[`${userRole}_description`]}</p>
-                        <LlamaParaphrase
-                          explanation={
-                            explanations[`${userRole}_description`] || ""
-                          }
-                          userRole={userRole}
-                        />
-                      </div>
-                    )} */}
                     {explanations[`${userRole}_description`] ? (
                       <>
                         {" "}
@@ -991,7 +1007,6 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                     <h3>ECG Classification:</h3>
                     {loading && <SpinnerComponent />}
                     {result1 ? (
-                      // {result1 && (
                       <div className="border p-3">
                         <img
                           src={result1}
@@ -1000,7 +1015,6 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                         />
                       </div>
                     ) : (
-                      // )}
                       <p className="">
                         ECG classification image not available.
                       </p>
@@ -1019,22 +1033,19 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                   <Card.Body>
                     <h3>Explanation:</h3>
                     {loading && <SpinnerComponent />}
-                    {/* {explanations[`${userRole}_ECGClassification`] && ( */}
-                    {explanations[`${userRole}_ECGClassification`] ? (
+                    {explanations[`${userRole}_CLASSdescription`] ? (
                       <div className="border p-3">
-                        <p>{explanations[`${userRole}_ECGClassification`]}</p>
+                        <p>{explanations[`${userRole}_CLASSdescription`]}</p>
                         <LlamaParaphrase
                           explanation={
-                            explanations[`${userRole}_ECGClassification`] || ""
+                            explanations[`${userRole}_CLASSdescription`] || ""
                           }
                           userRole={userRole}
                         />
                       </div>
                     ) : (
-                      // )}
                       <p className="">Explanation not available.</p>
                     )}
-                    {/* )} */}
                   </Card.Body>
                 </Card>{" "}
               </Col>
@@ -1048,28 +1059,19 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                   <Card.Body>
                     <h3>Confusion Matrix:</h3>
                     {loading && <SpinnerComponent />}
-                    {/* <br /> <br /> */}
-                    {/* {evaluationData && ( */}
                     {evaluationData ? (
                       <>
                         <br /> <br />
                         <div className="confusion-matrix">
                           <div className="header">True Class</div>
                           <div className="side-label">Predicted Class</div>
-                          {/* <div className="cell"></div>
-                        <div className="cell">Positive</div>
-                        <div className="cell">Negative</div>
-                        <div className="cell">Positive</div> */}
                           <div className="cell tp">tp: {evaluationData.tp}</div>
                           <div className="cell fp">fp: {evaluationData.fp}</div>
-
-                          {/* <div className="cell">Negative</div> */}
                           <div className="cell fn">fn: {evaluationData.fn}</div>
                           <div className="cell tn">tn: {evaluationData.tn}</div>
                         </div>
                       </>
                     ) : (
-                      // )}
                       <p className="">
                         Confusion matrix details not available.
                       </p>
@@ -1110,7 +1112,6 @@ export const ECGAnalysis: React.FC<InsertECGProps> = ({
                         </tbody>
                       </table>
                     ) : (
-                      // )}
                       <p className="">Performance details not available.</p>
                     )}
                   </Card.Body>

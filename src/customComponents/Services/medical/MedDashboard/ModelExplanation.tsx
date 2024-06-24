@@ -45,6 +45,28 @@ export const ModelExplanation: React.FC<InsertECGProps> = ({
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          try {
+            const json = JSON.parse(event.target.result as string);
+            setFormData((prevData) => ({
+              ...prevData,
+              dat: json.dat || "",
+              hea: json.hea || "",
+            }));
+          } catch (error) {
+            console.error("Invalid JSON file:", error);
+          }
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
   const stripPrefix = (id: string) => {
     const prefixMatch = id.match(/^[a-z]+-/);
     return prefixMatch ? id.replace(prefixMatch[0], "") : id;
@@ -72,8 +94,7 @@ export const ModelExplanation: React.FC<InsertECGProps> = ({
         setResult(response.xai_method);
         const formattedResult = `${response.shape}`;
         setResult2(formattedResult);
-        setExplanations(response.explanations);
-        // visualizeECG(response); // Removed this line
+        setExplanations(response);
       } else {
         console.error("Invalid response format for API:", response);
       }
@@ -142,6 +163,14 @@ export const ModelExplanation: React.FC<InsertECGProps> = ({
                     </InputGroup>
                   </Form.Group>
                   <Form.Group className="mb-3">
+                    <Form.Label>Upload ECG Signal (JSON File):</Form.Label>
+                    <Form.Control
+                      type="file"
+                      accept=".json"
+                      onChange={handleFileUpload}
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
                     <Form.Label>Dat:</Form.Label>
                     <Form.Control
                       as="textarea"
@@ -192,7 +221,7 @@ export const ModelExplanation: React.FC<InsertECGProps> = ({
                       <Button
                         variant="secondary"
                         onClick={() =>
-                          downloadJSON(explanations, "explanations.json")
+                          downloadJSON(explanations, "Model_Explanation.json")
                         }
                       >
                         Download Explanations as JSON
