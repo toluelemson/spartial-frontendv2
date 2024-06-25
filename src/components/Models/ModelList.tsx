@@ -20,7 +20,7 @@ import {To, useNavigate} from "react-router-dom";
 
 const AllModels: FC = () => {
     const navigate = useNavigate();
-    const {allModel, setAllModel} = useSpatialContext(); // Assuming setAllModel is available in context to update the state
+    const {allModel, setAllModel} = useSpatialContext();
     const [models, setModels] = useState<ModelListType | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [selectedModel, setSelectedModel] = useState<ModelData | null>(null);
@@ -29,13 +29,11 @@ const AllModels: FC = () => {
     const [newModelId, setNewModelId] = useState<string>("");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [modelToDelete, setModelToDelete] = useState<string | null>(null);
-
     const editableDivRefs = useRef<{ [key: string]: HTMLDivElement }>({});
 
     const toggleEdit = (modelId: string) => {
         const isCurrentModelEditable = editableModelId === modelId;
         setEditableModelId(isCurrentModelEditable ? null : modelId);
-
         setTimeout(() => {
             if (!isCurrentModelEditable && editableDivRefs.current[modelId]) {
                 editableDivRefs.current[modelId].focus();
@@ -48,74 +46,48 @@ const AllModels: FC = () => {
     useEffect(() => {
         const fetchModels = async () => {
             const updatedModels = await requestAllModels();
-            setAllModel(updatedModels);
             setModels(updatedModels);
         };
         fetchModels();
-    }, [allModel]);
+    }, [showDeleteModal, models]);
+
     const filteredModels = useMemo(() => {
         const filtered = filterPrefix !== 'compare'
-            ? models && models.filter(model => model.modelId.toLowerCase().startsWith(filterPrefix))
+            ? models?.filter(model => model.modelId.toLowerCase().startsWith(filterPrefix))
             : models;
 
-        return filtered && filtered
-            .filter(model => model.lastBuildAt)
-            .sort((a, b) => {
-                const dateA = new Date(a.lastBuildAt).getTime();
-                const dateB = new Date(b.lastBuildAt).getTime();
-                return dateB - dateA;
-            });
+        return filtered?.filter(model => model.lastBuildAt)
+            .sort((a, b) => new Date(b.lastBuildAt).getTime() - new Date(a.lastBuildAt).getTime());
     }, [models, filterPrefix]);
-    const handleCheckboxChange = (modelId: string, isChecked: boolean) => {
-        setSelectedModels(prev => {
-            if (isChecked) {
-                return [...prev, modelId];
-            } else {
-                return prev.filter(id => id !== modelId);
-            }
-        });
-    };
 
-    const handleButtonNavigate = (targetPath: To) => {
-        navigate(targetPath);
-    };
+    // const handleCheckboxChange = (modelId: string, isChecked: boolean) => {
+    //     setSelectedModels(prev => isChecked ? [...prev, modelId] : prev.filter(id => id !== modelId));
+    // };
 
-    const handleNavigation = (url: string) => {
-        navigate(url);
-    };
+    const handleButtonNavigate = (targetPath: To) => navigate(targetPath);
 
-    const handleDivInput = (e: React.FormEvent<HTMLDivElement>) => {
-        const content = e.currentTarget.textContent || "";
-        console.log(content);
-        setNewModelId(content);
-    };
+    const handleNavigation = (url: string) => navigate(url);
+
+    const handleDivInput = (e: React.FormEvent<HTMLDivElement>) => setNewModelId(e.currentTarget.textContent || "");
 
     const openModal = useCallback((model: ModelData) => {
         setSelectedModel(model);
         setShowModal(true);
     }, []);
 
-    const handleDownload = (modelId: string) => {
-        requestDownloadModel(modelId).catch(e => console.log(e));
-    };
+    const handleDownload = (modelId: string) => requestDownloadModel(modelId).catch(console.log);
 
     const handleDownloadDataset = (modelId: string, datasetType: string) => {
-        requestDownloadDatasets(modelId, datasetType).catch(e => console.log(e));
+        requestDownloadDatasets(modelId, datasetType).catch(console.log);
     };
 
     const handleCopy = (modelId: string) => {
         navigator.clipboard.writeText(modelId)
-            .then(() => {
-                console.log('Text copied to clipboard');
-            })
-            .catch(err => {
-                console.error('Failed to copy text: ', err);
-            });
+            .then(() => console.log('Text copied to clipboard'))
+            .catch(err => console.error('Failed to copy text: ', err));
     };
 
-    const handleCloseModal = () => {
-        setShowModal(false);
-    };
+    const handleCloseModal = () => setShowModal(false);
 
     const openDeleteModal = (modelId: string) => {
         setModelToDelete(modelId);
@@ -146,7 +118,7 @@ const AllModels: FC = () => {
                         onChange={(e) => setFilterPrefix(e.target.value)}
                         aria-label="Model ID prefix filter"
                     >
-                        <option value="">Select a Service</option>
+                        <option value="compare">Select a Service</option>
                         <option value="ac-">Network Traffic-</option>
                         <option value="model">Privacy-</option>
                     </Form.Select>
@@ -167,41 +139,55 @@ const AllModels: FC = () => {
                     <tr key={model.modelId}>
                         <td>
                             <div className="d-flex flex-column flex-lg-row align-items-center">
-                                <div ref={el => editableDivRefs.current[model.modelId] = el as HTMLDivElement}
-                                     className="p-2 mb-2 mb-lg-0"
-                                     style={{cursor: 'pointer', width: '105px', textAlign: 'left'}}
-                                     contentEditable={editableModelId === model.modelId}
-                                     onInput={(e) => handleDivInput(e)}
-                                     suppressContentEditableWarning={true}>
+                                <div
+                                    ref={el => (editableDivRefs.current[model.modelId] = el as HTMLDivElement)}
+                                    className="p-2 mb-2 mb-lg-0"
+                                    style={{cursor: 'pointer', width: '105px', textAlign: 'left'}}
+                                    contentEditable={editableModelId === model.modelId}
+                                    onInput={handleDivInput}
+                                >
                                     {model.modelId}
                                 </div>
                                 <div className="d-flex flex-grow-1 justify-content-start justify-content-lg-center">
-                                    <ActionButton onClick={() => openModal(model)}
-                                                  tooltip={`View Config ${model.modelId}`}
-                                                  id={`view-config-tooltip-${model.modelId}`} placement="top">
+                                    <ActionButton
+                                        onClick={() => openModal(model)}
+                                        tooltip={`View Config ${model.modelId}`}
+                                        id={`view-config-tooltip-${model.modelId}`}
+                                        placement="top"
+                                    >
                                         <BsEye/>
                                     </ActionButton>
-                                    <ActionButton onClick={() => handleDownload(model.modelId)}
-                                                  tooltip={`Download ${model.modelId}`}
-                                                  id={`download-tooltip-${model.modelId} `} placement="top">
+                                    <ActionButton
+                                        onClick={() => handleDownload(model.modelId)}
+                                        tooltip={`Download ${model.modelId}`}
+                                        id={`download-tooltip-${model.modelId}`}
+                                        placement="top"
+                                    >
                                         <BsDownload/>
                                     </ActionButton>
-                                    <ActionButton onClick={() => toggleEdit(model.modelId)}
-                                                  tooltip={`Edit ${model.modelId}`}
-                                                  id={`edit-tooltip-${model.modelId}`}
-                                                  placement="top">
+                                    <ActionButton
+                                        onClick={() => toggleEdit(model.modelId)}
+                                        tooltip={`Edit ${model.modelId}`}
+                                        id={`edit-tooltip-${model.modelId}`}
+                                        placement="top"
+                                    >
                                         {editableModelId === model.modelId ? <BsSave2/> : <BsPencil/>}
                                     </ActionButton>
-                                    <ActionButton onClick={() => handleCopy(model.modelId)}
-                                                  tooltip={`Copy ${model.modelId}`} id={`copy-tooltip-${model.modelId}`}
-                                                  placement="top">
+                                    <ActionButton
+                                        onClick={() => handleCopy(model.modelId)}
+                                        tooltip={`Copy ${model.modelId}`}
+                                        id={`copy-tooltip-${model.modelId}`}
+                                        placement="top"
+                                    >
                                         <CopyIcon/>
                                     </ActionButton>
-                                    {!(["ac-neuralnetwork", "ac-lightgbm", "ac-xgboost"].includes(model.modelId)) && (
-                                        <ActionButton onClick={() => openDeleteModal(model.modelId)}
-                                                      tooltip={`Delete ${model.modelId}`}
-                                                      id={`delete-tooltip-${model.modelId}`}
-                                                      placement="top">
+                                    {!["ac-neuralnetwork", "ac-lightgbm", "ac-xgboost"].includes(model.modelId) && (
+                                        <ActionButton
+                                            onClick={() => openDeleteModal(model.modelId)}
+                                            tooltip={`Delete ${model.modelId}`}
+                                            id={`delete-tooltip-${model.modelId}`}
+                                            placement="top"
+                                        >
                                             <BsTrash/>
                                         </ActionButton>
                                     )}
@@ -220,8 +206,8 @@ const AllModels: FC = () => {
                             />
                             <ActionButton
                                 onClick={() => handleDownloadDataset(model.modelId, "train")}
-                                tooltip={`View Config ${model.modelId}`}
-                                id={`view-config-tooltip-${model.modelId}`}
+                                tooltip={`Download Training Dataset ${model.modelId}`}
+                                id={`download-train-dataset-tooltip-${model.modelId}`}
                                 placement="top"
                                 icon={<BsDownload/>}
                                 buttonText="Download"
@@ -230,16 +216,16 @@ const AllModels: FC = () => {
                         <td>
                             <ActionButton
                                 onClick={() => handleButtonNavigate(`/datasets/${model.modelId}/test`)}
-                                tooltip={`View Config ${model.modelId}`}
-                                id={`view-config-tooltip-${model.modelId}`}
+                                tooltip={`View Testing Dataset ${model.modelId}`}
+                                id={`view-test-dataset-tooltip-${model.modelId}`}
                                 placement="top"
                                 icon={<BsCamera/>}
                                 buttonText="View"
                             />
                             <ActionButton
                                 onClick={() => handleDownloadDataset(model.modelId, "test")}
-                                tooltip={`View Config ${model.modelId}`}
-                                id={`view-config-tooltip-${model.modelId}`}
+                                tooltip={`Download Testing Dataset ${model.modelId}`}
+                                id={`download-test-dataset-tooltip-${model.modelId}`}
                                 placement="top"
                                 icon={<BsDownload/>}
                                 buttonText="Download"
@@ -247,9 +233,12 @@ const AllModels: FC = () => {
                         </td>
                         <td>
                             <DropdownButton id="dropdown-item-button" title="Select an action">
-                                <Dropdown.Item as="button"
-                                               onClick={() => handleNavigation(`/spatial/dashboard/${model.modelId}`)}>Send
-                                    to Spatial </Dropdown.Item>
+                                <Dropdown.Item
+                                    as="button"
+                                    onClick={() => handleNavigation(`/spatial/dashboard/${model.modelId}`)}
+                                >
+                                    Send to Spatial
+                                </Dropdown.Item>
                             </DropdownButton>
                         </td>
                     </tr>

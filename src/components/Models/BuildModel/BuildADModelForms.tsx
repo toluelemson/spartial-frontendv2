@@ -1,18 +1,8 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
-import {
-    Form,
-    Button,
-    Container,
-    Row,
-    InputGroup,
-    Accordion,
-    Card,
-    Col,
-} from 'react-bootstrap';
-import { useSpatialContext } from '../../../context/context';
-import { requestBuildADModel } from "../../../api";
-import { BuildStatusType, TParamType } from "../../../types/types";
-import useCheckBuildStatus from "../../util/useCheckBuildStatus";
+import {Form, Button, Container, Row, InputGroup, Accordion, Card, Col} from 'react-bootstrap';
+import {useSpatialContext} from '../../../context/context';
+import makeApiRequest from "../../../api";
+import { TParamType} from "../../../types/types";
 
 interface FormState {
     maliciousDataset: string | null;
@@ -25,11 +15,8 @@ interface FormState {
     batchSizeSAE: number;
 }
 
-
 const BuildADModelForm: React.FC = () => {
-    const { reportState } = useSpatialContext();
-    // const {buildStatusStatex, updateBuildStatus}= useCheckBuildStatus();
-
+    const {reportState} = useSpatialContext();
     const initialFormData: FormState = useMemo(() => ({
         maliciousDataset: null,
         normalDataset: null,
@@ -41,11 +28,9 @@ const BuildADModelForm: React.FC = () => {
         batchSizeSAE: 32,
     }), []);
 
-
     const [formData, setFormData] = useState<FormState>(initialFormData);
     const [options, setOptions] = useState<any>(reportState || null);
     const [isFormValid, setIsFormValid] = useState(false);
-
 
     const trainingParameters = useMemo(() => [
         {
@@ -78,8 +63,7 @@ const BuildADModelForm: React.FC = () => {
         const isAnyFieldEmpty = Object.values(formData).some((value) => value === null);
         setIsFormValid(!isAnyFieldEmpty);
         setOptions(reportState);
-    }, [reportState, formData])
-
+    }, [reportState, formData]);
 
     const handleBuildADModelSubmit = useCallback(async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -97,24 +81,14 @@ const BuildADModelForm: React.FC = () => {
             {datasetId: formData.maliciousDataset, isAttack: true},
             {datasetId: formData.normalDataset, isAttack: false},
         ];
-        try {
-            const response : BuildStatusType | null = await requestBuildADModel(datasets, formData.trainingRatio, TParam);
-            // if (response && !buildStatusStatex?.isRunning) {
-            //     updateBuildStatus()
-            // } else {
-            //     console.log('Response is null or undefined');
-            // }
-        } catch (error) {
-            alert("Failed to build the model. Please try again.");
-            console.error(error);
-        }
+
     }, [isFormValid, formData, trainingParameters]);
 
     const handleInputChange = (
-        event:  React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+        event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
-        const { name, value } = event.target;
-        setFormData((prevFormData) => ({ ...prevFormData, [name]: value }));
+        const {name, value} = event.target;
+        setFormData((prevFormData) => ({...prevFormData, [name]: value}));
     };
 
     const inputGroups = useMemo(() => [
@@ -132,6 +106,16 @@ const BuildADModelForm: React.FC = () => {
         },
     ], [formData]);
 
+    const handleDeleteModel = async (modelId: string) => {
+        const url = `/api/models/${modelId}`;
+        const response = await makeApiRequest<{ result: string }>(url, 'delete');
+
+        if (response) {
+            alert(response.result);
+        } else {
+            alert('Failed to delete the model');
+        }
+    };
     return (
         <Container fluid>
             <Row className="contentContainer justify-content-center">
@@ -211,10 +195,15 @@ const BuildADModelForm: React.FC = () => {
                             Build Model
                         </Button>
                     </Form>
+                    <Button
+                        variant="danger mt-3"
+                        onClick={() => handleDeleteModel('your-model-id')} // Replace 'your-model-id' with the actual model ID you want to delete
+                    >
+                        Delete Model </Button>
                 </Col>
             </Row>
         </Container>
     );
-};
+}
 
-export default BuildADModelForm;
+export default BuildADModelForm
