@@ -65,7 +65,6 @@ export const LIMETab: React.FC<LIMETabProps> = ({state}) => {
         const LIMEConfig: any = {modelId: newState.modelId, sampleId, maxDisplay};
         setTriggerDataUpdate(true);
         await monitorStatus("LIME", LIMEConfig).catch((e) => console.log(e));
-
         const limeVal = await requestLimeValues(newState.modelId, 1);
         setNewState((prevState: any) => ({...prevState, limeValues: limeVal}));
         setIsLoading(false);
@@ -256,10 +255,10 @@ export const LIMETab: React.FC<LIMETabProps> = ({state}) => {
                                         <>
                                             <Spinner as="span" animation="border" size="sm" role="status"
                                                      aria-hidden="true" className="me-2"/>
-                                            Loading...
+                                            Performing LIME Analysis
                                         </>
                                     ) : (
-                                        "Explain the AI's Decision"
+                                        "Perform LIME Analysis"
                                     )}
                                 </Button>
                             </Card.Body>
@@ -283,7 +282,7 @@ export const LIMETab: React.FC<LIMETabProps> = ({state}) => {
                         </Card>
                     </Col>
                 </Row>
-                <Button variant="primary" onClick={handleExportToCSV} className="w-100 mt-3">Download
+                <Button variant="primary" onClick={handleExportToCSV} className="w-100 mt-3">Export LIME
                     Explanations</Button>
             </Form>
         </Container>

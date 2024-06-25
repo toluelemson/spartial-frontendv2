@@ -164,7 +164,7 @@ const BuildACModelForm: React.FC = () => {
                                 <>
                                     <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true"
                                              className="me-2"/>
-                                    {(isBuilding ? "Building..." : "Checking Status...")}
+                                    {(isBuilding ? "Building..." : "Building Model...")}
                                 </>
                             ) : (
                                 "Build Model"

@@ -64,7 +64,7 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
         }
         console.log(`Background Samples: ${backgroundSamples}, Explained Samples: ${explainedSamples}`);
 
-    }, [backgroundSamples, originalDataset, explainedSamples, newState.negativeChecked, newState.positiveChecked, isLoading]);
+    }, [backgroundSamples, explainedSamples, newState.negativeChecked, newState.positiveChecked, isLoading]);
 
 
     const createCSVContent = (title: string, headers: string[], data: Array<Array<string | number | undefined>>): string => {
@@ -89,12 +89,9 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
             document.body.removeChild(link);
         }
     };
-
-
     const handleExportToCSV = (): void => {
-        // Model Details
         const modelDetails: Array<Array<string | number>> = [
-            [`Model ID`, newState.modelId],
+            [`Model ID`, newState.modelId.slice(0,20)],
             [`Explained Samples`, explainedSamples],
             [`Background Samples`, backgroundSamples],
             [`Max Display`, newState.maxDisplay]
@@ -111,7 +108,7 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
             selectedFeatures.map((feature, index) => [index.toString(), feature])
         );
 
-        // LIME Values
+        // SHAP Values
         const shapValuesCSV = createCSVContent(
             'SHAP Values:',
             ['Feature', 'Importance Value'],
@@ -171,8 +168,8 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
             const SHAPConfig: any = {modelId: newState.modelId, backgroundSamples, explainedSamples, maxDisplay}
             await monitorStatus('SHAP', SHAPConfig).catch((e: any) => console.log(e))
 
-
-            const shapValues = await fetchSHAPValues("ac-xgboost", 0);
+            await requestRunShap(newState.modelId, backgroundSamples, explainedSamples, newState.maxDisplay)
+            const shapValues = await fetchSHAPValues(newState.modelId, 0);
             setShapResults(shapValues);
         } catch (error) {
             setError('Failed to fetch SHAP values. Please try again.');
@@ -321,10 +318,10 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                                         <>
                                             <Spinner as="span" animation="border" size="sm" role="status"
                                                      aria-hidden="true" className="me-2"/>
-                                            Loading...
+                                            Performing SHAP Analysis
                                         </>
                                     ) : (
-                                        "Run Analysis"
+                                        "Perform SHAP Analysis"
                                     )}
                                 </Button>
                             </Form>
@@ -363,7 +360,7 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
                 </Col>
                 <Col md={3} className="d-flex align-items-center">
                     <Button variant="primary" onClick={handleExportToCSV} className="w-100 mt-3">
-                        Save Data to CSV
+                        Export SHAP Explanation
                     </Button>
                 </Col>
             </Row>
