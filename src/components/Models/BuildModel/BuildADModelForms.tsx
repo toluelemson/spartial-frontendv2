@@ -28,7 +28,7 @@ interface FormState {
 
 const BuildADModelForm: React.FC = () => {
     const { reportState } = useSpatialContext();
-    const [{buildStatusStatex, updateBuildStatus}] = useCheckBuildStatus();
+    // const {buildStatusStatex, updateBuildStatus}= useCheckBuildStatus();
 
     const initialFormData: FormState = useMemo(() => ({
         maliciousDataset: null,
@@ -99,11 +99,11 @@ const BuildADModelForm: React.FC = () => {
         ];
         try {
             const response : BuildStatusType | null = await requestBuildADModel(datasets, formData.trainingRatio, TParam);
-            if (response && !buildStatusStatex?.isRunning) {
-                updateBuildStatus()
-            } else {
-                console.log('Response is null or undefined');
-            }
+            // if (response && !buildStatusStatex?.isRunning) {
+            //     updateBuildStatus()
+            // } else {
+            //     console.log('Response is null or undefined');
+            // }
         } catch (error) {
             alert("Failed to build the model. Please try again.");
             console.error(error);
