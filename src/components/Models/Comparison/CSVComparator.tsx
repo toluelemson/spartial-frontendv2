@@ -207,6 +207,25 @@ const CSVComparator: React.FC = () => {
                             {separateObjects(data).map((tableData, innerIndex) => {
                                 console.log("tableData", tableData);
 
+                                if (tableData[0]["Model Details:"] === "LIME Values:") {
+                                    return (
+                                        <React.Fragment key={innerIndex}>
+                                            <LollipopChart data={tableData}/>
+                                            {renderTable(tableData, innerIndex)}
+                                        </React.Fragment>
+                                    );
+                                }
+
+
+                                if (tableData[0]["Model Details:"] === "SHAP Values:") {
+                                    return (
+                                        <React.Fragment key={innerIndex}>
+                                            <LollipopChart data={tableData}/>
+                                            {renderTable(tableData, innerIndex)}
+                                        </React.Fragment>
+                                    );
+                                }
+
                                 if (tableData[0]["Model Details:"] === "Pie Chart Data:") {
                                     return (
                                         <React.Fragment key={innerIndex}>
@@ -227,6 +246,7 @@ const CSVComparator: React.FC = () => {
                                         </React.Fragment>
                                     );
                                 }
+
 
                                 if (tableData[0]["Model Details:"] === "Contribution Dict:") {
                                     return (
@@ -254,14 +274,6 @@ const CSVComparator: React.FC = () => {
                                     );
                                 }
 
-                                if (tableData[0]["Model Details:"] === "LIME Values:") {
-                                    return (
-                                        <React.Fragment key={innerIndex}>
-                                            <LollipopChart data={tableData}/>
-                                            {renderTable(tableData, innerIndex)}
-                                        </React.Fragment>
-                                    );
-                                }
 
                                 if (tableData[0]["Model Details:"] === "Pairwise Values:") {
                                     return (
