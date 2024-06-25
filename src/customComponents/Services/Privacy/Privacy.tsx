@@ -64,7 +64,7 @@ const PrivacyMicroservicesForm: React.FC<
           const json = JSON.parse(e.target?.result as string);
           setFormState((prevState) => ({
             ...prevState,
-            modelParameters: json,
+            modelParameters: json.modelparameters,
           }));
         } catch (error) {
           console.error("Error parsing file:", error);
@@ -282,9 +282,7 @@ const PrivacyMicroservicesForm: React.FC<
                 </p>
                 <button
                   className="btn btn-secondary"
-                  onClick={() =>
-                    downloadJSON(result.noisyWeights, `noisyWeights.json`)
-                  }
+                  onClick={() => downloadJSON(result, `noisyWeights.json`)}
                 >
                   Download Noisy Weights JSON
                 </button>
