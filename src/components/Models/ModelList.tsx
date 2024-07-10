@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useMemo, FC, useRef, useEffect} from 'react';
+import React, {useState, useCallback, useMemo, FC, useRef, useEffect} from "react";
 import {
     Button,
     Table,
@@ -7,8 +7,8 @@ import {
     Pagination,
     Container,
     Modal,
-    Form
-} from 'react-bootstrap';
+    Form,
+} from "react-bootstrap";
 import {BsDownload, BsEye, BsPencil, BsCamera, BsSave2, BsTrash} from "react-icons/bs";
 import {CopyIcon} from "@radix-ui/react-icons";
 import {useSpatialContext} from "../../context/context";
@@ -18,9 +18,30 @@ import ActionButton from "../util/ActionButton";
 import {requestDownloadDatasets, requestDownloadModel, deleteModel, requestAllModels} from "../../api";
 import {To, useNavigate} from "react-router-dom";
 
+// Service Configuration
+interface ServiceConfig {
+    supportsDatasets: boolean;
+}
+
+const serviceConfig: { [key: string]: ServiceConfig } = {
+    "ac-": {supportsDatasets: true},
+    "ma-": {supportsDatasets: false},
+    "model-": {supportsDatasets: true},
+    // Add other services here as needed
+};
+
+const supportsDatasets = (modelId: string): boolean => {
+    for (const prefix in serviceConfig) {
+        if (modelId.startsWith(prefix)) {
+            return serviceConfig[prefix].supportsDatasets;
+        }
+    }
+    return false; // Default to false if the service is not explicitly listed
+};
+
 const AllModels: FC = () => {
     const navigate = useNavigate();
-    const {allModel, setAllModel} = useSpatialContext(); // Assuming setAllModel is available in context to update the state
+    const {allModel, setAllModel} = useSpatialContext();
     const [models, setModels] = useState<ModelListType | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [selectedModel, setSelectedModel] = useState<ModelData | null>(null);
@@ -43,7 +64,7 @@ const AllModels: FC = () => {
         }, 0);
     };
 
-    const [filterPrefix, setFilterPrefix] = useState<string>('compare');
+    const [filterPrefix, setFilterPrefix] = useState<string>("compare");
 
     useEffect(() => {
         const fetchModels = async () => {
@@ -66,15 +87,15 @@ const AllModels: FC = () => {
                 return dateB - dateA;
             });
     }, [models, filterPrefix]);
-    const handleCheckboxChange = (modelId: string, isChecked: boolean) => {
-        setSelectedModels(prev => {
-            if (isChecked) {
-                return [...prev, modelId];
-            } else {
-                return prev.filter(id => id !== modelId);
-            }
-        });
-    };
+    // const handleCheckboxChange = (modelId: string, isChecked: boolean) => {
+    //     setSelectedModels(prev => {
+    //         if (isChecked) {
+    //             return [...prev, modelId];
+    //         } else {
+    //             return prev.filter(id => id !== modelId);
+    //         }
+    //     });
+    // };
 
     const handleButtonNavigate = (targetPath: To) => {
         navigate(targetPath);
@@ -148,6 +169,7 @@ const AllModels: FC = () => {
                     >
                         <option value="">Select a Service</option>
                         <option value="ac-">Network Traffic-</option>
+                        <option value="ma-">Medical-</option>
                         <option value="model">Privacy-</option>
                     </Form.Select>
                 </Form.Group>
@@ -210,40 +232,60 @@ const AllModels: FC = () => {
                         </td>
                         <td>{ConvertTimeStamp(model.lastBuildAt)}</td>
                         <td>
-                            <ActionButton
-                                onClick={() => handleButtonNavigate(`/datasets/${model.modelId}/train`)}
-                                tooltip={`View Config ${model.modelId}`}
-                                id={`view-config-tooltip-${model.modelId}`}
-                                placement="top"
-                                icon={<BsCamera/>}
-                                buttonText="View"
-                            />
-                            <ActionButton
-                                onClick={() => handleDownloadDataset(model.modelId, "train")}
-                                tooltip={`View Config ${model.modelId}`}
-                                id={`view-config-tooltip-${model.modelId}`}
-                                placement="top"
-                                icon={<BsDownload/>}
-                                buttonText="Download"
-                            />
+                            {supportsDatasets(model.modelId) ? (
+                                <>
+                                    <ActionButton
+                                        onClick={() =>
+                                            handleButtonNavigate(`/datasets/${model.modelId}/train`)
+                                        }
+                                        tooltip={`View Config ${model.modelId}`}
+                                        id={`view-config-tooltip-${model.modelId}`}
+                                        placement="top"
+                                        icon={<BsCamera/>}
+                                        buttonText="View"
+                                    />
+                                    <ActionButton
+                                        onClick={() =>
+                                            handleDownloadDataset(model.modelId, "train")
+                                        }
+                                        tooltip={`Download Training Dataset ${model.modelId}`}
+                                        id={`download-dataset-tooltip-${model.modelId}`}
+                                        placement="top"
+                                        icon={<BsDownload/>}
+                                        buttonText="Download"
+                                    />
+                                </>
+                            ) : (
+                                "Not Available"
+                            )}
                         </td>
                         <td>
-                            <ActionButton
-                                onClick={() => handleButtonNavigate(`/datasets/${model.modelId}/test`)}
-                                tooltip={`View Config ${model.modelId}`}
-                                id={`view-config-tooltip-${model.modelId}`}
-                                placement="top"
-                                icon={<BsCamera/>}
-                                buttonText="View"
-                            />
-                            <ActionButton
-                                onClick={() => handleDownloadDataset(model.modelId, "test")}
-                                tooltip={`View Config ${model.modelId}`}
-                                id={`view-config-tooltip-${model.modelId}`}
-                                placement="top"
-                                icon={<BsDownload/>}
-                                buttonText="Download"
-                            />
+                            {supportsDatasets(model.modelId) ? (
+                                <>
+                                    <ActionButton
+                                        onClick={() =>
+                                            handleButtonNavigate(`/datasets/${model.modelId}/test`)
+                                        }
+                                        tooltip={`View Config ${model.modelId}`}
+                                        id={`view-config-tooltip-${model.modelId}`}
+                                        placement="top"
+                                        icon={<BsCamera/>}
+                                        buttonText="View"
+                                    />
+                                    <ActionButton
+                                        onClick={() =>
+                                            handleDownloadDataset(model.modelId, "test")
+                                        }
+                                        tooltip={`Download Testing Dataset ${model.modelId}`}
+                                        id={`download-dataset-tooltip-${model.modelId}`}
+                                        placement="top"
+                                        icon={<BsDownload/>}
+                                        buttonText="Download"
+                                    />
+                                </>
+                            ) : (
+                                "Not Available"
+                            )}
                         </td>
                         <td>
                             <DropdownButton id="dropdown-item-button" title="Select an action">
@@ -261,21 +303,6 @@ const AllModels: FC = () => {
                 <Pagination.Item active>{1}</Pagination.Item>
                 <Pagination.Next/>
             </Pagination>
-
-            <Modal show={showModal} onHide={handleCloseModal}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Build config for {selectedModel?.modelId}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <pre>{JSON.stringify(selectedModel?.buildConfig, null, 2)}</pre>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseModal}>
-                        Close
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-
             <Modal show={showDeleteModal} onHide={closeDeleteModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Confirm Delete</Modal.Title>

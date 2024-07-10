@@ -82,8 +82,9 @@ const LeadImportance: React.FC = () => {
                     // handleSelectChange
                     className="form-select"
                   >
-                    <option value="shap">Shap</option>
-                    <option value="gradCam">GradCam</option>
+                    <option value="LRP">LRP</option>
+                    <option value="GradientSHAP">GradientSHAP</option>
+                    <option value="DeepSHAP">DeepSHAP</option>
                   </select>
                 </div>
                 <div className="mb-3">

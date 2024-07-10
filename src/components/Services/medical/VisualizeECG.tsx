@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Col, Row } from "react-bootstrap";
-
-import { visualizeECG } from "../../../api";
-
-import MedicalNavbar from "./medicalNavbar";
+import { visualizeECG, descriptionECGSignal } from "../../../api";
+import MedicalNavbar from "../medical/medicalNavbar";
+import { useRoleContext, Role } from "../../RoleProvider/RoleContext"; // Import the RoleContext and Role type
 
 const VisualizeECG: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -11,8 +10,16 @@ const VisualizeECG: React.FC = () => {
     hea: "",
     cut_classification_window: "--",
   });
-  const [result, setResult] = useState<string | null>(null);
+  const [result1, setResult1] = useState<string | null>(null);
+  const [explanations, setExplanations] = useState<{ [key: string]: string }>(
+    {}
+  );
   const [loading, setLoading] = useState(false);
+  const { roles, setCurrentService, userRole } = useRoleContext(); // Ensure setUserRole is included
+
+  useEffect(() => {
+    setCurrentService("Medical"); // Ensure the current service is set to 'Medical'
+  }, [setCurrentService]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -20,43 +27,54 @@ const VisualizeECG: React.FC = () => {
     >
   ) => {
     const { name, value } = e.target;
-
-    // If the target is a select element, use the selected value directly
-    const selectedValue =
-      e.target.type === "select-one" ? e.target.value : value;
-
-    setFormData((prevData) => ({ ...prevData, [name]: selectedValue }));
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     try {
-      // Make API request
-      const response = await visualizeECG(
+      const response1 = await visualizeECG(
         formData.dat,
         formData.hea,
         formData.cut_classification_window
       );
+      if (response1) {
+        const imageUrl1 = URL.createObjectURL(response1);
+        setResult1(imageUrl1);
 
-      console.log("API Response:", response); // Log the response to the console
+        const promises = roles.map((role) =>
+          descriptionECGSignal(role, formData.cut_classification_window)
+            .then((response) => {
+              if (response) {
+                return { [role]: response.description };
+              } else {
+                console.error(
+                  `Invalid response format for ${role} description`
+                );
+                return { [role]: "No description available" };
+              }
+            })
+            .catch((error) => {
+              console.error(`Error fetching ${role} description:`, error);
+              return { [role]: "Error fetching description" };
+            })
+        );
 
-      // Check if response is defined
-      if (response) {
-        // Create a data URL directly from the Blob
-        const imageUrl = URL.createObjectURL(response);
-
-        // Set the result to the image URL
-        setResult(imageUrl);
+        const descriptions = await Promise.all(promises);
+        const explanationsObject = descriptions.reduce(
+          (acc, curr) => ({ ...acc, ...curr }),
+          {}
+        );
+        setExplanations(explanationsObject);
       } else {
-        console.error("Invalid response format:", response);
+        console.error("Invalid response format for API 1:", response1);
       }
     } catch (error) {
-      // Handle API request error
       console.error("Error in handleSubmit:", error);
-      // You might want to set an error state or display an error message to the user
     } finally {
-      setLoading(false); // Set loading state to false after the API call completes
+      setLoading(false);
     }
   };
 
@@ -65,7 +83,6 @@ const VisualizeECG: React.FC = () => {
       <MedicalNavbar />
       <div className="container mt-4">
         <Row>
-          {/* Left side with the form */}
           <Col md={6}>
             <div className="border p-3">
               <form onSubmit={handleSubmit}>
@@ -91,7 +108,6 @@ const VisualizeECG: React.FC = () => {
                     <option value="false">False</option>
                   </select>
                 </div>
-
                 <div className="mb-3">
                   <label htmlFor="textareaDat" className="form-label">
                     dat:
@@ -120,7 +136,6 @@ const VisualizeECG: React.FC = () => {
                     required
                   />
                 </div>
-
                 <button
                   type="submit"
                   className="btn btn-primary"
@@ -131,13 +146,23 @@ const VisualizeECG: React.FC = () => {
               </form>
             </div>
           </Col>
-
-          {/* Right side with the results */}
           <Col md={6}>
-            {result && (
+            {result1 && (
               <div className="border p-3">
-                <h2>Results:</h2>
-                <img src={result} alt="Result Image" className="img-fluid" />
+                <h2>ECG Plot:</h2>
+                <img
+                  src={result1}
+                  // width="300"
+                  // height="250"
+                  alt="Result Image"
+                  className="img-fluid"
+                />
+              </div>
+            )}
+            {explanations[userRole] && (
+              <div className="border p-3 mt-4">
+                <h2>Explanation:</h2>
+                <p>{explanations[userRole]}</p>
               </div>
             )}
           </Col>

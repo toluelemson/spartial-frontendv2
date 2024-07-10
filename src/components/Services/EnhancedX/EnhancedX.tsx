@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import FileUpload from "../Fairness/FileUploadForm";
 import { enhancedInterpretability } from "../../../api";
+import { Card, Col } from "react-bootstrap";
+import { Link, To } from "react-router-dom";
+
+const fairnessHomepage = "/xai/service/enhancedX";
 
 const EnhancedX: React.FC = () => {
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -48,25 +52,35 @@ const EnhancedX: React.FC = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="mb-4">Enhanced Interpretability</h2>
+      {/* <h2 className="mb-4">Enhanced Interpretability Service</h2> */}
+      <Link to={fairnessHomepage} className="nav-link text-lightblue fs-5">
+        Enhanced Interpretability Service
+      </Link>
+      <br />
       {error && <div className="alert alert-danger">{error}</div>}
       <FileUpload
         onFileUpload={handleFileUpload}
         onFileSubmit={handleFileSubmit}
       />
       {isLoading && <p>Loading...</p>}
-
-      <div className="mt-3 d-flex flex-wrap">
+      <Col md={12}>
         {imageUrls.map((imageUrl, index) => (
-          <div key={index} className="m-2">
-            <img
-              src={imageUrl}
-              alt={`Interpreted Output ${index}`}
-              className="img-fluid rounded shadow"
-            />
-          </div>
+          <Card className="mb-4" key={index}>
+            <Card.Body>
+              <h4>Interpreted Output {index + 1}:</h4>
+              <div className="border p-3">
+                <img
+                  src={imageUrl}
+                  alt={`Interpreted Output ${index}`}
+                  width="500"
+                  height="250"
+                  className="img-fluid rounded shadow"
+                />
+              </div>
+            </Card.Body>
+          </Card>
         ))}
-      </div>
+      </Col>
     </div>
   );
 };

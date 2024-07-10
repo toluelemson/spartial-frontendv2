@@ -22,8 +22,8 @@ interface FormState {
     clippingValue: number;
     delta: number;
     epsilon: number;
-    modelParameters1: number;
-    modelParameters2: number;
+    modelParameters: number[][][];
+    // modelParameters2: number;
     noiseType: number;
     sigma: number;
     totalFLRounds: number;
@@ -32,6 +32,35 @@ interface FormState {
 export interface Ac {
     datasets: string[]
 }
+
+interface MedicalModel {
+    modelId: string;
+    lastBuildAt: string;
+    buildConfig: {
+        uploadFileName: string;
+      description: string;
+      category: string;
+      dataStructure: string;
+      dataFormat: string;
+      preprocessing: string;
+    };
+  }
+  
+  const transformMedicalModel = (model: any): MedicalModel => {
+    return {
+      modelId: `ma-${model._id}`,
+      lastBuildAt: model.created_at,   
+      buildConfig: {
+        uploadFileName: model.upload_file_name,
+        description: model.description,
+        category: model.category,
+        dataStructure: model.data_structure,
+        dataFormat: model.data_format,
+        preprocessing: model.preprocessing,
+      },
+    };
+  };
+
 
 async function makeApiRequest<T>(
     url: string,
@@ -269,6 +298,39 @@ export const differentialPrivacy = async (formData: FormState) => {
     return await makeApiRequest<any>(`/api/v3/differential_privacy/execute`, 'post', formData);
 }
 
+//medical 
+
+export const MIEmergencyModels = async (modelFile: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('model_file', modelFile);
+  
+      const response = await makeApiRequest<any>(
+        '/model/',
+        'post',
+        formData,
+        'json'
+      );
+  
+      return response;
+    } catch (error) {
+      // Handle errors as needed
+      console.error('Error in MIEmergencyModels:', error);
+      throw error;
+    }
+  };
+
+// export const requestMedicalModel = async () => {
+//     return await makeApiRequest<any>(`/model/`);
+// }
+export const requestMedicalModels = async (): Promise<MedicalModel[]> => {
+    const response = await makeApiRequest<any[]>(`/model/?limit=10000`);
+    if (!response) {
+      throw new Error('Failed to fetch medical models');
+    }
+    return response.map(transformMedicalModel);
+  };
+  
 
 export const demoMIEmergency = async (limit: number) => {
     return await makeApiRequest<any>(`/emergency_detection/mi_detection/emergency_data?limit=${limit}`);
@@ -323,6 +385,254 @@ export const detectMIEmergencies = async (dat: string, hea: string) => {
         throw error;
     }
 }
+// export const descriptionECGSignal = async (user_role: string, with_segments: string) => {
+//     return await makeApiRequest<any>(`/user_support/descriptions/ecg?user_role=${user_role}&with_segments=${with_segments}`);
+// }
+
+export const descriptionECGSignal = async (user_role: string, with_segments: string) => {
+    const url = `/user_support/descriptions/ecg?user_role=${user_role}&with_segments=${with_segments}`;
+    return await makeApiRequest<any>(url);
+}
+
+export const descriptionTickImportance = async (xai_visualization_approach: string, user_role: string) => {
+    const url = `/user_support/descriptions/xai_visualization_approaches/tickImportance?user_role=${user_role}`;
+    return await makeApiRequest<any>(url);
+}
+
+export const descriptionTimeImportance = async (xai_visualization_approach: string, user_role: string) => {
+    const url = `/user_support/descriptions/xai_visualization_approaches/timeSegmentImportance?user_role=${user_role}`;
+    return await makeApiRequest<any>(url);
+}
+
+export const descriptionLeadImportance = async (xai_visualization_approach: string, user_role: string) => {
+    const url = `/user_support/descriptions/xai_visualization_approaches/channelImportance?user_role=${user_role}`;
+    return await makeApiRequest<any>(url);
+}
+
+
+export const descriptionECGClassification = async (user_role: string) => {
+    const url = `/user_support/descriptions/classification_prediction?user_role=${user_role}`;
+    return await makeApiRequest<any>(url);
+}
+
+export const MI_ModelPrediction= async (dat: string, hea: string, model_id: string) => {
+    try {
+        const url = `/model/${model_id}/predict`;
+
+        const requestBody = {
+            dat: dat,
+            hea: hea,
+        };
+
+
+        const response = await makeApiRequest<any>(url, 'post', requestBody, 'json');
+
+        return response;
+
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in MI_ModelPrediction:', error);
+        throw error;
+    }
+}
+export const MI_ModelEvaluate = async ( model_id: string,dataset: string) => {
+    const url = `/model/${model_id}/evaluate?dataset=${dataset}`;
+    return await makeApiRequest<any>(url);
+}
+
+//Tick Importance
+export const LRP_TICK_Visualize = async (dat: string, hea: string, model_id: string, ignore_cached_relevances: string) => {
+    try {
+        const url = `/medical_analysis/ecg_analysis/explain/LRP/tick_importance?model_id=${model_id}&ignore_cached_relevances=${ignore_cached_relevances}`;
+
+        const requestBody = {
+            dat: dat,
+            hea: hea,
+        };
+
+
+        const response = await makeApiRequest<any>(url, 'post', requestBody, 'blob');
+
+        return response;
+
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in LRP_TICK_Visualize:', error);
+        throw error;
+    }
+}
+
+export const GradientSHAP_TICK_Visualize = async (dat: string, hea: string, model_id: string, ignore_cached_relevances: string) => {
+    try {
+        const url = `/medical_analysis/ecg_analysis/explain/GradientSHAP/tick_importance?model_id=${model_id}&ignore_cached_relevances=${ignore_cached_relevances}`;
+
+        const requestBody = {
+            dat: dat,
+            hea: hea,
+        };
+
+
+        const response = await makeApiRequest<any>(url, 'post', requestBody, 'blob');
+
+        return response;
+
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in GradientSHAP_TICK_Visualize:', error);
+        throw error;
+    }
+}
+
+export const DeepSHAP_TICK_Visualize = async (dat: string, hea: string, model_id: string, ignore_cached_relevances: string) => {
+    try {
+        const url = `/medical_analysis/ecg_analysis/explain/DeepSHAP/tick_importance?model_id=${model_id}&ignore_cached_relevances=${ignore_cached_relevances}`;
+
+        const requestBody = {
+            dat: dat,
+            hea: hea,
+        };
+
+
+        const response = await makeApiRequest<any>(url, 'post', requestBody, 'blob');
+
+        return response;
+
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in DeepSHAP_TICK_Visualize:', error);
+        throw error;
+    }
+}
+
+//Time Importance
+export const LRP_TIME_Visualize = async (dat: string, hea: string, model_id: string, ignore_cached_relevances: string) => {
+    try {
+     
+        const url = `/medical_analysis/ecg_analysis/explain/LRP/time_importance?model_id=${model_id}&ignore_cached_relevances=${ignore_cached_relevances}`;
+
+        const requestBody = {
+            dat: dat,
+            hea: hea,
+        };
+
+
+        const response = await makeApiRequest<any>(url, 'post', requestBody, 'blob');
+
+        return response;
+
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in LRP_TIME_Visualize:', error);
+        throw error;
+    }
+}
+
+export const GradientSHAP_TIME_Visualize = async (dat: string, hea: string, model_id: string, ignore_cached_relevances: string) => {
+    try {
+        const url = `/medical_analysis/ecg_analysis/explain/GradientSHAP/time_importance?model_id=${model_id}&ignore_cached_relevances=${ignore_cached_relevances}`;
+
+        const requestBody = {
+            dat: dat,
+            hea: hea,
+        };
+
+
+        const response = await makeApiRequest<any>(url, 'post', requestBody, 'blob');
+
+        return response;
+
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in GradientSHAP_TIME_Visualize:', error);
+        throw error;
+    }
+}
+
+export const DeepSHAP_TIME_Visualize = async (dat: string, hea: string, model_id: string, ignore_cached_relevances: string) => {
+    try {
+        const url = `/medical_analysis/ecg_analysis/explain/DeepSHAP/time_importance?model_id=${model_id}&ignore_cached_relevances=${ignore_cached_relevances}`;
+
+        const requestBody = {
+            dat: dat,
+            hea: hea,
+        };
+
+
+        const response = await makeApiRequest<any>(url, 'post', requestBody, 'blob');
+
+        return response;
+
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in DeepSHAP_TIME_Visualize:', error);
+        throw error;
+    }
+}
+
+
+//Lead Importance
+export const LRP_LEAD_Visualize = async (dat: string, hea: string, model_id: string, ignore_cached_relevances: string) => {
+    try {
+        const url = `/medical_analysis/ecg_analysis/explain/LRP/lead_importance?model_id=${model_id}&ignore_cached_relevances=${ignore_cached_relevances}`;
+
+        const requestBody = {
+            dat: dat,
+            hea: hea,
+        };
+
+
+        const response = await makeApiRequest<any>(url, 'post', requestBody, 'blob');
+
+        return response;
+
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in LRP_LEAD_Visualize:', error);
+        throw error;
+    }
+}
+
+export const GradientSHAP_LEAD_Visualize = async (dat: string, hea: string, model_id: string, ignore_cached_relevances: string) => {
+    try {
+        const url = `/medical_analysis/ecg_analysis/explain/GradientSHAP/lead_importance?model_id=${model_id}&ignore_cached_relevances=${ignore_cached_relevances}`;
+
+        const requestBody = {
+            dat: dat,
+            hea: hea,
+        };
+
+
+        const response = await makeApiRequest<any>(url, 'post', requestBody, 'blob');
+
+        return response;
+
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in GradientSHAP_LEAD_Visualize:', error);
+        throw error;
+    }
+}
+
+export const DeepSHAP_LEAD_Visualize = async (dat: string, hea: string, model_id: string, ignore_cached_relevances: string) => {
+    try {
+        const url = `/medical_analysis/ecg_analysis/explain/DeepSHAP/lead_importance?model_id=${model_id}&ignore_cached_relevances=${ignore_cached_relevances}`;
+
+        const requestBody = {
+            dat: dat,
+            hea: hea,
+        };
+
+
+        const response = await makeApiRequest<any>(url, 'post', requestBody, 'blob');
+
+        return response;
+
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in DeepSHAP_LEAD_Visualize:', error);
+        throw error;
+    }
+}
 
 
 export const visualizeECG = async (dat: string, hea: string, cut_classification_window: string) => {
@@ -346,6 +656,28 @@ export const visualizeECG = async (dat: string, hea: string, cut_classification_
     } catch (error) {
         // Handle errors as needed
         console.error('Error in visualizeECG:', error);
+        throw error;
+    }
+}
+
+
+export const MIModelExplanation = async (dat: string, hea: string, model_id: string,xai_method:string, ignore_cached_relevances: string) => {
+    try {
+        const url = `/model/${model_id}/explain/${xai_method}?ignore_cached_relevances=${ignore_cached_relevances}`;
+
+        const requestBody = {
+            dat: dat,
+            hea: hea,
+        };
+
+
+        const response = await makeApiRequest<any>(url, 'post', requestBody, 'json');
+
+        return response;
+
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in MIModelExplanation:', error);
         throw error;
     }
 }
@@ -438,6 +770,35 @@ export const leadImportance = async (dat: string, hea: string, xai_method: strin
         throw error;
     }
 }
+
+export const getSpecificModel = async (model_id: string) => {
+    return await makeApiRequest<any>(`/model/${model_id}`);
+}
+
+//Llama Service
+
+export const Llama_Service = async (user: string, content: string) => {
+    try {
+        const url = `/llama/change-text`;
+
+        const requestBody = {
+            user: user,
+            content: content,
+        };
+
+
+        const response = await makeApiRequest<any>(url, 'post', requestBody, 'json');
+
+        return response;
+
+    } catch (error) {
+        // Handle errors as needed
+        console.error('Error in Llama_Service:', error);
+        throw error;
+    }
+}
+
+
 
 // Metrics component
 
