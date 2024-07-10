@@ -929,3 +929,20 @@ const readFileAsBlob = (file: File): Promise<Blob> => {
       reader.readAsArrayBuffer(file);
     });
   };
+
+  //WithSecure
+
+export const WS_getData = async () => {
+    const url = `/data`;
+    return await makeApiRequest<any>(url);
+}
+
+export const WS_getModels = async () => {
+    const url = `/models`;
+    return await makeApiRequest<any>(url);
+}
+
+export const WS_getAttacks = async () => {
+    const url = `/attacks`;
+    return await makeApiRequest<any>(url);
+}

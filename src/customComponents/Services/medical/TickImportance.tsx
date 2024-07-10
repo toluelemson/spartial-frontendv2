@@ -9,7 +9,7 @@ const TickImportance: React.FC = () => {
   const [formData, setFormData] = useState({
     dat: "",
     hea: "",
-    xai_method: "shap",
+    xai_method: "LRP",
     model_id: "",
   });
   const [result, setResult] = useState<string | null>(null);
@@ -32,6 +32,8 @@ const TickImportance: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
+      const { dat, hea, xai_method, model_id } = formData;
+      console.log("Form Data:", formData);
       // Make API request
       const response = await tickImportance(
         formData.dat,

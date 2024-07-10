@@ -222,7 +222,7 @@ const BuildACModelForm: React.FC = () => {
             </InputGroup>
           ))}
           <Button variant="primary mt-3" type="submit" disabled={!isFormValid}>
-            {loading ? "Loading..." : "Build Model "}
+            {loading ? "Building Model..." : "Build Model "}
           </Button>
         </Form>
       </Row>

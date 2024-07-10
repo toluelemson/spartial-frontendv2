@@ -8,7 +8,7 @@ const TimeImportance: React.FC = () => {
   const [formData, setFormData] = useState({
     dat: "",
     hea: "",
-    xai_method: "shap",
+    xai_method: "LRP",
     model_id: "",
   });
   const [result, setResult] = useState<string | null>(null);
