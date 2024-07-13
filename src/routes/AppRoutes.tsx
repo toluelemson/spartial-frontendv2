@@ -6,9 +6,9 @@ import ProtectedRoute from "../components/util/ProtectedRoute";
 import ProtectedComponent from "../views/ProtectedComponent";
 import ModelPage from "../pages/home/ModelPage";
 import Dashboard from "../pages/home/Dashboard";
-import BuildACModelForm from "../components/Models/BuildModel/BuilldACModelForms";
+import BuildACModelForm from "../components/Models/BuildModel/BuilldModelForms";
 import NoMatchComponent from "../components/NoMatchComponent";
-import AllModels from "../components/Models/ModelList"
+import AllModels from "../components/Models/AllModelList"
 import DatasetList from "../components/Datasets/DatasetList";
 import LimeAnalysis from "../components/XAI/LimeAnalysis";
 import ModelComparison from "../components/Models/Comparison/ModelComparison";
@@ -24,7 +24,6 @@ import IdentifySegments from "../components/Services/medical/IdentifySegments";
 import TickImportance from "../components/Services/medical/TickImportance";
 import LeadImportance from "../components/Services/medical/LeadImportance";
 import TimeImportance from "../components/Services/medical/TimeImportance";
-// import Spatial from "../components/Spatial/Spatial";
 import metricsHomepage from "../components/Services/Metrics/metricsHomepage";
 import EvasionImpact from "../components/Services/Metrics/EvasionImpact";
 import ConsistencyMetric from "../components/Services/Metrics/ConsistencyMetric";
@@ -44,6 +43,7 @@ const routeConfig: RouteConfig[] = [
     {path: "/", Component: Dashboard},
     {path: "/build/ad", Component: ModelPage},
     {path: "/models/all", Component: AllModels},
+    {path: "/models/all/:ac", Component: AllModels},
     {path: "/build/ac", Component: BuildACModelForm},
     {path: "/login", Component: LoginWidget, isProtected: false},
     {path: "/login/callback", Component: LoginCallback, isProtected: false},

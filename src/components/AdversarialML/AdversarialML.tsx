@@ -11,7 +11,6 @@ import AttackBarChart from '../Datasets/AttackBarChart';
 import TooltipComponent from '../util/TooltipComponent/TooltipComponentProps';
 import {RetrainStatus, TODO} from '../../types/types';
 import fetchDataset from '../util/fetchDataset';
-import {ATTACK_DATASETS_MAPPING} from '../../constants';
 
 interface FormData {
     modelId: string;
@@ -50,9 +49,7 @@ const AdversarialTab: React.FC<any> = ({state}) => {
     useEffect(() => {
         if (retrainId && !attackStatus.isRunning && !attackStatus.isLoading) {
             pollRetrainStatus();
-            navigate(`/models/all`);
-            // navigate(`/spatial/dashboard/${retrainId}`)
-
+            navigate(`/models/all/ac`);
         }
     }, [retrainId, attackStatus.isLoading, attackStatus.isRunning]);
 

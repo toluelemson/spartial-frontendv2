@@ -49,6 +49,11 @@ export type ModelData = {
 
 export type ModelListType = ModelData[];
 
+export interface ServiceFormProps {
+    serviceType: string;
+    onServiceTypeChange: (newServiceType: string) => void;
+}
+
 export type XAIStatusType = {
     isRunning: boolean | null;
     lastBuildAt: number | null;
@@ -61,4 +66,23 @@ export interface RetrainStatus {
         lastRetrainId: string;
         isRunning: boolean;
     };
+}
+
+export interface ComparisonState {
+    models: ModelListType | null;
+    dataStatsLeft: any[];
+    dataStatsRight: any[];
+    dataBuildConfigLeft: object;
+    dataBuildConfigRight: object;
+    selectedModelLeft: string | null;
+    selectedModelRight: string | null;
+    cmConfigLeft: object | null;
+    cmConfigRight: object | null;
+    selectedOption: any | null;
+    selectedCriteria: any | null;
+    predictions?: any[];
+    stats: any[] | null;
+    cutoffProb: number;
+    confusionMatrix?: any;
+    classificationData?: any;
 }
