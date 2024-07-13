@@ -2,41 +2,41 @@ import React, {useEffect, useState} from 'react';
 import {TableSection} from "./Tables/TableSection";
 
 interface ConfusionMatrixProps {
-  cmConfigRight : {
-    data: any
-  }
-  cmConfigLeft : {
-    data: any
-  }
+    cmConfigRight: {
+        data: any
+    }
+    cmConfigLeft: {
+        data: any
+    }
 }
 
-const ConfusionMatrix: React.FC<ConfusionMatrixProps> = ({ cmConfigLeft, cmConfigRight }) => {
+const ConfusionMatrix: React.FC<ConfusionMatrixProps> = ({cmConfigLeft, cmConfigRight}) => {
 
 
     const [matrixLeft, setMatrixLeft] = useState<any>({});
     const [matrixRight, setMatrixRight] = useState<any>({});
 
 
-   useEffect(() => {
-    const buildMatrix = (data: any[]) => {
-        const matrix: any = {};
-        data.forEach(item => {
-            if (!matrix[item.actual]) {
-                matrix[item.actual] = {};
-            }
-            matrix[item.actual][item.predicted] = `${item.count} (${item.percentage})`;
-        });
-        return matrix;
-    };
+    useEffect(() => {
+        const buildMatrix = (data: any[]) => {
+            const matrix: any = {};
+            data.forEach(item => {
+                if (!matrix[item.actual]) {
+                    matrix[item.actual] = {};
+                }
+                matrix[item.actual][item.predicted] = `${item.count} (${item.percentage})`;
+            });
+            return matrix;
+        };
 
-    if (cmConfigRight && cmConfigRight.data && Array.isArray(cmConfigRight.data)) {
-        setMatrixRight(buildMatrix(cmConfigRight.data));
-    }
+        if (cmConfigRight && cmConfigRight.data && Array.isArray(cmConfigRight.data)) {
+            setMatrixRight(buildMatrix(cmConfigRight.data));
+        }
 
-    if (cmConfigLeft && cmConfigLeft.data && Array.isArray(cmConfigLeft.data)) {
-        setMatrixLeft(buildMatrix(cmConfigLeft.data));
-    }
-}, [cmConfigLeft, cmConfigRight]);
+        if (cmConfigLeft && cmConfigLeft.data && Array.isArray(cmConfigLeft.data)) {
+            setMatrixLeft(buildMatrix(cmConfigLeft.data));
+        }
+    }, [cmConfigLeft, cmConfigRight]);
 
     // cmConfigRight && cmConfigRight.data && Array.isArray(cmConfigRight.data) && cmConfigRight.data.forEach((item: any) => {
     //     if (!matrixRight[item.actual]) {
@@ -65,7 +65,7 @@ const ConfusionMatrix: React.FC<ConfusionMatrixProps> = ({ cmConfigLeft, cmConfi
             <div className="col">
                 <TableSection
                     title={"Confusion Matrix"}
-                    columns={columnLeft} >
+                    columns={columnLeft}>
                     {categoriesLeft.map((actual) => (
                         <tr key={actual}>
                             <td>{actual}</td>
@@ -78,15 +78,15 @@ const ConfusionMatrix: React.FC<ConfusionMatrixProps> = ({ cmConfigLeft, cmConfi
 
             </div>
             <div className="col">
-                     <TableSection
-                        title={"Confusion Matrix"}
-                        columns={columnRight} >
-                        {categoriesRight.map((actual) => (
-                            <tr key={actual}>
-                                <td>{actual}</td>
-                                {categoriesRight.map((predicted) => (
-                                    <td key={predicted}>{matrixRight[actual][predicted] || '0 (0.00%)'}</td>
-                                ))}
+                <TableSection
+                    title={"Confusion Matrix"}
+                    columns={columnRight}>
+                    {categoriesRight.map((actual) => (
+                        <tr key={actual}>
+                            <td>{actual}</td>
+                            {categoriesRight.map((predicted) => (
+                                <td key={predicted}>{matrixRight[actual][predicted] || '0 (0.00%)'}</td>
+                            ))}
                         </tr>
                     ))}
                 </TableSection>

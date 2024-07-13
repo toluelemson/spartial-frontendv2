@@ -36,7 +36,7 @@ const LIMEAnalysis: React.FC = () => {
 
     console.log(modelId)
     const allowedValues = [1, 5, 10, 15, 20, 25, 30];
-    const { XAIStatusState, allModel } = useSpatialContext();  //TODO DETERMINE IF ALL MODEL SHOULD BE CALLED GLOBALLY
+    const { XAIStatusState } = useSpatialContext();  //TODO DETERMINE IF ALL MODEL SHOULD BE CALLED GLOBALLY
      const initialState: ILIMEParametersState = {
         sampleId: 5,
         featuresToDisplay: 10,
@@ -180,18 +180,18 @@ const LIMEAnalysis: React.FC = () => {
           <Col md={6}>
             <Form.Group controlId="modelSelect" className="mb-3">
               <Form.Label>Model *</Form.Label>
-                <Form.Select
-                      name="modelId"
-                      aria-label="Model select"
-                      className="mb-3"
-                      onChange={handleInputChange}
-                      value={state.modelId}
-                    >
-                     <option value="" disabled selected={!!state.modelId}>Select a model</option>
-                      {allModel && allModel.map(m => (
-                        <option key={m.modelId} value={m.modelId}>{m.modelId}</option>
-                      ))}
-                    </Form.Select>
+                {/*<Form.Select*/}
+                {/*      name="modelId"*/}
+                {/*      aria-label="Model select"*/}
+                {/*      className="mb-3"*/}
+                {/*      onChange={handleInputChange}*/}
+                {/*      value={state.modelId}*/}
+                {/*    >*/}
+                {/*     <option value="" disabled selected={!!state.modelId}>Select a model</option>*/}
+                {/*      {allACModels && allACModels.map(m => (*/}
+                {/*        <option key={m.modelId} value={m.modelId}>{m.modelId}</option>*/}
+                {/*      ))}*/}
+                {/*    </Form.Select>*/}
             </Form.Group>
 
             <Form.Group controlId="featuresToMask" className="mb-3">
