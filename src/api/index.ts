@@ -331,7 +331,20 @@ export const requestMedicalModels = async (): Promise<MedicalModel[]> => {
     return response.map(transformMedicalModel);
   };
   
-
+export const deleteMedicalModel = async (modelId: string) => {
+    const url = `/model/${modelId}`;
+    console.log(`Making DELETE request to ${url}`);
+    try {
+        const response = await makeApiRequest<{ result: string }>(url, 'delete');
+        if (response) {
+            console.log(`Response from DELETE request: ${response.result}`);
+        } else {
+            console.error('Failed to delete the model');
+        }
+    } catch (error) {
+        console.error('Error during API request:', error);
+    }
+};
 export const demoMIEmergency = async (limit: number) => {
     return await makeApiRequest<any>(`/emergency_detection/mi_detection/emergency_data?limit=${limit}`);
 }

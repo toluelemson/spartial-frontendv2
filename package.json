@@ -37,6 +37,7 @@
     "tailwind-merge": "^2.0.0",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^4.9.5",
+    "victory": "^37.0.2",
     "victory-chart": "^37.0.2",
     "web-vitals": "^2.1.4"
   },

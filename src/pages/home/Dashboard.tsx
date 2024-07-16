@@ -1,87 +1,72 @@
 import React from "react";
-import { Link, To } from "react-router-dom";
-import { Button } from "react-bootstrap";
+// import { Link, To } from "react-router-dom";
+// import { Button } from "react-bootstrap";
+import "./Dashboard.css"; // Importing the CSS file
 
-const allModelsPath = "/models/all";
-const medicalHomepage = "/medicalHomepage";
+// const allModelsPath = "/models/all";
+// const medicalHomepage = "/medicalHomepage";
 
 const Dashboard: React.FC = () => {
   return (
     <>
-      <div className="container my-4">
-        <h1>Spatial Services</h1>
-        <br />
-        <div className="row">
-          {/* Card for XAI   */}
-          <div className="col-md-6 col-lg-4 mb-4">
-            <div className="card">
-              <div className="card-body text-black">
-                <h3>XAI</h3>
-                <div className="card-text">
-                  <p>
-                    XAI is a field of artificial intelligence (AI) that focuses
-                    on making AI systems more transparent and understandable to
-                    humans. AI models, particularly deep learning models, can be
-                    highly complex and difficult to interpret.
-                  </p>
-                  <Button variant="primary">
-                    <Link
-                      to={allModelsPath}
-                      className="nav-link text-lightblue fs-5"
-                    >
-                      XAI
-                    </Link>
-                  </Button>
-                </div>
+      <div className="dashboard-container">
+        <div className="background-wrapper">
+          <img
+            decoding="async"
+            className="background-image"
+            src="/Banner.jpg"
+            alt="Background"
+          />
+          <div className="overlay d-flex align-items-center">
+            <div className="text-container text-start text-white p-5">
+              <div className="heading-wrapper mb-4">
+                <img
+                  decoding="async"
+                  className="spatial-image"
+                  src="/Spatial_Logo.png"
+                  alt="spatial"
+                  height={120}
+                />
                 <br />
+                <br />
+                <h1 className="h4" style={{ color: "#009999" }}>
+                  <span>
+                    Achieving trustworthy, transparent and explainable AI
+                  </span>
+                  <br />
+                  <span>for cybersecurity solutions</span>
+                </h1>
+              </div>{" "}
+              <br />
+              <div className="card-container ">
+                <p className="h2">
+                  <span>
+                    <b>PRIVACY.</b>
+                  </span>
+                  <br />
+                  <span>
+                    {" "}
+                    <b>ACCOUNTABILITY.</b>
+                  </span>
+                  <br />
+                  <span>
+                    {" "}
+                    <b>RESILIENCE.</b>
+                  </span>
+                </p>
               </div>
-            </div>
-          </div>
-
-          {/* Card for Fairness   */}
-          <div className="col-md-6 col-lg-4 mb-4">
-            <div className="card">
-              <div className="card-body text-black">
-                <h3>Fairness</h3>
-                <div className="card-text">
-                  <p>
-                    Fairness in AI refers to the ethical principle that AI
-                    systems should treat all individuals or groups fairly and
-                    without bias. AI systems can inadvertently perpetuate or
-                    even exacerbate existing biases and inequalities present in
-                    society.
-                  </p>
-                  <Button variant="primary">
-                    <Link
-                      to={allModelsPath}
-                      className="nav-link text-lightblue fs-5"
-                    >
-                      Fairness
-                    </Link>
-                  </Button>
-                </div>
-                <br />
-              </div>
-            </div>
-          </div>
-
-          {/* Card for Medical Analysis   */}
-          <div className="col-md-6 col-lg-4 mb-4">
-            <div className="card">
-              <div className="card-body text-black">
-                <h3>Medical Analysis</h3>
-                <div className="card-text">
-                  <p>Fokus</p>
-                  <Button variant="primary">
-                    <Link
-                      to={medicalHomepage}
-                      className="nav-link text-lightblue fs-5"
-                    >
-                      Medical Analysis
-                    </Link>
-                  </Button>
-                </div>
-                <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <br />
+              <div className="card-container">
+                <img
+                  decoding="async"
+                  className="funded"
+                  src="/Funded.png"
+                  alt="funded"
+                />
               </div>
             </div>
           </div>
