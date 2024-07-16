@@ -56,6 +56,8 @@ const EnhancedX: React.FC = () => {
       <Link to={fairnessHomepage} className="nav-link text-lightblue fs-5">
         Enhanced Interpretability Service
       </Link>
+      <p>Insert an ECG Image to enhance the interpretability. </p>
+
       <br />
       {error && <div className="alert alert-danger">{error}</div>}
       <FileUpload
