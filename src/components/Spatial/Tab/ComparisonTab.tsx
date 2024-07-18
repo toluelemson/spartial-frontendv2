@@ -1,9 +1,9 @@
 import React from 'react';
-import ModelSelection from "../Models/Comparison/ModelSelection";
-import CriteriaSelection from "../Models/Comparison/SelectionCriteria";
-import ModelRow from "../Models/Details/ModelRow";
-import {CRITERIA_LIST} from '../../constants';
-import {ComparisonState, TODO} from '../../types/types';
+import ModelSelection from "../../Models/Comparison/ModelSelection";
+import CriteriaSelection from "../../Models/Comparison/SelectionCriteria";
+import ModelRow from "../../Models/Details/ModelRow";
+import {CRITERIA_LIST} from '../../../constants';
+import {ComparisonState, TODO} from '../../../types/types';
 
 interface ComparisonTabsProps {
     filteredModels: TODO;

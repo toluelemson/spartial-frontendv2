@@ -1,8 +1,8 @@
 import React from 'react';
 import {Tab, TabPane, Tabs} from 'react-bootstrap';
-import ECGAnalysis from '../Services/medical/MedDashboard/ECGAnalysis';
-import ModelExplanation from '../Services/medical/MedDashboard/ModelExplanation';
-import {ILIMEParametersState} from '../../types/LimeTypes';
+import ECGAnalysis from '../../Services/medical/MedDashboard/ECGAnalysis';
+import ModelExplanation from '../../Services/medical/MedDashboard/ModelExplanation';
+import {ILIMEParametersState} from '../../../types/LimeTypes';
 
 interface MedicalTabsProps {
     state: ILIMEParametersState;

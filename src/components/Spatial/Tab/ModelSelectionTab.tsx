@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form } from 'react-bootstrap';
-import { TODO } from '../../types/types';
+import { TODO } from '../../../types/types';
 
 interface ModelSelectionProps {
     models: TODO;

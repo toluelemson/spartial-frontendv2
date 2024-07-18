@@ -1,13 +1,13 @@
 import React, { useState} from 'react';
 import {Tab, Tabs} from 'react-bootstrap';
-import SHAPTab from '../XAI/SHAPTab';
+import SHAPTab from '../../XAI/SHAPTab';
 import {useParams} from "react-router";
-import AdversarialTab from '../AdversarialML/AdversarialML';
-import {ILIMEParametersState} from '../../types/LimeTypes';
-import {LIMETab} from '../XAI/LimeTab';
-import {ModelListType} from '../../types/types';
-import {getLabelsListAppXAI} from '../util/utility';
-import {useSpatialContext} from '../../context/context';
+import AdversarialTab from '../../AdversarialML/AdversarialML';
+import {ILIMEParametersState} from '../../../types/LimeTypes';
+import {LIMETab} from '../../XAI/LimeTab';
+import {ModelListType, TODO} from '../../../types/types';
+import {getLabelsListAppXAI} from '../../util/utility';
+import {useSpatialContext} from '../../../context/context';
 
 
 // interface NetworkTrafficTabsProps {
@@ -15,45 +15,28 @@ import {useSpatialContext} from '../../context/context';
 //     setState: React.Dispatch<React.SetStateAction<ILIMEParametersState>>;
 //     comparisonState: ComparisonState;
 // }
+//
+//
+// interface ComparisonState {
+//     models: ModelListType | null;
+//     dataStatsLeft: any[];
+//     dataStatsRight: any[];
+//     dataBuildConfigLeft: object;
+//     dataBuildConfigRight: object;
+//     selectedModelLeft: string | null;
+//     selectedModelRight: string | null;
+//     cmConfigLeft: object | null;
+//     cmConfigRight: object | null;
+//     selectedOption: any | null;
+//     selectedCriteria: any | null;
+//     predictions?: any[];
+//     stats: any[] | null;
+//     cutoffProb: number;
+//     confusionMatrix?: any;
+//     classificationData?: any;
+// }
 
-const initialComparisonState: ComparisonState = {
-    models: [],
-    dataStatsLeft: [],
-    dataStatsRight: [],
-    dataBuildConfigLeft: {},
-    dataBuildConfigRight: {},
-    selectedModelLeft: null,
-    selectedModelRight: null,
-    confusionMatrix: null,
-    cmConfigLeft: null,
-    cmConfigRight: null,
-    selectedOption: null,
-    selectedCriteria: null,
-    cutoffProb: 0.5,
-    stats: null,
-};
-
-
-interface ComparisonState {
-    models: ModelListType | null;
-    dataStatsLeft: any[];
-    dataStatsRight: any[];
-    dataBuildConfigLeft: object;
-    dataBuildConfigRight: object;
-    selectedModelLeft: string | null;
-    selectedModelRight: string | null;
-    cmConfigLeft: object | null;
-    cmConfigRight: object | null;
-    selectedOption: any | null;
-    selectedCriteria: any | null;
-    predictions?: any[];
-    stats: any[] | null;
-    cutoffProb: number;
-    confusionMatrix?: any;
-    classificationData?: any;
-}
-
-const NetworkTrafficTab: React.FC<any> = ({comparisonState}) => {
+const NetworkTrafficTab: React.FC<TODO> = ({comparisonState}) => {
 
 
     const {XAIStatusState, allACModels} = useSpatialContext();

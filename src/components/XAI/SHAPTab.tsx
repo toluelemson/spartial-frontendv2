@@ -1,7 +1,7 @@
 import React, {FormEvent, useEffect, useState} from 'react';
 import {Container, Row, Col, Form, Button, InputGroup, Table, Card, Spinner} from 'react-bootstrap';
 import {LIMETabProps} from '../../types/LimeTypes';
-import {fetchSHAPValues, requestRunShap} from "../../api";
+import {fetchSHAPValues} from "../../api";
 import FeatureImportanceBarChart from "../Plots/FeatureImportanceBarChart";
 import useFetchModelDataset from "../Datasets/useFetchDataset";
 import {monitorStatus} from '../util/XAIUtility';
@@ -100,18 +100,12 @@ const ShapTab: React.FC<LIMETabProps> = ({state, updateState}) => {
             [`Max Display`, newState.maxDisplay]
         ];
         const modelDetailsCSV = createCSVContent('Model Details:', [], modelDetails);
-
-        // Separator
         const separator = [[''], ['---'], ['']];
-
-        // Selected Features
         const selectedFeaturesCSV = createCSVContent(
             'Masked Features:',
             ['count', 'Features'],
             selectedFeatures.map((feature, index) => [index.toString(), feature])
         );
-
-        // LIME Values
         const shapValuesCSV = createCSVContent(
             'SHAP Values:',
             ['Feature', 'Importance Value'],
