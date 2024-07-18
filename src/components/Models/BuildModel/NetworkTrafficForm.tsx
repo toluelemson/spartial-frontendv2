@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Button, Form, InputGroup, Spinner } from "react-bootstrap";
-import { FEATURE_OPTIONS, AI_MODEL_TYPES } from "../../../constants";
-import { useSpatialContext } from "../../../context/context";
-import { requestBuildACModel } from "../../../api";
+import React, {useEffect, useMemo, useState} from "react";
+import {useNavigate} from "react-router-dom";
+import {Button, Form, InputGroup, Spinner} from "react-bootstrap";
+import {FEATURE_OPTIONS, AI_MODEL_TYPES} from "../../../constants";
+import {useSpatialContext} from "../../../context/context";
+import {requestBuildACModel} from "../../../api";
 import CheckBuildStatusUtil from "../../util/CheckBuildStatusUtil";
-import { ServiceFormProps } from "../../../types/types";
+import {ServiceFormProps} from "../../../types/types";
 
 interface FormState {
     modelType: string;
@@ -14,8 +15,12 @@ interface FormState {
 }
 
 const NetworkTrafficForm: React.FC<ServiceFormProps> = () => {
-    const { acDataset } = useSpatialContext();
-    const { updateBuildStatus, isRunning } = CheckBuildStatusUtil(() => {});
+    const {acDataset} = useSpatialContext();
+    const navigate = useNavigate();
+    const onSuccess = (buildId: string | number) => {
+        navigate(`/spatial/dashboard/${buildId}`);
+    };
+    const {updateBuildStatus, isRunning} = CheckBuildStatusUtil(onSuccess);
     const initialFormData: FormState = useMemo(() => ({
         modelType: '',
         featureList: 'Raw Features',
@@ -75,8 +80,8 @@ const NetworkTrafficForm: React.FC<ServiceFormProps> = () => {
     const handleInputChange = (
         event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
     ) => {
-        const { name, value } = event.target;
-        setFormData(prevFormData => ({ ...prevFormData, [name]: value }));
+        const {name, value} = event.target;
+        setFormData(prevFormData => ({...prevFormData, [name]: value}));
     };
 
     const handleBuildACModelSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -86,7 +91,7 @@ const NetworkTrafficForm: React.FC<ServiceFormProps> = () => {
             return;
         }
 
-        const { modelType, featureList, dataSet, trainingRatio } = formData;
+        const {modelType, featureList, dataSet, trainingRatio} = formData;
 
         setIsBuilding(true);
         try {
@@ -138,7 +143,8 @@ const NetworkTrafficForm: React.FC<ServiceFormProps> = () => {
             <Button variant="primary mt-3" type="submit" disabled={!isFormValid || isBuilding || isRunning}>
                 {(isBuilding || isRunning) ? (
                     <>
-                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true" className="me-2" />
+                        <Spinner as="span" animation="border" size="sm" role="status" aria-hidden="true"
+                                 className="me-2"/>
                         {(isBuilding ? "Building..." : "Building Model...")}
                     </>
                 ) : (

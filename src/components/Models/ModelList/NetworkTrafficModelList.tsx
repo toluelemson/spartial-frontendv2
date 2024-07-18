@@ -1,11 +1,11 @@
-import React, {FC, useCallback, useMemo, useRef, useState} from 'react';
+import React, {FC, useCallback, useEffect, useRef, useState} from 'react';
 import {Button, Dropdown, DropdownButton, Modal, Pagination, Table} from 'react-bootstrap';
-import {ModelData} from '../../../types/types';
+import {ModelData, ModelListType} from '../../../types/types';
 import {ConvertTimeStamp} from '../../util/utility';
 import {useNavigate} from "react-router-dom";
 import ActionButton from '../../util/ActionButton';
 import {BsCamera, BsDownload, BsEye, BsPencil, BsSave2, BsTrash} from 'react-icons/bs';
-import {deleteModel, requestDownloadDatasets, requestDownloadModel} from '../../../api';
+import {deleteModel, requestAllModels, requestDownloadDatasets, requestDownloadModel} from '../../../api';
 import {CopyIcon} from '@radix-ui/react-icons';
 import useModelAPI from '../ModelAPI';
 
@@ -16,6 +16,7 @@ interface ModelListProps {
 const NetworkTrafficModelList: FC<ModelListProps> = () => {
     const navigate = useNavigate();
     const {models, loading, error} = useModelAPI();
+    const [modelList, setModelList] = useState<ModelListType | null>(null);
     const [showModal, setShowModal] = useState(false);
     const [selectedModel, setSelectedModel] = useState<ModelData | null>(null);
     const [editableModelId, setEditableModelId] = useState<string | null>(null);
@@ -23,11 +24,6 @@ const NetworkTrafficModelList: FC<ModelListProps> = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [modelToDelete, setModelToDelete] = useState<string | null>(null);
     const editableDivRefs = useRef<{ [key: string]: HTMLDivElement }>({});
-
-    const openModal = useCallback((model: ModelData) => {
-        setSelectedModel(model);
-        setShowModal(true);
-    }, []);
 
     const toggleEdit = (modelId: string) => {
         const isCurrentModelEditable = editableModelId === modelId;
@@ -39,7 +35,24 @@ const NetworkTrafficModelList: FC<ModelListProps> = () => {
         }, 0);
     };
 
+    useEffect(() => {
+        const fetchModels = async () => {
+            const updatedModels = await requestAllModels();
+            setModelList(updatedModels);
+        };
+        fetchModels();
+    }, []);
+
+    const handleButtonNavigate = (targetPath: string) => navigate(targetPath);
+
+    const handleNavigation = (url: string) => navigate(url);
+
     const handleDivInput = (e: React.FormEvent<HTMLDivElement>) => setNewModelId(e.currentTarget.textContent || "");
+
+    const openModal = useCallback((model: ModelData) => {
+        setSelectedModel(model);
+        setShowModal(true);
+    }, []);
 
     const handleDownload = (modelId: string) => requestDownloadModel(modelId).catch(console.log);
 
@@ -64,19 +77,20 @@ const NetworkTrafficModelList: FC<ModelListProps> = () => {
     };
 
     const confirmDeleteModel = async () => {
-        console.log(modelToDelete);
         if (modelToDelete) {
-            await deleteModel(modelToDelete);
-            setModelToDelete(null);
-            setShowDeleteModal(false);
+            try {
+                await deleteModel(modelToDelete);
+                setModelToDelete(null);
+                setShowDeleteModal(false);
+                const updatedModels = await requestAllModels();
+                setModelList(updatedModels);
+            } catch (error) {
+                console.error("Error deleting model:", error);
+            }
         }
     };
 
     const handleCloseModal = () => setShowModal(false);
-
-    const handleButtonNavigate = (targetPath: string) => navigate(targetPath);
-
-    const handleNavigation = (url: string) => navigate(url);
 
     if (loading) {
         return <div>Loading...</div>;
@@ -213,13 +227,11 @@ const NetworkTrafficModelList: FC<ModelListProps> = () => {
                 ))}
                 </tbody>
             </Table>
-
             <Pagination>
                 <Pagination.Prev/>
                 <Pagination.Item active>{1}</Pagination.Item>
                 <Pagination.Next/>
             </Pagination>
-
             <Modal show={showModal} onHide={handleCloseModal}>
                 <Modal.Header closeButton>
                     <Modal.Title>Build config for {selectedModel?.modelId}</Modal.Title>
