@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { getLabelsListAppXAI } from "../../util/utility";
-import { requestMedicalModels } from "../../../api";
+import { requestWithSecureModels } from "../../../api";
 import { ILIMEParametersState } from "../../../types/LimeTypes";
-import MedicalTab from "../Tab/MedicalTab";
+import WithSecureTab from "../Tab/WithSecureTab";
 import { useRoleContext } from "../../RoleProvider/RoleContext";
 import { Col, Container, Form, Row, Tab, Tabs } from "react-bootstrap";
 import ModelSelection from "../../Models/Comparison/ModelSelection";
@@ -44,19 +44,21 @@ const initialComparisonState: ComparisonState = {
   cutoffProb: 0.5,
   stats: null,
 };
-const MedicalDashboard: React.FC = () => {
+
+const WithSecureDashboard: React.FC = () => {
   const { setCurrentService } = useRoleContext();
   const { modelId: routeModelId } = useParams();
   const [comparisonState, setComparisonState] = useState<ComparisonState>(
     initialComparisonState
   );
+
   const [state, setState] = useState<ILIMEParametersState>({
     modelId: routeModelId || "",
     sampleId: 5,
     featuresToDisplay: 5,
     positiveChecked: true,
     negativeChecked: true,
-    label: getLabelsListAppXAI("ma")[1],
+    label: getLabelsListAppXAI("ws")[1],
     numberSamples: 10,
     maxDisplay: 15,
     maskedFeatures: [],
@@ -68,7 +70,7 @@ const MedicalDashboard: React.FC = () => {
     predictions: null,
   });
   useEffect(() => {
-    setCurrentService("Medical");
+    setCurrentService("WithSecure");
   }, [setCurrentService]);
 
   const [analyzeData, setAnalyzeData] = useState<{
@@ -84,8 +86,7 @@ const MedicalDashboard: React.FC = () => {
   useEffect(() => {
     const fetchMedicalModels = async () => {
       try {
-        const res = await requestMedicalModels();
-        console.log(res);
+        const res = await requestWithSecureModels();
       } catch (error) {
         console.error(error);
       }
@@ -127,7 +128,7 @@ const MedicalDashboard: React.FC = () => {
 
   return (
     <Container className="mt-5">
-      <h2>Medical Dashboard</h2>
+      <h2>WithSecure Dashboard</h2>
       <Form>
         <Row>
           <Col md={12}>
@@ -145,10 +146,9 @@ const MedicalDashboard: React.FC = () => {
           </Col>
         </Row>
       </Form>
-
-      <MedicalTab state={state} setAnalyzeData={setAnalyzeData} />
+      <WithSecureTab state={state} setAnalyzeData={setAnalyzeData} />
     </Container>
   );
 };
 
-export default MedicalDashboard;
+export default WithSecureDashboard;

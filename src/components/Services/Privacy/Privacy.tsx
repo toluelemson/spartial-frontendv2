@@ -3,7 +3,7 @@ import { differentialPrivacy } from "../../../api";
 import { Card, Row, Col } from "react-bootstrap";
 import { Link, To } from "react-router-dom";
 
-const fairnessHomepage = "/xai/service/privacy";
+const privacyHomepage = "/xai/service/privacy";
 
 interface PrivacyMicroservicesFormProps {}
 
@@ -98,7 +98,7 @@ const PrivacyMicroservicesForm: React.FC<
   return (
     <div className="container mt-5">
       {/* <h2 className="mb-4">Differential Privacy Service</h2> */}
-      <Link to={fairnessHomepage} className="nav-link text-lightblue fs-5">
+      <Link to={privacyHomepage} className="nav-link text-lightblue fs-5">
         Differential Privacy Service
       </Link>
       <p>
