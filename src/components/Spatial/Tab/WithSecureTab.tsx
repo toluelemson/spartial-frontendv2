@@ -4,7 +4,7 @@ import ECGAnalysis from "../../Services/medical/MedDashboard/ECGAnalysis";
 import ModelExplanation from "../../Services/medical/MedDashboard/ModelExplanation";
 import { ILIMEParametersState } from "../../../types/LimeTypes";
 
-interface MedicalTabsProps {
+interface WithSecureTabsProps {
   state: ILIMEParametersState;
   setAnalyzeData: React.Dispatch<
     React.SetStateAction<{
@@ -15,27 +15,20 @@ interface MedicalTabsProps {
   >;
 }
 
-const MedicalTab: React.FC<MedicalTabsProps> = ({ state, setAnalyzeData }) => {
+const WithSecureTab: React.FC<WithSecureTabsProps> = ({
+  state,
+  setAnalyzeData,
+}) => {
   return (
     <Tabs>
-      <Tab eventKey="tab2" title={"Configure Medical Service"}>
+      <Tab eventKey="tab2" title={"Configure WithSecure Service"}>
         <div className="d-flex">
           <Tabs defaultActiveKey="subtab5" className="flex-column">
-            <Tab eventKey="subtab5" title="Insert ECG">
-              <div className="side-content px-3">
-                <ECGAnalysis
-                  modelId={state.modelId || ""}
-                  setAnalyzeData={setAnalyzeData}
-                />
-              </div>
+            <Tab eventKey="subtab5" title="MalDoc Attacks">
+              <div className="side-content px-3">TO DO</div>
             </Tab>
-            <Tab eventKey="subtab6" title="Model Explanation">
-              <div className="side-content px-3">
-                <ModelExplanation
-                  modelId={state.modelId || ""}
-                  setAnalyzeData={setAnalyzeData}
-                />{" "}
-              </div>
+            <Tab eventKey="subtab6" title="DI-APK Attacks">
+              <div className="side-content px-3">TO DO</div>
             </Tab>
           </Tabs>
         </div>
@@ -44,4 +37,4 @@ const MedicalTab: React.FC<MedicalTabsProps> = ({ state, setAnalyzeData }) => {
   );
 };
 
-export default MedicalTab;
+export default WithSecureTab;

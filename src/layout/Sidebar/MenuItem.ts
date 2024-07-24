@@ -17,22 +17,29 @@ export function useMenuData() {
                     title: 'Build Model',
                     icon: 'bi bi-hammer',
                     path: '/build/ac',
-                    secure: false,
+                    secure: true,
                 },
                 {
                     id: 12,
                     title: 'Model List',
                     icon: 'bi bi-collection',
                     path: '/models/all',
-                    secure: false,
+                    secure: true,
                 },
                 {
                     id: 13,
                     title: 'Compare',
                     icon: 'bi bi-arrow-left-right',
                     path: '/xai/models/comparison',
-                    secure: false,
-                }
+                    secure: true,
+                },
+                {
+                    id: 14,
+                    title: 'Add Data',
+                    icon: 'bi bi-database-add',
+                    path: '/data/all',
+                    secure: true,
+                },
             ]
         },
         { id: 2, title: 'Spatial', icon: 'bi bi-file-earmark-bar-graph', path: '/models/all', secure: true,

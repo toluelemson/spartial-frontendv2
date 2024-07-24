@@ -34,6 +34,10 @@ const FairnessTable: React.FC<{ fairnessSummary: FairnessSummary }> = ({
   const [showHeaders, setShowHeaders] = useState(false);
   const { setCurrentService } = useRoleContext();
   const { roles, userRole } = useRoleContext();
+  useEffect(() => {
+    setCurrentService("Fairness");
+  }, [setCurrentService]);
+  console.log(setCurrentService);
 
   console.log(fairnessSummary);
 
@@ -45,10 +49,6 @@ const FairnessTable: React.FC<{ fairnessSummary: FairnessSummary }> = ({
     }
   });
   console.log(descriptions);
-
-  useEffect(() => {
-    setCurrentService("Fairness");
-  }, [setCurrentService]);
 
   // Check if fairnessSummary is available before rendering the chart
   const showChart = fairnessSummary && Object.keys(fairnessSummary).length > 0;
