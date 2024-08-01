@@ -86,3 +86,12 @@ export interface ComparisonState {
     confusionMatrix?: any;
     classificationData?: any;
 }
+
+export type DataItem = {
+    id: string;
+    name: string;
+    digest: string;
+    mime_type: string;
+    classname: string;
+    extension: string;
+};

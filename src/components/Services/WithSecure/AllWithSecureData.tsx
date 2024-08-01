@@ -13,17 +13,10 @@ import {
 } from "react-bootstrap";
 import { requestWithSecureData, PostWithSecureData } from "../../../api";
 import "./AllWithSecureData.css";
+import { DataItem } from "../../../types/types";
 
 const withsecureHomepage = "/data/all";
 
-type DataItem = {
-  id: string;
-  name: string;
-  digest: string;
-  mime_type: string;
-  classname: string;
-  extension: string;
-};
 
 const AllWithSecureData: React.FC = () => {
   const [formData, setFormData] = useState({

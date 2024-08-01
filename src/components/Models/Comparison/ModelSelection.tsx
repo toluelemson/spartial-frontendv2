@@ -17,25 +17,29 @@ const ModelSelection: React.FC<ModelSelectionProps> = ({
                                                            isFieldDisabled
                                                        }) => {
 
+    console.log(selectedModel, models)
+
     const isLeft = label === "Model 1"
     return (
-        <><h4>{label}</h4>
+        <>
+            <h4>{label}</h4>
             <select
                 className="form-select"
                 aria-label={`Select ${label}`}
                 onChange={(e) => {
-                    console.log(e.target.value)
-                    handleModelSelection(e.target.value, isLeft)
+                    console.log(e.target.value);
+                    handleModelSelection(e.target.value, isLeft);
                 }}
                 disabled={isFieldDisabled}
                 value={selectedModel || ''}>
-                <option value="">Select a Model</option>
+                <option value="">{selectedModel ? selectedModel : `Select ${label}`}</option>
                 {models && models.map((model) => (
                     <option key={model.modelId} value={model.modelId.toString()}>
                         {model.modelId}
                     </option>
                 ))}
-            </select></>
+            </select>
+        </>
     );
 };
 

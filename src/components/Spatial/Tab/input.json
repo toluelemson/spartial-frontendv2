@@ -1,0 +1,35 @@
+{
+  "model": {
+    "id": "0cbbaac5-4161-42c0-b79a-d22e60e85555"
+  },
+  "data": "0b528da3-d61f-4b95-8e60-c45a7ed1d4d6",
+  "constraints": {
+    "clip_min": 0,
+    "clip_max": 10
+  },
+  "random_seed": 42,
+  "num_examples": 2,
+  "attacks": [
+    {
+      "classname": "zoo",
+      "params": {
+        "targeted": false,
+        "confidence": 0.01,
+        "learning_rate": 150,
+        "max_iter": 30,
+        "binary_search_steps": 10,
+        "initial_const": 0.01,
+        "abort_early": false,
+        "use_resize": false,
+        "use_importance": false,
+        "nb_parallel": 100,
+        "variable_h": 55,
+        "verbose": true,
+        "norm": 2
+      },
+      "metrics_collector_kwargs": {
+        "measure_every": 50
+      }
+    }
+  ]
+}

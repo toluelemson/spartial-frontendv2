@@ -40,6 +40,8 @@ const WithSecureModelList: FC<WithSecureModelListProps> = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [modelToDelete, setModelToDelete] = useState<string | null>(null);
 
+
+  console.log(models)
   const handleCloseModal = () => {
     setShowModal(false);
   };
@@ -122,7 +124,7 @@ const WithSecureModelList: FC<WithSecureModelListProps> = () => {
         <thead>
           <tr>
             <th>Model Id</th>
-            <th>Built At</th>
+            {/*<th>Built At</th>*/}
             <th>Actions</th>
           </tr>
         </thead>
@@ -201,7 +203,7 @@ const WithSecureModelList: FC<WithSecureModelListProps> = () => {
                   </div>
                 </div>
               </td>
-              <td>{ConvertTimeStamp(model.lastBuildAt)}</td>
+              {/*<td>{ConvertTimeStamp(model.lastBuildAt)}</td>*/}
               {/* <td>{ConvertTimeStamp(model.lastBuildAt)}</td> */}
               {/* <td>{ConvertTimeStamp(model.lastBuildAt)}</td> */}
               <td>

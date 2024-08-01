@@ -3,11 +3,11 @@ import { useParams } from "react-router";
 import { getLabelsListAppXAI } from "../../util/utility";
 import { requestWithSecureModels } from "../../../api";
 import { ILIMEParametersState } from "../../../types/LimeTypes";
-import WithSecureTab from "../Tab/WithSecureTab";
 import { useRoleContext } from "../../RoleProvider/RoleContext";
 import { Col, Container, Form, Row, Tab, Tabs } from "react-bootstrap";
 import ModelSelection from "../../Models/Comparison/ModelSelection";
 import { ModelListType } from "../../../types/types";
+import WithSecureTab from "../Tab/withSecureAttack/WithSecureTab";
 
 interface ComparisonState {
   models: ModelListType | null;
@@ -48,6 +48,7 @@ const initialComparisonState: ComparisonState = {
 const WithSecureDashboard: React.FC = () => {
   const { setCurrentService } = useRoleContext();
   const { modelId: routeModelId } = useParams();
+  
   const [comparisonState, setComparisonState] = useState<ComparisonState>(
     initialComparisonState
   );
@@ -128,19 +129,18 @@ const WithSecureDashboard: React.FC = () => {
 
   return (
     <Container className="mt-5">
-      <h2>WithSecure Dashboard</h2>
       <Form>
         <Row>
           <Col md={12}>
             <Form.Group controlId="modelSelect" className="mb-3">
-              <Form.Label>Model *</Form.Label>
+              {/*<Form.Label>Model *</Form.Label>*/}
               <ModelSelection
                 models={comparisonState.models}
                 selectedModel={
                   routeModelId || comparisonState.selectedModelLeft
                 }
                 handleModelSelection={handleModelSelection}
-                label="Model 1"
+                label=""
               />
             </Form.Group>
           </Col>

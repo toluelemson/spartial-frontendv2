@@ -1,5 +1,5 @@
 import axios, {AxiosResponse} from "axios";
-import {LOCAL_URL, SERVER_URL} from "../constants";
+import {LOCAL_URL, SERVER_URL, WITHSECURE_URL} from "../constants";
 import {
     DatasetType,
     TParamType,
@@ -38,30 +38,30 @@ interface MedicalModel {
     lastBuildAt: string;
     buildConfig: {
         uploadFileName: string;
-      description: string;
-      category: string;
-      dataStructure: string;
-      dataFormat: string;
-      preprocessing: string;
+        description: string;
+        category: string;
+        dataStructure: string;
+        dataFormat: string;
+        preprocessing: string;
     };
-  }
+}
 
-  const transformMedicalModel = (model: any): MedicalModel => {
+const transformMedicalModel = (model: any): MedicalModel => {
     return {
-      modelId: `ma-${model._id}`,
-      lastBuildAt: model.created_at,   
-      buildConfig: {
-        uploadFileName: model.upload_file_name,
-        description: model.description,
-        category: model.category,
-        dataStructure: model.data_structure,
-        dataFormat: model.data_format,
-        preprocessing: model.preprocessing,
-      },
+        modelId: `ma-${model._id}`,
+        lastBuildAt: model.created_at,
+        buildConfig: {
+            uploadFileName: model.upload_file_name,
+            description: model.description,
+            category: model.category,
+            dataStructure: model.data_structure,
+            dataFormat: model.data_format,
+            preprocessing: model.preprocessing,
+        },
     };
-  };
+};
 
-  interface WithSecureModel {
+interface WithSecureModel {
     modelId: string;
     // lastBuildAt: string;
     buildConfig: {
@@ -72,22 +72,23 @@ interface MedicalModel {
         classname: string;
         extension: string;
     };
-  }
+}
 
-  const transformWithSecureModel = (model: any): WithSecureModel => {
+const transformWithSecureModel = (model: any): WithSecureModel => {
     return {
-      modelId: `ws-${model.id}`,
-    //   lastBuildAt: model.created_at,   
-      buildConfig: {
-        name: model.name,
-        version: model.version,
-        digest: model.digest,
-        content_type: model.content_type,
-        classname: model.classname,
-        extension: model.extension,
-      },
+        modelId: `ws-${model.id}`,
+        //   lastBuildAt: model.created_at,
+        buildConfig: {
+            name: model.name,
+            version: model.version,
+            digest: model.digest,
+            content_type: model.content_type,
+            classname: model.classname,
+            extension: model.extension,
+        },
     };
-  };
+};
+
 async function makeApiRequest<T>(
     url: string,
     method: 'get' | 'post' | 'put' | 'delete' = 'get',
@@ -328,23 +329,23 @@ export const differentialPrivacy = async (formData: FormState) => {
 
 export const MIEmergencyModels = async (modelFile: File) => {
     try {
-      const formData = new FormData();
-      formData.append('model_file', modelFile);
-  
-      const response = await makeApiRequest<any>(
-        '/model/',
-        'post',
-        formData,
-        'json'
-      );
-  
-      return response;
+        const formData = new FormData();
+        formData.append('model_file', modelFile);
+
+        const response = await makeApiRequest<any>(
+            '/model/',
+            'post',
+            formData,
+            'json'
+        );
+
+        return response;
     } catch (error) {
-      // Handle errors as needed
-      console.error('Error in MIEmergencyModels:', error);
-      throw error;
+        // Handle errors as needed
+        console.error('Error in MIEmergencyModels:', error);
+        throw error;
     }
-  };
+};
 
 // export const requestMedicalModel = async () => {
 //     return await makeApiRequest<any>(`/model/`);
@@ -352,11 +353,11 @@ export const MIEmergencyModels = async (modelFile: File) => {
 export const requestMedicalModels = async (): Promise<MedicalModel[]> => {
     const response = await makeApiRequest<any[]>(`/model/?limit=10000`);
     if (!response) {
-      throw new Error('Failed to fetch medical models');
+        throw new Error('Failed to fetch medical models');
     }
     return response.map(transformMedicalModel);
-  };
-  
+};
+
 export const deleteMedicalModel = async (modelId: string) => {
     const url = `/model/${modelId}`;
     console.log(`Making DELETE request to ${url}`);
@@ -454,7 +455,7 @@ export const descriptionECGClassification = async (user_role: string) => {
     return await makeApiRequest<any>(url);
 }
 
-export const MI_ModelPrediction= async (dat: string, hea: string, model_id: string) => {
+export const MI_ModelPrediction = async (dat: string, hea: string, model_id: string) => {
     try {
         const url = `/model/${model_id}/predict`;
 
@@ -474,7 +475,7 @@ export const MI_ModelPrediction= async (dat: string, hea: string, model_id: stri
         throw error;
     }
 }
-export const MI_ModelEvaluate = async ( model_id: string,dataset: string) => {
+export const MI_ModelEvaluate = async (model_id: string, dataset: string) => {
     const url = `/model/${model_id}/evaluate?dataset=${dataset}`;
     return await makeApiRequest<any>(url);
 }
@@ -546,7 +547,7 @@ export const DeepSHAP_TICK_Visualize = async (dat: string, hea: string, model_id
 //Time Importance
 export const LRP_TIME_Visualize = async (dat: string, hea: string, model_id: string, ignore_cached_relevances: string) => {
     try {
-     
+
         const url = `/medical_analysis/ecg_analysis/explain/LRP/time_importance?model_id=${model_id}&ignore_cached_relevances=${ignore_cached_relevances}`;
 
         const requestBody = {
@@ -700,7 +701,7 @@ export const visualizeECG = async (dat: string, hea: string, cut_classification_
 }
 
 
-export const MIModelExplanation = async (dat: string, hea: string, model_id: string,xai_method:string, ignore_cached_relevances: string) => {
+export const MIModelExplanation = async (dat: string, hea: string, model_id: string, xai_method: string, ignore_cached_relevances: string) => {
     try {
         const url = `/model/${model_id}/explain/${xai_method}?ignore_cached_relevances=${ignore_cached_relevances}`;
 
@@ -836,7 +837,6 @@ export const Llama_Service = async (user: string, content: string) => {
         throw error;
     }
 }
-
 
 
 // Metrics component
@@ -1119,37 +1119,39 @@ export const deleteModel = async (modelId: string) => {
 
 export const requestWithSecureModels = async (): Promise<WithSecureModel[]> => {
     const response = await makeApiRequest<any[]>(`/models`);
+    console.log(response);
     if (!response) {
-      throw new Error('Failed to fetch medical models');
+        throw new Error('Failed to fetch medical models');
     }
+
     return response.map(transformWithSecureModel);
-  };
-  
-  export const PostWithSecureModels = async (file: File, name: string, version: string, classname: string) => {
+};
+
+export const PostWithSecureModels = async (file: File, name: string, version: string, classname: string) => {
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("name", name);
-      formData.append("version", version);
-      formData.append("classname", classname);
-  
-      const response = await fetch('/models', {
-        method: 'POST',
-        body: formData,
-       
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      return await response.json();
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("name", name);
+        formData.append("version", version);
+        formData.append("classname", classname);
+
+        const response = await fetch('/models', {
+            method: 'POST',
+            body: formData,
+
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
     } catch (error) {
-      console.error('Error in PostWithSecureModels:', error);
-      throw error;
+        console.error('Error in PostWithSecureModels:', error);
+        throw error;
     }
-  };
-  
+};
+
 // export const requestWithSecureData= async () => {
 //     const response = await makeApiRequest(`/data`);
 //     return response
@@ -1161,42 +1163,72 @@ type DataItem = {
     mime_type: string;
     classname: string;
     extension: string;
-  };
-  
+};
+
 export const requestWithSecureData = async (): Promise<DataItem[]> => {
     try {
-      const response = await fetch(`/data`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data: DataItem[] = await response.json();
-      return data;
+        const response = await fetch(`/data`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: DataItem[] = await response.json();
+        return data;
     } catch (error) {
-      console.error("Error fetching data:", error);
-      throw error;
+        console.error("Error fetching data:", error);
+        throw error;
     }
-  };
+};
 
 export const PostWithSecureData = async (file: File, classname: string) => {
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("classname", classname);
-  
-      const response = await fetch('/data', {
-        method: 'POST',
-        body: formData,
-       
-      });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      return await response.json();
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("classname", classname);
+
+        const response = await fetch('/data', {
+            method: 'POST',
+            body: formData,
+
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
     } catch (error) {
-      console.error('Error in PostWithSecureData:', error);
-      throw error;
+        console.error('Error in PostWithSecureData:', error);
+        throw error;
     }
-  };
+};
+
+
+export const withSecureAttack = async (formData: any) => {
+    try {
+        console.log(formData);
+        const response = await makeApiRequest<any>(`/attacks`, "post", formData);
+        console.log(response);
+        return response
+    } catch (error) {
+        console.error('Error calling API:', error);
+    }
+}
+
+export const requestWithSecureAttackStatus = async () => {
+    try {
+        return await makeApiRequest<any[]>(`/attacks`);
+    } catch (error) {
+        console.error('Error calling API:', error);
+    }
+}
+
+export const requestWithSecureSingleAttackStatus = async (id: string) => {
+    try {
+        return await makeApiRequest<any[]>(`/attacks/${id}`);
+    } catch (error) {
+        console.error('Error calling API:', error);
+    }
+}
+
+
 
