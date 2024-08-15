@@ -208,7 +208,7 @@ const partners: Partner[] = [
     ],
   },
   {
-    name: "NEC Labs",
+    name: "NEC Labs, Germany",
     logo: "https://spatial-h2020.eu/wp-content/uploads/2021/10/NEC_logo_1-uai-516x214.png",
     employees: [
       {
@@ -218,7 +218,7 @@ const partners: Partner[] = [
         name: "Claudio Soriente",
         designation: "Principal Research Scientist",
         linkedin: "https://linkedin.com/in/claudiosoriente",
-        email: "manhdung.nguyen@montimage.com",
+        email: "claudio.soriente@neclab.eu",
       },
       // {
       //   id: "",
