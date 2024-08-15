@@ -1,0 +1,186 @@
+.about-us {
+  padding: 20px;
+  max-width: 90%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.partners-list {
+  margin-top: 20px;
+}
+
+.partner {
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.partner-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.partner-logo {
+  width: 20%;
+  height: 20%;
+  margin-bottom: 10px;
+}
+
+.partner-info {
+  flex: 1;
+}
+
+.partner h2 {
+  margin: 0;
+}
+
+.employees-list {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.employee {
+  display: flex;
+  align-items: center;
+  margin-right: 15px;
+  margin-bottom: 15px;
+}
+
+.employee-card {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 10px;
+  width: calc(33.333% - 20px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.employee-card:hover {
+  transform: translateY(-5px);
+}
+
+.employee-image {
+  /* width: 120px;
+   height: 120px; */
+  border-radius: 70%;
+   align-items: center;  
+  margin-bottom: 10px; 
+  margin-left: 10px; 
+  margin-right: 10px; 
+}
+
+.employee-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.employee-details h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.employee-details p {
+  margin: 0;
+  font-size: 14px;
+  color: #555;
+  text-align: center;
+}
+
+.t-entry-comments.t-entry-member-social .extras a {
+  margin-right: 5px;
+  color: #555;
+}
+
+.t-entry-comments.t-entry-member-social .extras a:hover {
+  color: #007bff;
+}
+
+
+.api-specifications,
+.employee-partner-table {
+  margin-top: 40px;
+  text-align: left;
+}
+
+.api-specifications h2,
+.employee-partner-table h2 {
+  margin-bottom: 20px;
+}
+
+.api-specifications table,
+.employee-partner-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+
+.api-specifications td,
+.employee-partner-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.api-specifications th,
+.employee-partner-table th{
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;}
+
+.api-specifications th,
+.employee-partner-table th {
+  background-color: #f2f2f2;
+}
+
+.api-specifications a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.api-specifications a:hover {
+  text-decoration: underline;
+}
+
+.partner-logo-small {
+  align-items: center;
+  width: 30px;
+  height: auto;
+}
+.employee-partner-table td {
+  text-align: left;
+  vertical-align: middle;
+}
+
+.employee-partner-table td img.partner-logo-small {
+  display: block;
+  width: 60px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.publications {
+  margin-top: 30px;
+}
+
+.bibtex-entry {
+  background-color: #f9f9f9;
+  padding: 15px;
+  border-left: 3px solid #ccc;
+  margin-bottom: 20px;
+}
+
+.bibtex-entry pre {
+  font-family: monospace;
+  white-space: pre-wrap; /* Handle long lines */
+  text-align: justify; 
+}

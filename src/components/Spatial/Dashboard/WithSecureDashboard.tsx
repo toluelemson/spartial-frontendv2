@@ -48,7 +48,7 @@ const initialComparisonState: ComparisonState = {
 const WithSecureDashboard: React.FC = () => {
   const { setCurrentService } = useRoleContext();
   const { modelId: routeModelId } = useParams();
-  
+
   const [comparisonState, setComparisonState] = useState<ComparisonState>(
     initialComparisonState
   );
@@ -129,11 +129,12 @@ const WithSecureDashboard: React.FC = () => {
 
   return (
     <Container className="mt-5">
+      <h2>WithSecure Dashboard</h2>
       <Form>
         <Row>
           <Col md={12}>
             <Form.Group controlId="modelSelect" className="mb-3">
-              {/*<Form.Label>Model *</Form.Label>*/}
+              <Form.Label>Model *</Form.Label>
               <ModelSelection
                 models={comparisonState.models}
                 selectedModel={

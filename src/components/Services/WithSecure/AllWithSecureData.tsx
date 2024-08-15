@@ -17,10 +17,10 @@ import { DataItem } from "../../../types/types";
 
 const withsecureHomepage = "/data/all";
 
-
 const AllWithSecureData: React.FC = () => {
   const [formData, setFormData] = useState({
-    classname: "",
+    classname: "evasion",
+    file_type: "",
     file: null as File | null,
   });
   const { setCurrentService } = useRoleContext();
@@ -88,6 +88,19 @@ const AllWithSecureData: React.FC = () => {
                 <h4 className="mb-4">Upload Data Item</h4>
                 <Form onSubmit={handleSubmit}>
                   <Form.Group className="mb-3">
+                    <Form.Label>Select File Type:</Form.Label>
+                    <Form.Control
+                      as="select"
+                      name="file_type"
+                      value={formData.file_type}
+                      onChange={handleInputChange}
+                      className="form-select"
+                    >
+                      <option value="dat">Data</option>
+                      <option value="con">Constraint</option>
+                    </Form.Control>
+                  </Form.Group>
+                  <Form.Group className="mb-3">
                     <Form.Label>Upload Data/Constraints File:</Form.Label>
                     <Form.Control
                       type="file"
@@ -95,15 +108,17 @@ const AllWithSecureData: React.FC = () => {
                       onChange={handleFileUpload}
                     />
                   </Form.Group>
+
                   <Form.Group className="mb-3">
                     <Form.Label>Class Name:</Form.Label>
                     <Form.Control
                       as="textarea"
                       name="classname"
                       placeholder="Enter Class Name"
-                      value={formData.classname}
+                      value="evasion"
                       onChange={handleInputChange}
                       rows={1}
+                      readOnly
                     />
                   </Form.Group>
                   <Button
@@ -140,7 +155,11 @@ const AllWithSecureData: React.FC = () => {
                     <tbody>
                       {dataList.map((item) => (
                         <tr key={item.id}>
-                          <td className="wrap-text">{item.id}</td>
+                          <td className="wrap-text">
+                            {formData.file_type === "dat"
+                              ? `Data-${item.id}`
+                              : item.id}
+                          </td>
                           <td className="wrap-text">{item.name}</td>
                           <td className="wrap-text">{item.digest}</td>
                           <td className="wrap-text">{item.mime_type}</td>
