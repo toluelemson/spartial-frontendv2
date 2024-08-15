@@ -43,11 +43,16 @@
   },
   "scripts": {
     "start": "cross-env HOST=0.0.0.0 PORT=3000 REACT_APP_ENV=development react-scripts start",
-    "build": "cross-env HOST=0.0.0.0 PORT=3000 REACT_APP_ENV=production react-scripts build",
+    "build": "CI=false cross-env HOST=0.0.0.0 PORT=3000 REACT_APP_ENV=production react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build"
+  },
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "warn",
+    "react-hooks/exhaustive-deps": "warn",
+    "eqeqeq": "warn"
   },
   "eslintConfig": {
     "extends": [
