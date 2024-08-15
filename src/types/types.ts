@@ -95,3 +95,47 @@ export type DataItem = {
     classname: string;
     extension: string;
 };
+
+export interface AttackParams {
+    targeted: boolean;
+    confidence: number;
+    learning_rate: number;
+    max_iter: number;
+    binary_search_steps: number;
+    initial_const: number;
+    abort_early: boolean;
+    use_resize: boolean;
+    use_importance: boolean;
+    nb_parallel: number;
+    variable_h: number;
+    verbose: boolean;
+    norm: number;
+}
+
+export interface Attack {
+    classname: string;
+    params: AttackParams;
+    metrics_collector_kwargs: {
+        measure_every: number;
+    };
+    maldoc?: boolean;
+}
+
+export interface FormDataState {
+    attackType: string;
+    experimentName: string;
+    model: object | string;
+    data: string;
+    constraints: {
+        clip_min?: number;
+        clip_max?: number;
+        df?: string;
+    };
+    random_seed: number;
+    num_examples: number;
+    attacks: Attack[];
+}
+
+export interface InputState {
+    modelId: string;
+}
