@@ -603,7 +603,6 @@ export const DeepSHAP_TIME_Visualize = async (dat: string, hea: string, model_id
         return response;
 
     } catch (error) {
-        // Handle errors as needed
         console.error('Error in DeepSHAP_TIME_Visualize:', error);
         throw error;
     }
@@ -626,7 +625,6 @@ export const LRP_LEAD_Visualize = async (dat: string, hea: string, model_id: str
         return response;
 
     } catch (error) {
-        // Handle errors as needed
         console.error('Error in LRP_LEAD_Visualize:', error);
         throw error;
     }
@@ -1207,7 +1205,6 @@ export const withSecureAttack = async (formData: any) => {
     try {
         console.log(formData);
         const response = await makeApiRequest<any>(`/attacks`, "post", formData);
-        console.log(response);
         return response
     } catch (error) {
         console.error('Error calling API:', error);

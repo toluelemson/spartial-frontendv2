@@ -203,7 +203,10 @@ const CSVComparator: React.FC = () => {
                         <h5>{fileNames[index]}</h5>
 
                         <div>
-                            {renderTable(data, index)}
+
+
+                            {/*{renderTable(data, index)}*/}
+
                             {separateObjects(data).map((tableData, innerIndex) => {
                                 console.log("tableData", tableData);
 
@@ -218,15 +221,25 @@ const CSVComparator: React.FC = () => {
                                     );
                                 }
 
-                                if (tableData[0]["Model Details:"] === "Model ID") {
+                                if (tableData[0]["Model Details:"] === "SHAP Values:") {
                                     return (
                                         <React.Fragment key={innerIndex}>
-                                            <div className={"row"}>
-                                                {renderTable(tableData, innerIndex)}
-                                            </div>
+                                            <LollipopChart data={tableData}/>
+                                            {/*{renderTable(tableData, innerIndex)}*/}
+                                            {renderTable(data, index)}
                                         </React.Fragment>
                                     );
                                 }
+
+                                // if (tableData[0]["Model Details:"] === "Model ID") {
+                                //     return (
+                                //         <React.Fragment key={innerIndex}>
+                                //             <div className={"row"}>
+                                //                 {renderTable(tableData, innerIndex)}
+                                //             </div>
+                                //         </React.Fragment>
+                                //     );
+                                // }
 
                                 if (tableData[0]["Model Details:"] === "Contribution Dict:") {
                                     return (
@@ -320,19 +333,7 @@ const CSVComparator: React.FC = () => {
                                 //     </React.Fragment>
                                 //   );
                                 // }
-                                if (tableData[0]["Model Details:"] === "Fairness:") {
-                                    const fairnessTableData = tableData.slice(1); // Exclude the header row
-                                    console.log("fairnessTableData", fairnessTableData);
 
-                                    return (
-                                        <React.Fragment key={innerIndex}>
-                                            <div className={"row"}>
-                                                {/* {renderTable(tableData, innerIndex)} */}
-                                                {renderBarcharts(tableData, index as number)}
-                                            </div>
-                                        </React.Fragment>
-                                    );
-                                }
 
                                 if (tableData[0]["Model Details:"] === "Image Values:") {
                                     console.log("tableData", tableData);
@@ -367,6 +368,20 @@ const CSVComparator: React.FC = () => {
                                                     <ImageDisplay key={idx} imageUrl={imageUrl}/>
                                                 ))}
                                                 {renderTable(tableData, innerIndex)}
+                                            </div>
+                                        </React.Fragment>
+                                    );
+                                }
+
+                                if (tableData[0]["Model Details:"] === "Fairness:") {
+                                    const fairnessTableData = tableData.slice(1); // Exclude the header row
+                                    console.log("fairnessTableData", fairnessTableData);
+
+                                    return (
+                                        <React.Fragment key={innerIndex}>
+                                            <div className={"row"}>
+                                                {/* {renderTable(tableData, innerIndex)} */}
+                                                {renderBarcharts(tableData, index as number)}
                                             </div>
                                         </React.Fragment>
                                     );
