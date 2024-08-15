@@ -33,6 +33,7 @@ import Spatial from "../components/Spatial/SpatialDashboard";
 import CompacityMetric from "../components/Services/Metrics/CompacityMetric";
 import ModelSpecific from "../components/Services/medical/ModelSpecific";
 import AllWithSecureData from "../components/Services/WithSecure/AllWithSecureData";
+import AboutUs from "../pages/home/AboutUs";
 
 interface RouteConfig {
   path: string;
@@ -76,6 +77,7 @@ const routeConfig: RouteConfig[] = [
   { path: "/Metrics/CompacityMetric", Component: CompacityMetric },
   { path: "/ModelSpecific", Component: ModelSpecific },
   { path: "/data/all", Component: AllWithSecureData },
+  { path: "/about", Component: AboutUs, isProtected: false },
 ];
 const AppRoutes: React.FC = () => (
   <Routes>

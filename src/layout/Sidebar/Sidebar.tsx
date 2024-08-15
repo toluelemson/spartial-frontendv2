@@ -46,9 +46,12 @@ const Sidebar: React.FC = () => {
       <Link
         to={(item.subItems?.length ?? 0) > 0 ? "#" : item.path}
         className="nav-link text-white fs-5 d-flex justify-content-start"
-        onClick={() =>
-          (item.subItems?.length ?? 0) > 0 && toggleSubmenu(item.id)
-        }
+        onClick={(e) => {
+          if ((item.subItems?.length ?? 0) > 0) {
+            e.preventDefault(); // Prevent default only for items with subItems
+            toggleSubmenu(item.id);
+          }
+        }}
       >
         <i className={item.icon} style={{ minWidth: "1.5em" }}></i>
         <span className="ms-3 d-none d-lg-inline">{item.title}</span>
@@ -123,15 +126,17 @@ const Sidebar: React.FC = () => {
                   </button>
                 </li>
               ) : (
-                <li className="nav-item my-1">
-                  <Link
-                    to="/login"
-                    className="nav-link text-white fs-5 d-flex align-items-center justify-content-start"
-                  >
-                    <i className="bi bi-box-arrow-in-right"></i>
-                    <span className="ms-3 d-none d-lg-inline">Login</span>
-                  </Link>
-                </li>
+                <>
+                  <li className="nav-item my-1">
+                    <Link
+                      to="/login"
+                      className="nav-link text-white fs-5 d-flex align-items-center justify-content-start"
+                    >
+                      <i className="bi bi-box-arrow-in-right"></i>
+                      <span className="ms-3 d-none d-lg-inline">Login</span>
+                    </Link>
+                  </li>
+                </>
               )}
             </ul>
           </div>

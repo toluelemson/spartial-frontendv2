@@ -139,7 +139,7 @@ const MedicalDashboard: React.FC = () => {
                   routeModelId || comparisonState.selectedModelLeft
                 }
                 handleModelSelection={handleModelSelection}
-                label="Model 1"
+                label=""
               />
             </Form.Group>
           </Col>

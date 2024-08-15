@@ -204,7 +204,7 @@ const MedicalModelList: FC<MedicalModelListProps> = () => {
               <td>{ConvertTimeStamp(model.lastBuildAt)}</td>
               {/* <td>{ConvertTimeStamp(model.lastBuildAt)}</td> */}
               {/* <td>{ConvertTimeStamp(model.lastBuildAt)}</td> */}
-              <td>
+              <td className="align-item text-center">
                 <DropdownButton
                   id="dropdown-item-button"
                   title="Select an action"

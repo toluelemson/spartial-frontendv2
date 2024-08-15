@@ -40,8 +40,7 @@ const WithSecureModelList: FC<WithSecureModelListProps> = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [modelToDelete, setModelToDelete] = useState<string | null>(null);
 
-
-  console.log(models)
+  console.log(models);
   const handleCloseModal = () => {
     setShowModal(false);
   };
@@ -186,7 +185,7 @@ const WithSecureModelList: FC<WithSecureModelListProps> = () => {
                     >
                       <CopyIcon />
                     </ActionButton>
-                    {![
+                    {/* {![
                       "ac-neuralnetwork",
                       "ac-lightgbm",
                       "ac-xgboost",
@@ -199,14 +198,14 @@ const WithSecureModelList: FC<WithSecureModelListProps> = () => {
                       >
                         <BsTrash />
                       </ActionButton>
-                    )}
+                    )} */}
                   </div>
                 </div>
               </td>
               {/*<td>{ConvertTimeStamp(model.lastBuildAt)}</td>*/}
               {/* <td>{ConvertTimeStamp(model.lastBuildAt)}</td> */}
               {/* <td>{ConvertTimeStamp(model.lastBuildAt)}</td> */}
-              <td>
+              <td className="align-item text-center">
                 <DropdownButton
                   id="dropdown-item-button"
                   title="Select an action"
