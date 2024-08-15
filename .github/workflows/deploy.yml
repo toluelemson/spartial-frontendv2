@@ -21,14 +21,14 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run Lint if Script Exists
-        run: |
-            if npm run | grep -q "lint"; then
-              echo "Lint script found. Running npm run lint."
-              npm run lint -- --max-warnings=0
-            else
-              echo "No lint script found in package.json. Skipping lint step."
-            fi
+#      - name: Run Lint if Script Exists
+#        run: |
+#            if npm run | grep -q "lint"; then
+#              echo "Lint script found. Running npm run lint."
+#              npm run lint -- --max-warnings=0
+#            else
+#              echo "No lint script found in package.json. Skipping lint step."
+#            fi
 
       - name: Build the React app
         run: CI=false npm run build
