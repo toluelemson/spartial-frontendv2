@@ -20,12 +20,17 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-#
+
 #      - name: Run ESLint
 #        run: npm run lint -- --max-warnings=0
 
       - name: Build the React app
         run: CI=false npm run build
+
+      - name: Configure Git for gh-pages
+        run: |
+          git config --global user.email "toluwanielemosho@gmail.com"
+          git config --global user.name "elemson"
 
       - name: Deploy to GitHub Pages
         run: npm run deploy
