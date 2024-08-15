@@ -21,8 +21,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-#      - name: Run ESLint
-#        run: npm run lint -- --max-warnings=0
+      - name: Run ESLint
+        run: npm run lint -- --max-warnings=0
 
       - name: Build the React app
         run: CI=false npm run build
@@ -35,4 +35,4 @@ jobs:
       - name: Deploy to GitHub Pages
         run: npm run deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CICD_TOKEN }}
