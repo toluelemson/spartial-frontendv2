@@ -21,22 +21,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      #      - name: Run Lint if Script Exists
-      #        run: |
-      #            if npm run | grep -q "lint"; then
-      #              echo "Lint script found. Running npm run lint."
-      #              npm run lint -- --max-warnings=0
-      #            else
-      #              echo "No lint script found in package.json. Skipping lint step."
-      #            fi
-
       - name: Build the React app
         run: CI=false npm run build
 
       - name: Deploy to GitHub Pages
-        run: |
-          git config user.name "elemson"
-          git config user.email "toluwanielemosho@gmail.com"
-          npx gh-pages -d build -r "https://${{ secrets.GITHUB_ACTOR }}:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+          publish_dir: ./build
