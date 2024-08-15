@@ -14,5 +14,4 @@ ENV HOST=0.0.0.0
 ENV PORT=3000
 ENV REACT_APP_ENV=development
 
-# Command to run the app
 CMD ["npm", "start"]

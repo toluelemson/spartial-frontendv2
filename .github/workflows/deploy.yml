@@ -3,7 +3,7 @@ name: Deploy React App to GitHub Pages
 on:
   push:
     branches:
-      - merging_branch  # Replace with your actual branch name
+      - merging_branch
 
 jobs:
   build:
@@ -29,10 +29,14 @@ jobs:
 
       - name: Configure Git for gh-pages
         run: |
-          git config --global user.email "toluwanielemosho@gmail.com"
-          git config --global user.name "elemson"
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          npm run deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
 
       - name: Deploy to GitHub Pages
         run: npm run deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.CICD_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
